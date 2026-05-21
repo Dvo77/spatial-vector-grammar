@@ -1,58 +1,40 @@
-# HL Exchange
+# HL Wiki Generator
 
-A barter, trade, loan, and legacy marketplace built on HL addresses.
+Generate structured wiki pages for any HL zone, vessel, or item.
 
 ## What It Does
 
-Every item in the Exchange has an HL address — a permanent, human-readable location in your physical space. The Exchange lets you:
+Takes your HL address and item data and outputs a formatted wiki page
+ready to paste into Wiki.js, Obsidian, Notion, or any markdown system.
 
-- **Brag** — show off your prize possessions with provenance and story
-- **Trade** — offer items for swap, matched against what others want
-- **Borrow** — lend tools and kits to your trusted network
-- **Kit Library** — circulate hobby kits, starter sets, and project gear
-- **Sell** — list items with estimated value
-- **Legacy Mode** — one button flips your entire inventory to estate auction
+Every page includes:
+- HL address and human-readable location
+- Item identity (noun-first format)
+- Provenance and history fields
+- Condition and estimated value
+- Notes and linked addresses
 
-## The Legacy Mode
+## Why This Matters
 
-This is the feature that matters most.
+The wiki page is what turns an address into a record.
+The address tells you *where* something is.
+The wiki page tells you *what it is*, *where it came from*, and *what it means*.
 
-When Legacy Mode is activated, every Brag and private item becomes available. The estate auction opens. The person managing your affairs doesn't have to figure out what you owned, what it's worth, or where it is — because everything already has an address, a condition note, a provenance, and an estimated value.
-
-Your hoard becomes a catalogue. Your catalogue becomes an estate. Your estate settles cleanly.
+Together they are the minimum viable provenance system for a physical object.
 
 ## How To Run
 
-```bash
-# If you have a React environment
-npm install
-npm start
+1. Download `wiki-generator.html`
+2. Open in any browser
+3. Fill in the fields
+4. Copy the output into your wiki
 
-# Or drop into any React sandbox (CodeSandbox, StackBlitz)
-# and paste the HIL-exchange.jsx file
-```
+No install. No server. Works offline.
 
-## The Generosity Score
+## Output Formats
 
-Each user has a Generosity Score (G:00–100) based on lending and trading history.
-High scores unlock trust-based borrowing in the network.
-This is social infrastructure, not a gamification gimmick.
-
-## Item Data Structure
-
-Each item carries:
-- `hil` — HL address (where it lives right now)
-- `provenance` — where it came from, its history
-- `story` — the human context
-- `status` — brag / trade / loan / sale / kit / legacy
-- `estimatedValue` — for insurance, estate, and trade context
-- `heirloom` — flag for items that carry family or personal significance
-
-## What This Is Not
-
-This is not eBay. It is not a marketplace platform.
-It is a local-first, trust-network tool for people who own real things
-and want those things to mean something — while they're alive and after.
+- Markdown (Wiki.js, Obsidian, GitHub)
+- Plain text
 
 ---
 
