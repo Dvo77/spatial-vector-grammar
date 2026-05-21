@@ -1,40 +1,50 @@
-# HL Wiki Generator
+# HL Label Engine
 
-Generate structured wiki pages for any HL zone, vessel, or item.
+Generate physical labels for any HL-addressed location, shelf, or electrical port.
 
 ## What It Does
 
-Takes your HL address and item data and outputs a formatted wiki page
-ready to paste into Wiki.js, Obsidian, Notion, or any markdown system.
-
-Every page includes:
-- HL address and human-readable location
-- Item identity (noun-first format)
-- Provenance and history fields
-- Condition and estimated value
-- Notes and linked addresses
-
-## Why This Matters
-
-The wiki page is what turns an address into a record.
-The address tells you *where* something is.
-The wiki page tells you *what it is*, *where it came from*, and *what it means*.
-
-Together they are the minimum viable provenance system for a physical object.
+- **Zone Placards** — wall-mounted room and zone identification cards
+- **Shelf/Bin Labels** — narrow horizontal labels for shelves, drawers, and bins
+- **Electrical Port Tags** — circuit-traced labels for outlets, keystones, and power strips
+- Generates QR codes that link to the HL address or your wiki URL
+- Outputs visual labels (print or screenshot) or raw text for thermal printers
 
 ## How To Run
 
-1. Download `wiki-generator.html`
-2. Open in any browser
-3. Fill in the fields
-4. Copy the output into your wiki
+No install. No server. No account.
 
-No install. No server. Works offline.
+1. Download `label-engine.html`
+2. Open it in any browser
+3. Fill in the address fields
+4. Hit Generate
+5. Print or screenshot the label
 
-## Output Formats
+Works completely offline.
 
-- Markdown (Wiki.js, Obsidian, GitHub)
-- Plain text
+## How It Connects to HL Grammar
+
+Every label is built on a valid HL address:
+
+```
+[STRUCT]-[ZONE]-[ANCHOR][COL]-[LEVEL][DEPTH]
+```
+
+Example: `SH-MM-S3-A1`
+Shop → MaxOMess zone → South wall → Column 3 → Bottom shelf → Surface
+
+The electrical tab extends the grammar with circuit tracing:
+outlet address → circuit → breaker → panel
+
+## QR Code Options
+
+- **HL Address mode** — QR encodes the address string directly
+- **Wiki URL mode** — QR links to your local wiki page for that zone
+
+## Thermal Printer Support
+
+The Raw Text output is formatted for RawBT and Thermer.
+Copy the output, paste into your thermal printer app, done.
 
 ---
 
