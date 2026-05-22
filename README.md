@@ -1,3 +1,4 @@
+https://claude.ai/public/artifacts/efaaf4d2-7a2f-4f6f-a4bc-92a713069494
 HL — Human Layer
 A spatial grammar for making any physical environment machine-readable and human-navigable.
 "Nothing is lost. Everything is logic."
