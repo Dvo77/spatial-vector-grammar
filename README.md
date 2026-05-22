@@ -334,6 +334,8 @@ The spec is the floor, not the ceiling.
 
 Origin
 HL began as a personal frustration. Daniel DeVoy, a systems thinker and maker in Elkhorn, Wisconsin, was trying to catalog his workshop. The existing tools were inadequate. So he built his own addressing system — a spatial coordinate protocol readable by both humans and machines.
+<img width="1254" height="1254" alt="ChatGPT Image May 21, 2026, 08_26_35 AM" src="https://github.com/user-attachments/assets/0b603435-6bf2-4b6b-8d2a-fb4e77c6685b" />
+
 
 "Hoarding is simply un-indexed potential."
 
