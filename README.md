@@ -1,4 +1,4 @@
-https://claude.ai/public/artifacts/efaaf4d2-7a2f-4f6f-a4bc-92a713069494
+
 HL — Human Layer
 A spatial grammar for making any physical environment machine-readable and human-navigable.
 "Nothing is lost. Everything is logic."
@@ -336,7 +336,7 @@ The spec is the floor, not the ceiling.
 Origin
 HL began as a personal frustration. Daniel DeVoy, a systems thinker and maker in Elkhorn, Wisconsin, was trying to catalog his workshop. The existing tools were inadequate. So he built his own addressing system — a spatial coordinate protocol readable by both humans and machines.
 <img width="1254" height="1254" alt="ChatGPT Image May 21, 2026, 08_26_35 AM" src="https://github.com/user-attachments/assets/0b603435-6bf2-4b6b-8d2a-fb4e77c6685b" />
-
+https://claude.ai/public/artifacts/efaaf4d2-7a2f-4f6f-a4bc-92a713069494
 
 "Hoarding is simply un-indexed potential."
 
