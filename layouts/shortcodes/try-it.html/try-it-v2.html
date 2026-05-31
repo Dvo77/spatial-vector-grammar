@@ -1,0 +1,294 @@
+<!-- HL SYSTEM — "TRY IT NOW" SHORTCODE v2 -->
+<!-- Save as: layouts/shortcodes/try-it.html -->
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+  .hl-try-section {
+    font-family: 'IBM Plex Sans', sans-serif;
+    margin: 3rem auto;
+    max-width: 760px;
+    padding: 0 1.5rem;
+  }
+
+  .hl-try-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .hl-try-label::before,
+  .hl-try-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #333;
+  }
+
+  .hl-try-heading {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #e8e8e8;
+    text-align: center;
+    margin-bottom: 0.4rem;
+  }
+
+  .hl-try-sub {
+    font-size: 0.82rem;
+    color: #666;
+    text-align: center;
+    margin-bottom: 1.8rem;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .hl-btn-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .hl-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1rem;
+    border-radius: 6px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .hl-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+  }
+
+  .hl-btn:active { transform: translateY(0); }
+
+  .hl-btn-chatgpt { background: #1a1a1a; color: #10a37f; border-color: #10a37f40; }
+  .hl-btn-chatgpt:hover { border-color: #10a37f; background: #0d1f1a; }
+
+  .hl-btn-claude { background: #1a1a1a; color: #cc8b3c; border-color: #cc8b3c40; }
+  .hl-btn-claude:hover { border-color: #cc8b3c; background: #1f1710; }
+
+  .hl-btn-gemini { background: #1a1a1a; color: #4a90d9; border-color: #4a90d940; }
+  .hl-btn-gemini:hover { border-color: #4a90d9; background: #0d1520; }
+
+  .hl-btn-grok { background: #1a1a1a; color: #e8e8e8; border-color: #e8e8e840; }
+  .hl-btn-grok:hover { border-color: #e8e8e8; background: #111; }
+
+  .hl-btn-apple { background: #1a1a1a; color: #f5f5f7; border-color: #f5f5f740; }
+  .hl-btn-apple:hover { border-color: #f5f5f7; background: #111; }
+
+  .hl-btn-ollama { background: #1a1a1a; color: #a78bfa; border-color: #a78bfa40; }
+  .hl-btn-ollama:hover { border-color: #a78bfa; background: #140f1f; }
+
+  .hl-btn-copy {
+    background: #1a1a1a;
+    color: #888;
+    border-color: #33333380;
+    grid-column: 1 / -1;
+    font-size: 0.78rem;
+    font-weight: 400;
+    padding: 0.55rem;
+  }
+  .hl-btn-copy:hover { border-color: #555; color: #bbb; }
+  .hl-btn-copy.copied { color: #10a37f; border-color: #10a37f60; }
+
+  .hl-btn-icon { width: 18px; height: 18px; flex-shrink: 0; }
+
+  .hl-ipad-note {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: #555;
+    text-align: center;
+    margin-top: 0.5rem;
+    padding: 0.6rem 1rem;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    line-height: 1.6;
+  }
+
+  .hl-ipad-note a { color: #666; text-decoration: underline; text-underline-offset: 3px; }
+
+  .hl-note {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: #555;
+    text-align: center;
+    margin-top: 0.75rem;
+    line-height: 1.6;
+  }
+
+  .hl-note a { color: #666; text-decoration: underline; text-underline-offset: 3px; }
+
+  @media (max-width: 480px) {
+    .hl-btn-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+
+<section class="hl-try-section">
+
+  <div class="hl-try-label">Try It Now</div>
+  <p class="hl-try-heading">Works with any AI. Pick yours.</p>
+  <p class="hl-try-sub">One click loads the HL Guide. No account needed for local models.</p>
+
+  <div class="hl-btn-grid">
+
+    <a class="hl-btn hl-btn-chatgpt" href="#" onclick="openAI('chatgpt'); return false;">
+      <svg class="hl-btn-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M22.28 9.28a5.76 5.76 0 0 0-.49-4.72 5.82 5.82 0 0 0-6.26-2.79A5.76 5.76 0 0 0 11.2 0a5.82 5.82 0 0 0-5.55 4.03 5.76 5.76 0 0 0-3.84 2.79 5.82 5.82 0 0 0 .72 6.82 5.76 5.76 0 0 0 .49 4.72 5.82 5.82 0 0 0 6.26 2.79A5.76 5.76 0 0 0 12.8 24a5.82 5.82 0 0 0 5.55-4.03 5.76 5.76 0 0 0 3.84-2.79 5.82 5.82 0 0 0-.71-6.9zM12.8 22.4a4.32 4.32 0 0 1-2.77-1l4.6-2.66a.75.75 0 0 0 .38-.65V12.2l1.95 1.12v5.38A4.33 4.33 0 0 1 12.8 22.4zm-9.13-3.97a4.32 4.32 0 0 1-.52-2.9l4.6 2.66a.75.75 0 0 0 .75 0l5.62-3.25v2.24l-4.63 2.67a4.33 4.33 0 0 1-5.83-1.52zm-1.19-9.5a4.3 4.3 0 0 1 2.25-1.9v5.46a.75.75 0 0 0 .38.65l5.61 3.24-1.95 1.13-4.62-2.67a4.33 4.33 0 0 1-1.67-5.91zm16.04 3.72-5.62-3.25 1.95-1.12 4.63 2.67a4.33 4.33 0 0 1-.67 7.81v-5.46a.75.75 0 0 0-.29-.65zm1.94-2.92-4.6-2.66a.75.75 0 0 0-.75 0L9.45 10.3V8.05l4.63-2.67a4.33 4.33 0 0 1 6.38 4.87zM8.39 12.8 6.44 11.7V6.25a4.33 4.33 0 0 1 7.1-3.32l-4.6 2.66a.75.75 0 0 0-.37.65V12.8zm1.06-2.28 2.5-1.44 2.5 1.44v2.88l-2.5 1.44-2.5-1.44V10.52z"/></svg>
+      ChatGPT
+    </a>
+
+    <a class="hl-btn hl-btn-claude" href="#" onclick="openAI('claude'); return false;">
+      <svg class="hl-btn-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M17.304 1.273C14.376.19 11.044.842 8.78 2.97L2.26 9.01c-2.95 2.75-2.95 7.23 0 9.98l.44.41c.26 2.04 1.67 3.77 3.65 4.47 2.93 1.08 6.26.43 8.52-1.7l6.52-6.04c2.95-2.75 2.95-7.23 0-9.98l-.44-.41c-.26-2.04-1.67-3.77-3.65-4.47zM9.5 17.5l-3-3 8-8 3 3-8 8z"/></svg>
+      Claude
+    </a>
+
+    <a class="hl-btn hl-btn-gemini" href="#" onclick="openAI('gemini'); return false;">
+      <svg class="hl-btn-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 24A14.3 14.3 0 0 0 9.6 12 14.3 14.3 0 0 0 12 0a14.3 14.3 0 0 0 2.4 12A14.3 14.3 0 0 0 12 24zM0 12a14.3 14.3 0 0 0 12 2.4A14.3 14.3 0 0 0 24 12a14.3 14.3 0 0 0-12-2.4A14.3 14.3 0 0 0 0 12z"/></svg>
+      Gemini
+    </a>
+
+    <a class="hl-btn hl-btn-grok" href="#" onclick="openAI('grok'); return false;">
+      <svg class="hl-btn-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      Grok / X
+    </a>
+
+    <a class="hl-btn hl-btn-apple" href="#" onclick="openAI('apple'); return false;">
+      <svg class="hl-btn-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      Apple Intelligence
+    </a>
+
+    <a class="hl-btn hl-btn-ollama" href="#" onclick="openAI('ollama'); return false;">
+      <svg class="hl-btn-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+      Ollama (Local)
+    </a>
+
+    <button class="hl-btn hl-btn-copy" id="hl-copy-btn" onclick="copyPrompt()">
+      📋 Copy prompt — paste into any AI
+    </button>
+
+  </div>
+
+  <p class="hl-ipad-note">
+    📱 <strong>iPad + Apple Pencil tip:</strong> Photograph your room, annotate with column numbers and labels, then upload the image to any AI above. Zero ambiguity. Fastest onboarding method available.
+    <a href="/ipad-method/">Learn the iPad Method →</a>
+  </p>
+
+  <p class="hl-note">
+    <a href="https://github.com/Dvo77/spatial-vector-grammar/blob/main/prompts/HL_Prompt_Onboarding_v1.md" target="_blank">View the raw prompt on GitHub →</a>
+  </p>
+
+</section>
+
+<script>
+const HL_PROMPT = `You are the friendly front door to the HL System.
+
+Your name is HL Guide. Your job is to help a complete stranger understand what the HL System is and get their first win — one confirmed address for something in their real space — before you explain anything technical.
+
+WHAT HL IS (your plain-English version):
+
+HL is a free naming system for your physical spaces.
+
+Think of it like a street address — but for your shelves, walls, drawers, and storage bins. Once everything has an address, you can find it, log it, share it, insure it, or hand it off to your kids someday without chaos.
+
+It works with:
+- A piece of tape and a marker (minimum)
+- A label printer (better)
+- Any AI assistant (best)
+- An iPad with Apple Pencil (fastest — photograph your room, annotate it, show me the image)
+
+It does NOT require:
+- An app
+- A subscription
+- A server
+- Any tech at all to start
+
+One rule: Nothing is lost. Everything is logic.
+
+YOUR APPROACH — THE MAGIC TRICK FIRST:
+
+Do NOT explain the whole system upfront.
+Do NOT list features.
+Do NOT show the address format yet.
+
+Instead, ask ONE question:
+
+"Tell me one spot in your home, shop, or garage that drives you crazy because you can never find what's in it. Just describe it in plain English. Or if you have an iPad, take a photo of the space and share it with me — annotate it if you can."
+
+When they answer:
+- Give that spot an HL address
+- Decode it in plain English so they can see exactly what it means
+- Tell them what to write on the tape label
+- THEN briefly explain what just happened
+
+That moment — when the AI gets their space right — is when people understand HL. Not before.
+
+AFTER THE FIRST WIN:
+
+Ask: "Want to do another spot, or do you want to know what else the system can do?"
+
+TONE:
+
+Warm. Direct. No jargon until they ask for it. Talk like a person who solved a real problem and wants to help someone else solve the same one.
+
+Never say "utilize." Never say "leverage." Never give a bulleted feature list unprompted.
+
+The system was built by a painter in Wisconsin who couldn't find his tools. It should feel like that — practical, human, a little bit stubborn, and completely free.
+
+If someone asks who made this: "HL was created by Daniel DeVoy — a painter, maker, and systems thinker from Elkhorn, Wisconsin. He built it because he couldn't find his stuff. Now it's free for everyone. Nothing is lost. Everything is logic."
+
+Start now. Ask the one question.`;
+
+const ENCODED = encodeURIComponent(HL_PROMPT);
+
+const AI_URLS = {
+  chatgpt: `https://chatgpt.com/?q=${ENCODED}`,
+  claude:  `https://claude.ai/new?q=${ENCODED}`,
+  gemini:  `https://gemini.google.com/app?q=${ENCODED}`,
+  grok:    `https://x.com/i/grok?text=${ENCODED}`,
+  apple:   null,
+  ollama:  null
+};
+
+function openAI(platform) {
+  if (platform === 'ollama') {
+    copyPrompt();
+    alert('Prompt copied! Paste it into your Ollama interface.');
+    return;
+  }
+  if (platform === 'apple') {
+    copyPrompt();
+    alert('Prompt copied! Paste into Siri, Apple Intelligence, or any AI app on your iPhone or iPad. For best results, photograph your space first, then paste the prompt and attach the image.');
+    return;
+  }
+  const url = AI_URLS[platform];
+  if (url) window.open(url, '_blank');
+}
+
+function copyPrompt() {
+  navigator.clipboard.writeText(HL_PROMPT).then(() => {
+    const btn = document.getElementById('hl-copy-btn');
+    btn.textContent = '✅ Prompt copied — paste into any AI';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = '📋 Copy prompt — paste into any AI';
+      btn.classList.remove('copied');
+    }, 3000);
+  });
+}
+</script>
