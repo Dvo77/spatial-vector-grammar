@@ -2,6 +2,7 @@
 title: "Start Here"
 description: "Pick your path into the HL System. No wrong answers."
 weight: 1
+---
 Start Here
 The HL System works with a piece of tape and a marker.
 Everything else is optional.
