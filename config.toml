@@ -51,6 +51,10 @@ enableRobotsTXT = true
     name = "GitHub"
     url = "https://github.com/Dvo77/spatial-vector-grammar"
     weight = 6
+  [[menu.main]]
+    name = "Prompts"
+    url = "/Prompts/"
+    weight = 7
 
 [outputs]
   home = ["HTML", "RSS", "JSON"]
