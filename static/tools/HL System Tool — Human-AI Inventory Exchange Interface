@@ -1,0 +1,42 @@
+HIL Exchange
+HL System Tool — Human-AI Inventory Exchange Interface
+Part of the HL System (Human Layer) — MaxSpace Tool Solutions Free and open source. No rights reserved.
+
+
+What This Is
+HIL Exchange is a React-based interface for importing, viewing, and exporting HL-formatted inventory data.
+
+It provides a visual layer between your physical space addresses and the records you maintain — allowing you to paste in an HL item list, review it, and export it in formats compatible with your vault platform of choice.
+
+
+What It Does
+Accepts HL-formatted item lists as input
+Displays items with their address, name, category, and provenance fields
+Allows inline editing of records
+Exports to markdown, CSV, or JSON
+Compatible with Obsidian, Notion, WikiJS, and GitHub vault formats
+
+
+How to Use
+Open HIL-exchange.jsx in a React environment or paste into a JSX-compatible sandbox (CodeSandbox, StackBlitz, etc.)
+Paste your HL item list into the input panel
+Review and edit records in the visual table
+Export in your preferred format
+
+
+Input Format
+TOOL-DRILL-CORDLESS-18V | GR-WS-S2-M0 | Milwaukee | Kit: DRILL-KIT-01
+
+FASTENER-SCREW-WOOD-MIXED-VINTAGE | GR-WS-OLG1-B1 | Dr. Piper estate
+
+APPLIANCE-VACUUM-ROBOT-ROOMBA-J7 | HM-LR-MN-DOCK
+
+
+Part of the HL System
+HIL Exchange is one tool in the HL System toolkit. It does not define the grammar — the grammar is in the core HL standard. This tool just makes working with HL records faster.
+
+For the full standard: see README.md in the repo root. For the onboarding prompt: see /prompts/HL_Onboarding_Prompt_v1.md
+
+
+
+HL System — Human Layer github.com/Dvo77/spatial-vector-grammar

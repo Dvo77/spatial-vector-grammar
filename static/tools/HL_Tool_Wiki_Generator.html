@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MaxNet Wiki Page Generator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&family=Exo+2:wght@300;400;600&display=swap');
+
+  :root {
+    --bg: #0a0c10;
+    --panel: #0f1318;
+    --border: #1e2a3a;
+    --accent: #00d4ff;
+    --accent2: #00ff9d;
+    --accent3: #ff6b35;
+    --warn: #ffb347;
+    --text: #c8d8e8;
+    --text-dim: #5a7a9a;
+    --input-bg: #070a0e;
+    --glow: 0 0 12px rgba(0,212,255,0.3);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    min-height: 100vh;
+    background-image: 
+      radial-gradient(ellipse at 20% 20%, rgba(0,212,255,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(0,255,157,0.03) 0%, transparent 60%);
+  }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(0,212,255,0.03);
+  }
+
+  .logo {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    opacity: 0.8;
+  }
+
+  .title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .subtitle {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: 'Share Tech Mono', monospace;
+    letter-spacing: 1px;
+  }
+
+  .std-badge {
+    margin-left: auto;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--accent2);
+    border: 1px solid var(--accent2);
+    padding: 3px 8px;
+    letter-spacing: 2px;
+    opacity: 0.7;
+  }
+
+  .container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    height: calc(100vh - 65px);
+  }
+
+  .form-panel {
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 20px;
+  }
+
+  .output-panel {
+    overflow-y: auto;
+    padding: 20px;
+    background: var(--input-bg);
+  }
+
+  .section-header {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-header:first-child { margin-top: 0; }
+
+  .section-header .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: var(--glow);
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .field-row.full { grid-template-columns: 1fr; }
+  .field-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  label .req {
+    color: var(--accent3);
+    margin-left: 3px;
+  }
+
+  input, select, textarea {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    padding: 8px 10px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 8px rgba(0,212,255,0.2);
+  }
+
+  textarea { resize: vertical; min-height: 70px; }
+
+  select option { background: var(--panel); }
+
+  .tag-hint {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    margin-top: 3px;
+  }
+
+  .page-type-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .type-btn {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    padding: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .type-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .type-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(0,212,255,0.08);
+    box-shadow: var(--glow);
+  }
+
+  .generate-btn {
+    width: 100%;
+    background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(0,255,157,0.08));
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    padding: 14px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.2s;
+    box-shadow: var(--glow);
+  }
+
+  .generate-btn:hover {
+    background: linear-gradient(135deg, rgba(0,212,255,0.25), rgba(0,255,157,0.15));
+    box-shadow: 0 0 20px rgba(0,212,255,0.4);
+  }
+
+  .copy-btn {
+    background: rgba(0,255,157,0.08);
+    border: 1px solid var(--accent2);
+    color: var(--accent2);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 12px;
+  }
+
+  .copy-btn:hover {
+    background: rgba(0,255,157,0.15);
+    box-shadow: 0 0 12px rgba(0,255,157,0.3);
+  }
+
+  .copy-btn.copied {
+    color: var(--accent3);
+    border-color: var(--accent3);
+  }
+
+  .output-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .output-label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent2);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  pre {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    line-height: 1.7;
+    color: #8ab4d4;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60%;
+    gap: 12px;
+    opacity: 0.3;
+  }
+
+  .placeholder-icon {
+    font-size: 48px;
+    filter: grayscale(1);
+  }
+
+  .placeholder-text {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-align: center;
+  }
+
+  .status-bar {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  .status-ok { color: var(--accent2); }
+  .status-warn { color: var(--warn); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+  .hl-hint {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--accent3);
+    margin-top: 3px;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 8px 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">▸ MaxNet // STD-WIKI-001</div>
+    <div class="title">Wiki Page Generator</div>
+    <div class="subtitle">Locked to STD-WIKI-001 · HIL v5.3 · PSP Governance Model</div>
+  </div>
+  <div class="std-badge">BCM COMPLIANT</div>
+</header>
+
+<div class="container">
+  <!-- FORM PANEL -->
+  <div class="form-panel">
+
+    <div class="section-header"><div class="dot"></div> Page Type</div>
+    <div class="page-type-grid">
+      <div class="type-btn active" data-type="node" onclick="setType('node',this)">🖥️ Node</div>
+      <div class="type-btn" data-type="asset" onclick="setType('asset',this)">🔧 Asset</div>
+      <div class="type-btn" data-type="service" onclick="setType('service',this)">⚙️ Service</div>
+      <div class="type-btn" data-type="standard" onclick="setType('standard',this)">📐 Standard</div>
+      <div class="type-btn" data-type="network" onclick="setType('network',this)">🌐 Network</div>
+      <div class="type-btn" data-type="inventory" onclick="setType('inventory',this)">📦 Inventory</div>
+    </div>
+
+    <div class="section-header"><div class="dot"></div> Identity</div>
+    <div class="field-row">
+      <div class="field">
+        <label>Page ID <span class="req">*</span></label>
+        <input type="text" id="page_id" placeholder="T08-NODE-ST-001">
+      </div>
+      <div class="field">
+        <label>Version</label>
+        <input type="text" id="version" value="1.0.0">
+      </div>
+    </div>
+    <div class="field-row full">
+      <div class="field">
+        <label>Title (with emoji) <span class="req">*</span></label>
+        <input type="text" id="title" placeholder="💾 T08-NODE-ST-001 — max_storage (Central Storage)">
+      </div>
+    </div>
+    <div class="field-row full">
+      <div class="field">
+        <label>Description (AI Summary) <span class="req">*</span></label>
+        <textarea id="description" placeholder="SSOT for... Handles... Critical component of..."></textarea>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Tier ID <span class="req">*</span></label>
+        <select id="tier_id">
+          <option value="T-1">T-1 — Meta-Projects & Life Goals</option>
+          <option value="T-2">T-2 — Mechanical & Precision Eng.</option>
+          <option value="T-3">T-3 — Industrial Arts & Hard Crafts</option>
+          <option value="T-4">T-4 — Woodcraft & Antiquities</option>
+          <option value="T-5">T-5 — Fine Arts & Sensory Crafts</option>
+          <option value="T-6">T-6 — Materia Medica & Health</option>
+          <option value="T-7">T-7 — Cognitive & Historical Res.</option>
+          <option value="T-8" selected>T-8 — Digital & Automation (MaxNet)</option>
+          <option value="T-9">T-9 — Shop Master / Inventory</option>
+          <option value="T-10">T-10 — Homestead Build & Property</option>
+          <option value="T-11">T-11 — Collections & Archives</option>
+          <option value="T-12">T-12 — Professional IP & Publishing</option>
+          <option value="T-13">T-13 — MSTS Business & Product IP</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Status</label>
+        <select id="status">
+          <option value="active">🟢 Active</option>
+          <option value="testing">🟡 Testing</option>
+          <option value="degraded">🟡 Degraded</option>
+          <option value="down">🔴 Down</option>
+          <option value="planned">⚪ Planned</option>
+          <option value="retired">⬛ Retired</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Owner</label>
+        <input type="text" id="owner" value="Daniel">
+      </div>
+      <div class="field">
+        <label>Importance</label>
+        <select id="importance">
+          <option value="extreme">Extreme</option>
+          <option value="high" selected>High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-row full">
+      <div class="field">
+        <label>Tags (comma separated) <span class="req">*</span></label>
+        <input type="text" id="tags" placeholder="node, T-8, storage, truenas, active, vlan10">
+        <div class="tag-hint">▸ Min 3 tags: [category], [function/role], [status/vlan]</div>
+      </div>
+    </div>
+
+    <!-- NODE/ASSET FIELDS -->
+    <div id="hardware-section">
+      <div class="section-header"><div class="dot"></div> Hardware</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Hostname / Node Name</label>
+          <input type="text" id="hostname" placeholder="max_storage">
+        </div>
+        <div class="field">
+          <label>Node ID</label>
+          <input type="text" id="node_id" placeholder="Node01">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Make / Model</label>
+          <input type="text" id="make_model" placeholder="CWWK Mini S N150">
+        </div>
+        <div class="field">
+          <label>Serial Number</label>
+          <input type="text" id="serial" placeholder="BN1505BG71417">
+        </div>
+      </div>
+      <div class="field-row triple">
+        <div class="field">
+          <label>CPU</label>
+          <input type="text" id="cpu" placeholder="Intel N150">
+        </div>
+        <div class="field">
+          <label>RAM</label>
+          <input type="text" id="ram" placeholder="12 GB DDR5">
+        </div>
+        <div class="field">
+          <label>Storage</label>
+          <input type="text" id="storage" placeholder="512GB NVMe + 7TB WD">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>OS / Base</label>
+          <input type="text" id="os" placeholder="TrueNAS Scale">
+        </div>
+        <div class="field">
+          <label>Power</label>
+          <input type="text" id="power" placeholder="12V 3A DC">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Asset Tag</label>
+          <input type="text" id="asset_tag" placeholder="B-OFF-N-2-D4-5">
+        </div>
+        <div class="field">
+          <label>Roles (comma sep)</label>
+          <input type="text" id="roles" placeholder="Central_Storage, Backup_Target">
+        </div>
+      </div>
+    </div>
+
+    <div class="section-header"><div class="dot"></div> Network</div>
+    <div class="field-row triple">
+      <div class="field">
+        <label>Management IP</label>
+        <input type="text" id="mgmt_ip" placeholder="192.168.1.170">
+      </div>
+      <div class="field">
+        <label>Tailscale IP</label>
+        <input type="text" id="tailscale_ip" placeholder="100.78.6.34">
+      </div>
+      <div class="field">
+        <label>VLANs</label>
+        <input type="text" id="vlan" placeholder="10, 20, 30">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Critical Ports</label>
+        <input type="text" id="ports" placeholder="80/443 (Web UI), 2049 (NFS)">
+      </div>
+      <div class="field">
+        <label>Internal URL</label>
+        <input type="text" id="url_internal" placeholder="http://192.168.1.170">
+      </div>
+    </div>
+
+    <div class="section-header"><div class="dot"></div> Physical Location (HIL v5.3)</div>
+    <div class="field-row">
+      <div class="field">
+        <label>HL Location Code</label>
+        <input type="text" id="location_code" placeholder="HL-BM-OF-N2-D4-5">
+        <div class="hl-hint">▸ HL-STRUCT-ZONE-ANCHOR+COL-LEVEL+DEPTH</div>
+      </div>
+      <div class="field">
+        <label>Physical Description</label>
+        <input type="text" id="location_desc" placeholder="Basement Office / North Wall / Rack D4-5">
+      </div>
+    </div>
+
+    <div class="section-header"><div class="dot"></div> Services & Notes</div>
+    <div class="field-row full">
+      <div class="field">
+        <label>Services Running (one per line)</label>
+        <textarea id="services" placeholder="TrueNAS Web UI | Main admin | http://192.168.1.170&#10;Wiki.js | Knowledge base | http://100.78.6.34:30244&#10;Glances | Metrics | http://192.168.1.170:61208"></textarea>
+        <div class="tag-hint">▸ Format: Name | Purpose | URL</div>
+      </div>
+    </div>
+    <div class="field-row full">
+      <div class="field">
+        <label>Linked Pages (one per line)</label>
+        <textarea id="linked" placeholder="/servers&#10;/Network-Map&#10;/T08-digital-automation/Standards/storage_standards"></textarea>
+        <div class="tag-hint">▸ Relative paths only — no https://</div>
+      </div>
+    </div>
+    <div class="field-row full">
+      <div class="field">
+        <label>Maintenance Notes</label>
+        <textarea id="maintenance" placeholder="ZFS scrub monthly. Check SMART status quarterly. GitHub wiki sync enabled."></textarea>
+      </div>
+    </div>
+    <div class="field-row full">
+      <div class="field">
+        <label>Change Log Entry (today's change)</label>
+        <textarea id="changelog" placeholder="Hardware migration: replaced failed Firebat N5105 with CWWK N150. Booted first attempt."></textarea>
+      </div>
+    </div>
+
+    <button class="generate-btn" onclick="generatePage()">⚡ GENERATE WIKI PAGE</button>
+
+  </div>
+
+  <!-- OUTPUT PANEL -->
+  <div class="output-panel">
+    <div class="output-header">
+      <div class="output-label">▸ Generated Output</div>
+      <button class="copy-btn" id="copyBtn" onclick="copyOutput()">📋 Copy Markdown</button>
+    </div>
+    <div id="output">
+      <div class="placeholder">
+        <div class="placeholder-icon">📄</div>
+        <div class="placeholder-text">
+          Fill in the form and hit<br>GENERATE WIKI PAGE<br><br>
+          Output will be locked to<br>STD-WIKI-001 · HIL v5.3
+        </div>
+      </div>
+    </div>
+    <div class="status-bar" id="statusBar"></div>
+  </div>
+</div>
+
+<script>
+let currentType = 'node';
+let generatedMarkdown = '';
+
+function setType(type, el) {
+  currentType = type;
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  const hw = document.getElementById('hardware-section');
+  hw.style.display = ['node','asset','service'].includes(type) ? 'block' : 'block';
+}
+
+function val(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+
+function today() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function parseTags(tagStr) {
+  return tagStr.split(',').map(t => t.trim()).filter(Boolean);
+}
+
+function parseServices(svcStr) {
+  if (!svcStr.trim()) return [];
+  return svcStr.split('\n').map(line => {
+    const parts = line.split('|').map(p => p.trim());
+    return { name: parts[0]||'', purpose: parts[1]||'', url: parts[2]||'' };
+  }).filter(s => s.name);
+}
+
+function parseLinked(linkedStr) {
+  if (!linkedStr.trim()) return [];
+  return linkedStr.split('\n').map(l => l.trim()).filter(Boolean);
+}
+
+function generatePage() {
+  const title = val('title');
+  const pageId = val('page_id');
+  const description = val('description');
+  
+  if (!title || !pageId || !description) {
+    document.getElementById('statusBar').innerHTML = 
+      '<span class="status-warn">⚠ Required fields missing: Title, Page ID, Description</span>';
+    return;
+  }
+
+  const tags = parseTags(val('tags'));
+  if (tags.length < 3) {
+    document.getElementById('statusBar').innerHTML = 
+      '<span class="status-warn">⚠ Minimum 3 tags required (STD-WIKI-001)</span>';
+    return;
+  }
+
+  const tierId = val('tier_id');
+  const status = val('status');
+  const version = val('version') || '1.0.0';
+  const owner = val('owner') || 'Daniel';
+  const importance = val('importance');
+  const hostname = val('hostname');
+  const nodeId = val('node_id');
+  const makeMod = val('make_model');
+  const serial = val('serial');
+  const cpu = val('cpu');
+  const ram = val('ram');
+  const storage = val('storage');
+  const os = val('os');
+  const power = val('power');
+  const assetTag = val('asset_tag');
+  const roles = val('roles');
+  const mgmtIp = val('mgmt_ip');
+  const tailscaleIp = val('tailscale_ip');
+  const vlan = val('vlan');
+  const ports = val('ports');
+  const urlInternal = val('url_internal');
+  const locationCode = val('location_code');
+  const locationDesc = val('location_desc');
+  const maintenance = val('maintenance');
+  const changelog = val('changelog');
+  const services = parseServices(val('services'));
+  const linked = parseLinked(val('linked'));
+
+  const statusEmoji = {
+    active: '🟢 Active', testing: '🟡 Testing', 
+    degraded: '🟡 Degraded', down: '🔴 Down',
+    planned: '⚪ Planned', retired: '⬛ Retired'
+  }[status] || status;
+
+  const rolesArray = roles ? `[${roles.split(',').map(r=>`${r.trim()}`).join(', ')}]` : '[]';
+  const vlanArray = vlan ? `[${vlan.split(',').map(v=>`${v.trim()}`).join(', ')}]` : 'null';
+  const tagsYaml = `[${tags.join(', ')}]`;
+
+  let md = '';
+
+  // ─── YAML FRONTMATTER ───
+  md += `---\n`;
+  md += `title: "${title}"\n`;
+  md += `description: "${description}"\n`;
+  md += `tags: ${tagsYaml}\n`;
+  md += `created: ${today()}\n`;
+  md += `modified: ${today()}\n`;
+  md += `status: ${status}\n`;
+  md += `owner: ${owner}\n`;
+  md += `page_id: ${pageId}\n`;
+  md += `version: "${version}"\n`;
+  md += `type: ${currentType}_page\n`;
+  md += `tier_id: ${tierId}\n`;
+  if (nodeId) md += `node_id: ${nodeId}\n`;
+  if (hostname) md += `hostname: ${hostname}\n`;
+  if (roles) md += `roles: ${rolesArray}\n`;
+  if (vlan) md += `vlan: ${vlanArray}\n`;
+  if (mgmtIp) md += `mgmt_ip: ${mgmtIp}\n`;
+  if (tailscaleIp) md += `tailscale_ip: ${tailscaleIp}\n`;
+  if (locationCode) md += `location_code: ${locationCode}\n`;
+  if (assetTag) md += `asset_tag: ${assetTag}\n`;
+  if (makeMod) md += `make_model: ${makeMod}\n`;
+  if (serial) md += `serial: ${serial}\n`;
+  if (cpu) md += `cpu: ${cpu}\n`;
+  if (ram) md += `ram: ${ram}\n`;
+  md += `importance: ${importance}\n`;
+  md += `ai_summary: "SSOT for ${pageId}. ${description}"\n`;
+  md += `---\n\n`;
+
+  // ─── PAGE TITLE ───
+  md += `# ${title}\n\n`;
+  md += `**SSOT for ${hostname || pageId}.**\n\n---\n\n`;
+
+  // ─── SECTION I: OVERVIEW ───
+  md += `## 🧭 I. Overview / Description\n\n`;
+  md += `| Detail | Value |\n|:--|:--|\n`;
+  md += `| **Node Purpose** | ${description} |\n`;
+  md += `| **Status** | ${statusEmoji} |\n`;
+  md += `| **Owner** | ${owner} |\n`;
+  md += `| **Documentation Version** | ${version} |\n`;
+  md += `| **Last Updated** | ${today()} |\n\n---\n\n`;
+
+  // ─── SECTION II: DEVICE/NODE DETAILS ───
+  if (makeMod || cpu || ram || storage || os) {
+    md += `## 📡 II. Device / Node Details\n\n`;
+    md += `| Component | Specification | Notes |\n|:--|:--|:--|\n`;
+    if (assetTag) md += `| **Asset Tag** | \`${assetTag}\` | Physical identifier |\n`;
+    if (makeMod) md += `| **Make / Model** | ${makeMod} | |\n`;
+    if (serial) md += `| **Serial Number** | \`${serial}\` | |\n`;
+    if (cpu) md += `| **CPU** | ${cpu} | |\n`;
+    if (ram) md += `| **RAM** | ${ram} | |\n`;
+    if (storage) md += `| **Storage** | ${storage} | |\n`;
+    if (os) md += `| **OS / Base** | ${os} | |\n`;
+    if (power) md += `| **Power** | ${power} | Solar/battery compatible |\n`;
+    if (roles) md += `| **Roles** | ${roles} | |\n`;
+    md += `\n`;
+
+    // HIL Location
+    if (locationCode || locationDesc) {
+      md += `### 📍 HIL Location & Inventory\n\n`;
+      if (locationCode) md += `**Full 6-segment HL address:** \`${locationCode}\`\n\n`;
+      if (locationDesc) md += `* **Placement:** ${locationDesc}\n`;
+      md += `* **KVM / Access:** Headless — SSH / Web UI\n\n`;
+    }
+
+    md += `---\n\n`;
+  }
+
+  // ─── SECTION III: NETWORK ───
+  if (mgmtIp || vlan || ports) {
+    md += `## 🌐 III. Network Configuration\n\n`;
+    md += `| Item | Value | Notes |\n|:--|:--|:--|\n`;
+    if (hostname) md += `| **Hostname** | \`${hostname}\` | DNS record name |\n`;
+    if (mgmtIp) md += `| **Primary IP** | \`${mgmtIp}\` | Static — confirmed |\n`;
+    if (tailscaleIp) md += `| **Tailscale IP** | \`${tailscaleIp}\` | Secure mesh access |\n`;
+    if (vlan) md += `| **VLAN(s)** | ${vlan} | Access per OPNsense rules |\n`;
+    if (ports) md += `| **Critical Ports** | ${ports} | |\n`;
+    if (urlInternal) md += `| **Internal URL** | [${urlInternal}](${urlInternal}) | |\n`;
+    md += `\n---\n\n`;
+  }
+
+  // ─── SECTION IV: SERVICES ───
+  if (services.length > 0) {
+    md += `## ⚙️ IV. Core Services\n\n`;
+    md += `| Service | Purpose | Access URL |\n|:--|:--|:--|\n`;
+    services.forEach(s => {
+      const urlPart = s.url ? `[${s.url}](${s.url})` : '—';
+      md += `| **${s.name}** | ${s.purpose} | ${urlPart} |\n`;
+    });
+    md += `\n---\n\n`;
+  }
+
+  // ─── SECTION V: LINKED PAGES ───
+  if (linked.length > 0) {
+    md += `## 🔗 V. Linked Systems / Pages\n\n`;
+    linked.forEach(l => {
+      const name = l.split('/').filter(Boolean).pop() || l;
+      md += `* [${name}](${l})\n`;
+    });
+    md += `\n---\n\n`;
+  }
+
+  // ─── SECTION VI: MAINTENANCE ───
+  if (maintenance) {
+    md += `## 🔧 VI. Maintenance & Notes\n\n`;
+    md += `${maintenance}\n\n---\n\n`;
+  }
+
+  // ─── CHANGE LOG ───
+  md += `#### Change Log\n\n`;
+  md += `| Date | Change | By |\n|:--|:--|:--|\n`;
+  if (changelog) {
+    md += `| ${today()} | **v${version}:** ${changelog} | Daniel |\n`;
+  }
+  md += `| ${today()} | Initial page creation via MaxNet Wiki Generator (STD-WIKI-001) | Daniel / Claude |\n`;
+
+  generatedMarkdown = md;
+
+  // Display
+  document.getElementById('output').innerHTML = `<pre>${escapeHtml(md)}</pre>`;
+
+  // Status
+  const tagCount = tags.length;
+  const hasHL = !!locationCode;
+  const hasNetwork = !!(mgmtIp || vlan);
+  let statusHtml = `<span class="status-ok">✓ STD-WIKI-001 Compliant</span> &nbsp;·&nbsp; `;
+  statusHtml += `<span class="${tagCount>=3?'status-ok':'status-warn'}">${tagCount} tags</span> &nbsp;·&nbsp; `;
+  statusHtml += `<span class="${hasHL?'status-ok':'status-warn'}">${hasHL?'✓':'⚠'} HIL v5.3</span> &nbsp;·&nbsp; `;
+  statusHtml += `<span class="${hasNetwork?'status-ok':'status-warn'}">${hasNetwork?'✓':'⚠'} Network</span> &nbsp;·&nbsp; `;
+  statusHtml += `<span style="color:var(--text-dim)">${md.split('\n').length} lines generated</span>`;
+  document.getElementById('statusBar').innerHTML = statusHtml;
+}
+
+function copyOutput() {
+  if (!generatedMarkdown) return;
+  navigator.clipboard.writeText(generatedMarkdown).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = '📋 Copy Markdown';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+</script>
+</body>
+</html>
