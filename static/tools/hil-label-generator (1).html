@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HIL Label Engine</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&family=Orbitron:wght@700;900&display=swap');
+
+  :root {
+    --bg: #0a0c0f;
+    --panel: #111418;
+    --border: #1e2530;
+    --accent: #00e5ff;
+    --accent2: #ff6b00;
+    --text: #c8d8e8;
+    --dim: #4a5a6a;
+    --success: #00ff88;
+    --warn: #ffcc00;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    padding: 16px;
+  }
+
+  /* Subtle scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,229,255,0.015) 2px, rgba(0,229,255,0.015) 4px);
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: 'Orbitron', monospace;
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-shadow: 0 0 20px rgba(0,229,255,0.4);
+  }
+
+  .logo span { color: var(--accent2); }
+
+  header p {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--dim);
+    letter-spacing: 1px;
+  }
+
+  /* Tab bar */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    background: var(--panel);
+    padding: 4px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+
+  .tab {
+    flex: 1;
+    padding: 8px 4px;
+    background: transparent;
+    border: none;
+    color: var(--dim);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .tab.active {
+    background: var(--accent);
+    color: #000;
+  }
+
+  /* Form sections */
+  .form-section { display: none; }
+  .form-section.active { display: block; }
+
+  .field {
+    margin-bottom: 12px;
+  }
+
+  label {
+    display: block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    padding: 10px 12px;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(0,229,255,0.1);
+  }
+
+  select option { background: #111; }
+
+  textarea { resize: vertical; min-height: 60px; }
+
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* Address builder */
+  .addr-builder {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+
+  .addr-preview {
+    font-family: 'Orbitron', monospace;
+    font-size: 16px;
+    color: var(--accent);
+    text-align: center;
+    padding: 10px;
+    background: rgba(0,229,255,0.05);
+    border-radius: 4px;
+    border: 1px dashed rgba(0,229,255,0.3);
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    word-break: break-all;
+  }
+
+  .addr-builder .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+  /* QR options */
+  .toggle-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .toggle-btn {
+    flex: 1;
+    padding: 9px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--dim);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .toggle-btn.active {
+    border-color: var(--accent2);
+    color: var(--accent2);
+    background: rgba(255,107,0,0.08);
+  }
+
+  /* Action buttons */
+  .btn-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .btn {
+    padding: 12px;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+  }
+
+  .btn-secondary {
+    background: var(--panel);
+    color: var(--accent2);
+    border: 1px solid var(--accent2);
+  }
+
+  .btn:active { transform: scale(0.97); }
+
+  /* Preview area */
+  #preview-area {
+    margin-top: 20px;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+    display: none;
+  }
+
+  #preview-area.visible { display: block; }
+
+  .preview-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  /* The actual label renderings */
+  .label-card {
+    background: #fff;
+    color: #000;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+
+  /* Zone/Room Placard */
+  .label-placard {
+    padding: 0;
+    font-family: 'Orbitron', monospace;
+  }
+
+  .placard-header {
+    background: #1a1a2e;
+    color: #00e5ff;
+    padding: 8px 12px;
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-align: center;
+    border-bottom: 3px solid #00e5ff;
+  }
+
+  .placard-body {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .placard-qr { flex-shrink: 0; }
+
+  .placard-info { flex: 1; }
+
+  .placard-zone {
+    font-size: 22px;
+    font-weight: 900;
+    color: #000;
+    line-height: 1;
+    letter-spacing: 1px;
+    word-break: break-all;
+  }
+
+  .placard-desc {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    color: #333;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  .placard-meta {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: #666;
+    margin-top: 4px;
+  }
+
+  .placard-footer {
+    background: #f0f0f0;
+    padding: 5px 12px;
+    font-size: 9px;
+    color: #888;
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Share Tech Mono', monospace;
+    letter-spacing: 1px;
+    border-top: 1px solid #ddd;
+  }
+
+  /* Shelf/Bin label - narrow horizontal */
+  .label-shelf {
+    padding: 0;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .shelf-body {
+    display: flex;
+    align-items: center;
+    padding: 6px 10px;
+    gap: 8px;
+    border-left: 5px solid #ff6b00;
+  }
+
+  .shelf-qr { flex-shrink: 0; }
+
+  .shelf-info { flex: 1; }
+
+  .shelf-addr {
+    font-family: 'Orbitron', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: #000;
+    letter-spacing: 1px;
+  }
+
+  .shelf-desc {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    color: #444;
+    font-weight: 600;
+  }
+
+  .shelf-kits {
+    font-size: 9px;
+    color: #888;
+  }
+
+  /* Electrical port tag - small */
+  .label-elec {
+    padding: 0;
+    font-family: 'Share Tech Mono', monospace;
+    max-width: 260px;
+  }
+
+  .elec-header {
+    background: #cc0000;
+    color: #fff;
+    padding: 4px 8px;
+    font-size: 8px;
+    letter-spacing: 2px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .elec-body {
+    display: flex;
+    align-items: center;
+    padding: 6px 8px;
+    gap: 8px;
+  }
+
+  .elec-addr {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: #000;
+    letter-spacing: 1px;
+  }
+
+  .elec-detail {
+    font-size: 9px;
+    color: #555;
+  }
+
+  .elec-circuit {
+    background: #1a1a2e;
+    color: #00e5ff;
+    padding: 3px 8px;
+    font-size: 9px;
+    letter-spacing: 1px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* Raw text output */
+  .raw-output {
+    background: #0a0c0f;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 12px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--success);
+    white-space: pre;
+    overflow-x: auto;
+    line-height: 1.5;
+  }
+
+  .copy-btn {
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px;
+    background: rgba(0,255,136,0.1);
+    border: 1px solid var(--success);
+    color: var(--success);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 4px;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+  }
+
+  .copy-btn:active { background: rgba(0,255,136,0.25); }
+
+  .save-btn {
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px;
+    background: rgba(0,229,255,0.1);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 4px;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--success);
+    color: #000;
+    padding: 10px 24px;
+    border-radius: 4px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 1px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 10000;
+  }
+
+  .toast.show { opacity: 1; }
+
+  /* Output format toggle */
+  .output-toggle {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 12px;
+  }
+
+  .out-btn {
+    flex: 1;
+    padding: 7px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--dim);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+    text-align: center;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .out-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(0,229,255,0.08);
+  }
+
+  .hidden { display: none !important; }
+
+  #qr-temp { display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">HL<span>//</span>LABEL</div>
+    <p>HIL UNIVERSAL LABEL ENGINE v1.0</p>
+  </div>
+</header>
+
+<!-- Label Type Tabs -->
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('zone')">📍 Zone</button>
+  <button class="tab" onclick="switchTab('shelf')">📦 Shelf/Bin</button>
+  <button class="tab" onclick="switchTab('elec')">⚡ Electrical</button>
+</div>
+
+<!-- ZONE / ROOM PLACARD -->
+<div class="form-section active" id="tab-zone">
+  <div class="addr-builder">
+    <div class="addr-preview" id="zone-addr-preview">HIL-???</div>
+    <div class="row3">
+      <div class="field">
+        <label>Structure</label>
+        <input type="text" id="z-struct" placeholder="BM, SH, KT…" oninput="buildZoneAddr()" maxlength="4">
+      </div>
+      <div class="field">
+        <label>Zone</label>
+        <input type="text" id="z-zone" placeholder="OF, WK…" oninput="buildZoneAddr()" maxlength="4">
+      </div>
+      <div class="field">
+        <label>Wall</label>
+        <select id="z-wall" onchange="buildZoneAddr()">
+          <option value="">—</option>
+          <option>N</option><option>S</option><option>E</option><option>W</option><option>C</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Zone Name / Description</label>
+    <input type="text" id="z-desc" placeholder="Office Command Center" oninput="buildZoneAddr()">
+  </div>
+  <div class="field">
+    <label>Kits / Systems (optional)</label>
+    <input type="text" id="z-kits" placeholder="TK-NET-01, TK-PWR-02">
+  </div>
+  <div class="field">
+    <label>Notes (optional)</label>
+    <input type="text" id="z-notes" placeholder="Primary server zone">
+  </div>
+</div>
+
+<!-- SHELF / BIN -->
+<div class="form-section" id="tab-shelf">
+  <div class="addr-builder">
+    <div class="addr-preview" id="shelf-addr-preview">HIL-???</div>
+    <div class="row3">
+      <div class="field">
+        <label>System</label>
+        <select id="s-sys" onchange="buildShelfAddr()">
+          <option value="WOS">WOS</option>
+          <option value="MOS">MOS</option>
+          <option value="MOM">MOM</option>
+          <option value="OGD">OGD</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Unit/ID</label>
+        <input type="text" id="s-unit" placeholder="A, Rk1…" oninput="buildShelfAddr()" maxlength="4">
+      </div>
+      <div class="field">
+        <label>Color (MOS)</label>
+        <select id="s-color" onchange="buildShelfAddr()">
+          <option value="">—</option>
+          <option value="E">E – Yellow (Electronics)</option>
+          <option value="P">P – Red (Power)</option>
+          <option value="F">F – Green (Fasteners)</option>
+          <option value="B">B – Blue (Plumbing)</option>
+          <option value="S">S – Magenta (Specialty)</option>
+        </select>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Row (A=bottom)</label>
+        <input type="text" id="s-row" placeholder="A, B, C…" oninput="buildShelfAddr()" maxlength="2">
+      </div>
+      <div class="field">
+        <label>Column (left→right)</label>
+        <input type="text" id="s-col" placeholder="01, 02…" oninput="buildShelfAddr()" maxlength="3">
+      </div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Contents Description</label>
+    <input type="text" id="s-desc" placeholder="M4 Hex Bolts / Machine Screws">
+  </div>
+  <div class="field">
+    <label>Kit ID (optional)</label>
+    <input type="text" id="s-kit" placeholder="TK-FAB-03">
+  </div>
+</div>
+
+<!-- ELECTRICAL -->
+<div class="form-section" id="tab-elec">
+  <div class="addr-builder">
+    <div class="addr-preview" id="elec-addr-preview">HIL-???</div>
+    <div class="row3">
+      <div class="field">
+        <label>Zone</label>
+        <input type="text" id="e-zone" placeholder="KT, BM…" oninput="buildElecAddr()" maxlength="4">
+      </div>
+      <div class="field">
+        <label>Wall</label>
+        <select id="e-wall" onchange="buildElecAddr()">
+          <option value="">—</option>
+          <option>N</option><option>S</option><option>E</option><option>W</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Position #</label>
+        <input type="number" id="e-pos" placeholder="1, 2…" oninput="buildElecAddr()" min="1" max="99">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Port Type</label>
+        <select id="e-type" onchange="buildElecAddr()">
+          <option value="E">E – Electrical</option>
+          <option value="KS">KS – Keystone/Data</option>
+          <option value="PS">PS – Power Strip</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Sub-port</label>
+        <select id="e-sub" onchange="buildElecAddr()">
+          <option value="">None (whole unit)</option>
+          <option value="A">A – Top/Upper</option>
+          <option value="B">B – Bottom/Lower</option>
+          <option value="C">C – Third port</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="row2">
+    <div class="field">
+      <label>Circuit / Breaker</label>
+      <input type="text" id="e-circuit" placeholder="CKT-14, BR-07">
+    </div>
+    <div class="field">
+      <label>Runs To</label>
+      <input type="text" id="e-dest" placeholder="Panel / KT-N-3KS">
+    </div>
+  </div>
+  <div class="field">
+    <label>VLAN / Network (KS ports)</label>
+    <input type="text" id="e-vlan" placeholder="VLAN-20 / LAB">
+  </div>
+  <div class="field">
+    <label>Notes</label>
+    <input type="text" id="e-notes" placeholder="15A, shared with dishwasher">
+  </div>
+</div>
+
+<!-- QR Mode -->
+<div style="margin-top:14px;">
+  <label style="display:block; font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--accent); letter-spacing:1px; margin-bottom:6px; text-transform:uppercase;">QR Code Content</label>
+  <div class="toggle-row">
+    <button class="toggle-btn active" onclick="setQRMode('address',this)">HIL Address</button>
+    <button class="toggle-btn" onclick="setQRMode('url',this)">Wiki URL</button>
+  </div>
+  <div id="url-field" class="field hidden">
+    <input type="text" id="wiki-url" placeholder="http://truenas:30244/Shop-Master/...">
+  </div>
+</div>
+
+<!-- Output format -->
+<label style="display:block; font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--accent); letter-spacing:1px; margin-bottom:6px; text-transform:uppercase;">Output Format</label>
+<div class="output-toggle">
+  <button class="out-btn active" onclick="setOutput('visual',this)">🖼 Visual Label</button>
+  <button class="out-btn" onclick="setOutput('raw',this)">📋 Raw Text</button>
+  <button class="out-btn" onclick="setOutput('both',this)">Both</button>
+</div>
+
+<div class="btn-row">
+  <button class="btn btn-primary" onclick="generateLabel()">GENERATE</button>
+  <button class="btn btn-secondary" onclick="clearAll()">CLEAR</button>
+</div>
+
+<!-- Preview -->
+<div id="preview-area">
+  <div class="preview-label">▸ LABEL PREVIEW</div>
+
+  <div id="visual-output"></div>
+  <button class="save-btn hidden" id="save-btn" onclick="saveAsPNG()">⬇ SAVE AS PNG</button>
+
+  <div id="raw-output-wrap" class="hidden">
+    <div class="raw-output" id="raw-text"></div>
+    <button class="copy-btn" onclick="copyRaw()">📋 COPY FOR RAWBT / THERMER</button>
+  </div>
+</div>
+
+<!-- Hidden QR generator -->
+<div id="qr-temp"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+let currentTab = 'zone';
+let qrMode = 'address';
+let outputMode = 'visual';
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active', ['zone','shelf','elec'][i] === tab);
+  });
+  document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+function setQRMode(mode, btn) {
+  qrMode = mode;
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('url-field').classList.toggle('hidden', mode !== 'url');
+}
+
+function setOutput(mode, btn) {
+  outputMode = mode;
+  document.querySelectorAll('.out-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function buildZoneAddr() {
+  const s = document.getElementById('z-struct').value.toUpperCase();
+  const z = document.getElementById('z-zone').value.toUpperCase();
+  const w = document.getElementById('z-wall').value;
+  let addr = 'HIL';
+  if(s) addr += '-' + s;
+  if(z) addr += '-' + z;
+  if(w) addr += '-' + w;
+  document.getElementById('zone-addr-preview').textContent = addr;
+}
+
+function buildShelfAddr() {
+  const sys = document.getElementById('s-sys').value;
+  const unit = document.getElementById('s-unit').value.toUpperCase();
+  const color = document.getElementById('s-color').value;
+  const row = document.getElementById('s-row').value.toUpperCase();
+  const col = document.getElementById('s-col').value;
+  let addr = sys;
+  if(color) addr += '-' + color;
+  if(unit) addr += '-' + unit;
+  if(row) addr += '-R' + row;
+  if(col) addr += '-C' + col.padStart(2,'0');
+  document.getElementById('shelf-addr-preview').textContent = addr;
+}
+
+function buildElecAddr() {
+  const zone = document.getElementById('e-zone').value.toUpperCase();
+  const wall = document.getElementById('e-wall').value;
+  const pos = document.getElementById('e-pos').value;
+  const type = document.getElementById('e-type').value;
+  const sub = document.getElementById('e-sub').value;
+  let addr = 'HIL';
+  if(zone) addr += '-' + zone;
+  if(wall) addr += '-' + wall;
+  if(pos) addr += '-' + pos;
+  addr += type;
+  if(sub) addr += sub;
+  document.getElementById('elec-addr-preview').textContent = addr;
+}
+
+function getAddress() {
+  if(currentTab === 'zone') return document.getElementById('zone-addr-preview').textContent;
+  if(currentTab === 'shelf') return document.getElementById('shelf-addr-preview').textContent;
+  return document.getElementById('elec-addr-preview').textContent;
+}
+
+function getQRData() {
+  if(qrMode === 'url') {
+    const u = document.getElementById('wiki-url').value;
+    return u || getAddress();
+  }
+  return getAddress();
+}
+
+function generateQR(container, data, size) {
+  container.innerHTML = '';
+  new QRCode(container, {
+    text: data,
+    width: size,
+    height: size,
+    colorDark: '#000000',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M
+  });
+}
+
+function generateLabel() {
+  const addr = getAddress();
+  if(addr === 'HIL-???' || addr === 'HIL' || addr.endsWith('-')) {
+    showToast('Fill in address fields first');
+    return;
+  }
+
+  const qrData = getQRData();
+  const preview = document.getElementById('preview-area');
+  preview.classList.add('visible');
+
+  const visualOut = document.getElementById('visual-output');
+  const rawWrap = document.getElementById('raw-output-wrap');
+  const saveBtn = document.getElementById('save-btn');
+
+  visualOut.innerHTML = '';
+  rawWrap.classList.add('hidden');
+  saveBtn.classList.add('hidden');
+
+  const showVisual = outputMode === 'visual' || outputMode === 'both';
+  const showRaw = outputMode === 'raw' || outputMode === 'both';
+
+  if(showVisual) {
+    const labelEl = buildVisualLabel(addr, qrData);
+    visualOut.appendChild(labelEl);
+    saveBtn.classList.remove('hidden');
+  }
+
+  if(showRaw) {
+    document.getElementById('raw-text').textContent = buildRawText(addr);
+    rawWrap.classList.remove('hidden');
+  }
+
+  // Generate QR after DOM insertion
+  setTimeout(() => {
+    document.querySelectorAll('.qr-target').forEach(el => {
+      generateQR(el, el.dataset.qr, parseInt(el.dataset.size));
+    });
+  }, 50);
+}
+
+function buildVisualLabel(addr, qrData) {
+  if(currentTab === 'zone') return buildZonePlacard(addr, qrData);
+  if(currentTab === 'shelf') return buildShelfLabel(addr, qrData);
+  return buildElecLabel(addr, qrData);
+}
+
+function buildZonePlacard(addr, qrData) {
+  const desc = document.getElementById('z-desc').value || '—';
+  const kits = document.getElementById('z-kits').value;
+  const notes = document.getElementById('z-notes').value;
+  const wall = document.getElementById('z-wall').value;
+
+  const div = document.createElement('div');
+  div.className = 'label-card label-placard';
+  div.innerHTML = `
+    <div class="placard-header">▸ HIL MASTER SYSTEM &nbsp;|&nbsp; HOME INVENTORY LOCATOR</div>
+    <div class="placard-body">
+      <div class="placard-qr qr-target" data-qr="${qrData}" data-size="70"></div>
+      <div class="placard-info">
+        <div class="placard-zone">${addr}</div>
+        <div class="placard-desc">${desc}</div>
+        <div class="placard-meta">${wall ? 'WALL: ' + wall : ''}${kits ? ' | ' + kits : ''}${notes ? ' | ' + notes : ''}</div>
+      </div>
+    </div>
+    <div class="placard-footer">
+      <span>HL-LABEL-ENGINE v1.0</span>
+      <span>${new Date().toLocaleDateString()}</span>
+    </div>
+  `;
+  return div;
+}
+
+function buildShelfLabel(addr, qrData) {
+  const desc = document.getElementById('s-desc').value || '—';
+  const kit = document.getElementById('s-kit').value;
+  const color = document.getElementById('s-color').value;
+  const colorMap = {E:'#ffcc00',P:'#cc0000',F:'#006600',B:'#0044cc',S:'#cc00cc'};
+  const borderColor = colorMap[color] || '#ff6b00';
+
+  const div = document.createElement('div');
+  div.className = 'label-card label-shelf';
+  div.innerHTML = `
+    <div class="shelf-body" style="border-left-color:${borderColor}">
+      <div class="shelf-qr qr-target" data-qr="${qrData}" data-size="52"></div>
+      <div class="shelf-info">
+        <div class="shelf-addr">${addr}</div>
+        <div class="shelf-desc">${desc}</div>
+        <div class="shelf-kits">${kit ? kit : ''}</div>
+      </div>
+    </div>
+  `;
+  return div;
+}
+
+function buildElecLabel(addr, qrData) {
+  const circuit = document.getElementById('e-circuit').value || '—';
+  const dest = document.getElementById('e-dest').value || '—';
+  const vlan = document.getElementById('e-vlan').value;
+  const notes = document.getElementById('e-notes').value;
+  const type = document.getElementById('e-type').value;
+  const typeLabel = {E:'ELECTRICAL RECEPTACLE', KS:'KEYSTONE / DATA PORT', PS:'POWER STRIP'}[type] || 'ELECTRICAL';
+
+  const div = document.createElement('div');
+  div.className = 'label-card label-elec';
+  div.innerHTML = `
+    <div class="elec-header">
+      <span>⚡ ${typeLabel}</span>
+      <span>HIL SYSTEM</span>
+    </div>
+    <div class="elec-body">
+      <div class="qr-target" data-qr="${qrData}" data-size="52"></div>
+      <div>
+        <div class="elec-addr">${addr}</div>
+        <div class="elec-detail">CIRCUIT: ${circuit}</div>
+        <div class="elec-detail">RUNS TO: ${dest}</div>
+        ${vlan ? `<div class="elec-detail">VLAN: ${vlan}</div>` : ''}
+        ${notes ? `<div class="elec-detail">${notes}</div>` : ''}
+      </div>
+    </div>
+    <div class="elec-circuit">
+      <span>HL-LABEL v1.0</span>
+      <span>${new Date().toLocaleDateString()}</span>
+    </div>
+  `;
+  return div;
+}
+
+function buildRawText(addr) {
+  const line = '================================';
+  const thin = '--------------------------------';
+  let out = line + '\n';
+  out += '     HIL MASTER SYSTEM          \n';
+  out += line + '\n';
+
+  if(currentTab === 'zone') {
+    out += 'ZONE:  ' + addr + '\n';
+    const desc = document.getElementById('z-desc').value;
+    const kits = document.getElementById('z-kits').value;
+    const notes = document.getElementById('z-notes').value;
+    if(desc) out += 'DESC:  ' + desc + '\n';
+    out += thin + '\n';
+    if(kits) out += 'KITS:  ' + kits + '\n';
+    if(notes) out += 'NOTE:  ' + notes + '\n';
+  } else if(currentTab === 'shelf') {
+    out += 'ADDR:  ' + addr + '\n';
+    const desc = document.getElementById('s-desc').value;
+    const kit = document.getElementById('s-kit').value;
+    out += thin + '\n';
+    if(desc) out += 'ITEM:  ' + desc + '\n';
+    if(kit) out += 'KIT:   ' + kit + '\n';
+  } else {
+    out += 'ELEC:  ' + addr + '\n';
+    const circuit = document.getElementById('e-circuit').value;
+    const dest = document.getElementById('e-dest').value;
+    const vlan = document.getElementById('e-vlan').value;
+    const notes = document.getElementById('e-notes').value;
+    out += thin + '\n';
+    if(circuit) out += 'CKT:   ' + circuit + '\n';
+    if(dest) out += 'TO:    ' + dest + '\n';
+    if(vlan) out += 'VLAN:  ' + vlan + '\n';
+    if(notes) out += 'NOTE:  ' + notes + '\n';
+  }
+
+  out += line + '\n';
+  out += '[QR:' + getQRData() + ']\n';
+  out += 'DATE:  ' + new Date().toLocaleDateString() + '\n';
+  out += line;
+  return out;
+}
+
+function copyRaw() {
+  const text = document.getElementById('raw-text').textContent;
+  navigator.clipboard.writeText(text).then(() => showToast('Copied! Paste into RawBT or Thermer'));
+}
+
+function saveAsPNG() {
+  const label = document.querySelector('#visual-output .label-card');
+  if(!label) return;
+  // Use html2canvas if available, otherwise prompt screenshot
+  showToast('Screenshot the label above to save as PNG');
+}
+
+function clearAll() {
+  document.querySelectorAll('input').forEach(i => i.value = '');
+  document.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+  document.getElementById('zone-addr-preview').textContent = 'HIL-???';
+  document.getElementById('shelf-addr-preview').textContent = 'HIL-???';
+  document.getElementById('elec-addr-preview').textContent = 'HIL-???';
+  document.getElementById('preview-area').classList.remove('visible');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Init
+buildZoneAddr();
+</script>
+</body>
+</html>

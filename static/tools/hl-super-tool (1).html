@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HL Super Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root {
+    --bg: #0d0f0e;
+    --surface: #141816;
+    --surface2: #1c201e;
+    --border: #2a302c;
+    --accent: #4cff91;
+    --accent2: #00c9ff;
+    --accent3: #ffd84c;
+    --text: #dde8e2;
+    --muted: #6b7d72;
+    --danger: #ff5c5c;
+    --mono: 'Share Tech Mono', monospace;
+    --head: 'Barlow Condensed', sans-serif;
+    --body: 'Barlow', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .logo-mark {
+    width: 38px; height: 38px;
+    background: var(--accent);
+    color: #000;
+    font-family: var(--head);
+    font-weight: 900;
+    font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    letter-spacing: -1px;
+    flex-shrink: 0;
+  }
+
+  header h1 {
+    font-family: var(--head);
+    font-weight: 900;
+    font-size: 22px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  header p {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: var(--mono);
+    margin-top: 1px;
+  }
+
+  /* MAIN LAYOUT */
+  .main {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 0;
+    min-height: calc(100vh - 73px);
+  }
+
+  /* INPUT PANEL */
+  .input-panel {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+  }
+
+  .field-group { display: flex; flex-direction: column; gap: 14px; }
+
+  label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+    display: block;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+  }
+
+  textarea { resize: vertical; min-height: 70px; }
+
+  select option { background: var(--surface2); }
+
+  .address-builder {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .address-preview {
+    background: var(--bg);
+    border: 1px solid var(--accent);
+    padding: 10px 12px;
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    margin-top: 6px;
+    text-align: center;
+  }
+
+  .generate-btn {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 14px;
+    font-family: var(--head);
+    font-weight: 900;
+    font-size: 16px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  .generate-btn:hover { background: #6fffaa; transform: translateY(-1px); }
+  .generate-btn:active { transform: translateY(0); }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 4px 0;
+  }
+
+  /* OUTPUT PANEL */
+  .output-panel {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+
+  .tab {
+    padding: 14px 20px;
+    font-family: var(--head);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.15s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* OUTPUT CONTENT */
+  .output-content {
+    flex: 1;
+    padding: 28px;
+    overflow-y: auto;
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    gap: 12px;
+    color: var(--muted);
+  }
+
+  .empty-icon {
+    font-size: 48px;
+    opacity: 0.3;
+  }
+
+  .empty-state p {
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+
+  /* OUTPUT CARDS */
+  .output-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  .card-header {
+    padding: 10px 16px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .card-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 4px 10px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.15s;
+  }
+
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .card-body {
+    padding: 16px;
+  }
+
+  /* LABEL PREVIEW */
+  .label-preview {
+    background: #fff;
+    color: #000;
+    padding: 16px 20px;
+    max-width: 360px;
+    border: 2px solid #000;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .label-address {
+    font-size: 28px;
+    font-weight: bold;
+    letter-spacing: 4px;
+    border-bottom: 2px solid #000;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+  }
+
+  .label-item {
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    word-break: break-all;
+  }
+
+  .label-meta {
+    font-size: 10px;
+    color: #555;
+    margin-top: 8px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .qr-box {
+    width: 64px; height: 64px;
+    float: right;
+    margin-left: 10px;
+    flex-shrink: 0;
+  }
+
+  .qr-box canvas, .qr-box img {
+    width: 64px !important;
+    height: 64px !important;
+    display: block;
+  }
+
+  /* ZONE SIGN */
+  .zone-sign {
+    background: #1a1a1a;
+    color: #fff;
+    padding: 24px 32px;
+    max-width: 400px;
+    text-align: center;
+    border: 3px solid #fff;
+  }
+
+  .sign-address {
+    font-family: var(--mono);
+    font-size: 36px;
+    letter-spacing: 6px;
+    color: var(--accent);
+    font-weight: bold;
+  }
+
+  .sign-name {
+    font-family: var(--head);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 6px;
+    color: #fff;
+  }
+
+  .sign-desc {
+    font-size: 12px;
+    color: #888;
+    margin-top: 8px;
+    font-family: var(--mono);
+  }
+
+  /* CODE OUTPUT */
+  .code-block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 14px 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-all;
+    color: #a8c8b0;
+  }
+
+  .code-key { color: var(--accent2); }
+  .code-val { color: var(--accent3); }
+  .code-comment { color: var(--muted); }
+  .code-heading { color: var(--accent); font-weight: bold; }
+
+  /* PRINT */
+  @media print {
+    header, .input-panel, .tabs { display: none !important; }
+    .main { grid-template-columns: 1fr; }
+    .output-content { padding: 0; }
+    .tab-panel { display: block !important; }
+    .output-card { break-inside: avoid; }
+    body { background: #fff; color: #000; }
+    .code-block { background: #f5f5f5; color: #000; }
+  }
+
+  /* PRINT BTN */
+  .print-btn {
+    background: none;
+    border: 1px solid var(--accent2);
+    color: var(--accent2);
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 5px 14px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.15s;
+    margin-left: 8px;
+  }
+
+  .print-btn:hover { background: var(--accent2); color: #000; }
+
+  .tab-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+    gap: 8px;
+  }
+
+  /* STATUS */
+  .status-bar {
+    padding: 8px 28px;
+    background: var(--surface2);
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    display: flex;
+    gap: 24px;
+  }
+
+  .status-item span { color: var(--accent); }
+
+  @media (max-width: 768px) {
+    .main { grid-template-columns: 1fr; }
+    .input-panel { border-right: none; border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark">HL</div>
+  <div>
+    <h1>Super Tool</h1>
+    <p>Human Layer System — Unified Output Generator v1.1</p>
+  </div>
+</header>
+
+<div class="main">
+  <!-- INPUT PANEL -->
+  <div class="input-panel">
+    <div>
+      <div class="section-label">HL Address</div>
+      <div class="field-group">
+        <div>
+          <label>Structure Code</label>
+          <input type="text" id="struct" placeholder="e.g. HM, GR, SH" maxlength="4" oninput="updateAddress(); this.value=this.value.toUpperCase()">
+        </div>
+        <div class="address-builder">
+          <div>
+            <label>Zone</label>
+            <input type="text" id="zone" placeholder="WS, LR, KT" maxlength="4" oninput="updateAddress(); this.value=this.value.toUpperCase()">
+          </div>
+          <div>
+            <label>Section</label>
+            <input type="text" id="section" placeholder="S1, N2" maxlength="4" oninput="updateAddress(); this.value=this.value.toUpperCase()">
+          </div>
+          <div>
+            <label>Shelf/Mount</label>
+            <input type="text" id="shelf" placeholder="A0, M1" maxlength="4" oninput="updateAddress(); this.value=this.value.toUpperCase()">
+          </div>
+          <div>
+            <label>Position</label>
+            <input type="text" id="pos" placeholder="P1 (opt)" maxlength="4" oninput="updateAddress(); this.value=this.value.toUpperCase()">
+          </div>
+        </div>
+        <div class="address-preview" id="addressPreview">—</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div>
+      <div class="section-label">Item / Zone Identity</div>
+      <div class="field-group">
+        <div>
+          <label>Item Name (HL format)</label>
+          <input type="text" id="itemName" placeholder="TOOL-DRILL-CORDLESS-18V" oninput="this.value=this.value.toUpperCase()">
+        </div>
+        <div>
+          <label>Human-Readable Name</label>
+          <input type="text" id="friendlyName" placeholder="Workshop South Wall">
+        </div>
+        <div>
+          <label>Category / Type</label>
+          <select id="category">
+            <option value="">— Select —</option>
+            <option value="TOOL">Tool</option>
+            <option value="FASTENER">Fastener / Hardware</option>
+            <option value="APPLIANCE">Appliance</option>
+            <option value="CONTAINER">Container / Kit</option>
+            <option value="ZONE">Zone / Space</option>
+            <option value="ELECTRICAL">Electrical</option>
+            <option value="SUPPLY">Supply / Consumable</option>
+            <option value="HEIRLOOM">Heirloom / Estate Item</option>
+            <option value="OTHER">Other</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div>
+      <div class="section-label">Provenance & Details</div>
+      <div class="field-group">
+        <div>
+          <label>Make / Manufacturer</label>
+          <input type="text" id="make" placeholder="Milwaukee, Ford, Dr. Piper estate…">
+        </div>
+        <div>
+          <label>Model / Variant</label>
+          <input type="text" id="model" placeholder="Model 9N, M18, etc.">
+        </div>
+        <div>
+          <label>Condition</label>
+          <select id="condition">
+            <option value="">— Select —</option>
+            <option>New</option>
+            <option>Excellent</option>
+            <option>Good</option>
+            <option>Fair</option>
+            <option>For Parts</option>
+            <option>Restored</option>
+          </select>
+        </div>
+        <div>
+          <label>Estimated Value ($)</label>
+          <input type="text" id="value" placeholder="0.00">
+        </div>
+        <div>
+          <label>Notes / History</label>
+          <textarea id="notes" placeholder="Provenance, purchase date, story, etc."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div>
+      <div class="section-label">QR Code</div>
+      <div class="field-group">
+        <div>
+          <label>Vault URL (optional)</label>
+          <input type="text" id="vaultUrl" placeholder="https://yoursite.com/vault?addr=HM-WS-S2-A1">
+        </div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);line-height:1.5">
+          If blank, QR encodes the HL address only. Add a URL to link labels directly to the vault record.
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div>
+      <div class="section-label">Home Assistant</div>
+      <div class="field-group">
+        <div>
+          <label>Device Type</label>
+          <select id="haType">
+            <option value="">— Select —</option>
+            <option value="light">light</option>
+            <option value="switch">switch</option>
+            <option value="sensor">sensor</option>
+            <option value="binary_sensor">binary_sensor</option>
+            <option value="lock">lock</option>
+            <option value="climate">climate</option>
+            <option value="media_player">media_player</option>
+            <option value="camera">camera</option>
+            <option value="cover">cover</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <button class="generate-btn" onclick="generate()">⚡ Generate All Outputs</button>
+  </div>
+
+  <!-- OUTPUT PANEL -->
+  <div class="output-panel">
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('label')">📎 Label</button>
+      <button class="tab" onclick="showTab('sign')">🪧 Zone Sign</button>
+      <button class="tab" onclick="showTab('wiki')">📄 Wiki Page</button>
+      <button class="tab" onclick="showTab('exchange')">🔄 HIL Exchange</button>
+      <button class="tab" onclick="showTab('ha')">🏠 Home Assistant</button>
+    </div>
+
+    <div class="output-content">
+
+      <!-- LABEL TAB -->
+      <div class="tab-panel active" id="tab-label">
+        <div class="empty-state" id="empty-label">
+          <div class="empty-icon">📎</div>
+          <p>Fill in the form and hit Generate</p>
+        </div>
+        <div id="out-label" style="display:none">
+          <div class="tab-actions">
+            <button class="print-btn" onclick="window.print()">🖨 Print</button>
+            <button class="copy-btn" onclick="copyEl('label-text')">Copy Text</button>
+          </div>
+          <div class="output-card">
+            <div class="card-header">
+              <span class="card-title">Item Label</span>
+              <span style="font-family:var(--mono);font-size:10px;color:var(--muted)">Print on Avery 5163 or similar</span>
+            </div>
+            <div class="card-body">
+              <div class="label-preview">
+                <div class="qr-box" id="qr-label"></div>
+                <div class="label-address" id="l-address"></div>
+                <div class="label-item" id="l-item"></div>
+                <div class="label-item" id="l-friendly" style="font-size:11px;color:#333"></div>
+                <div style="clear:both"></div>
+                <div class="label-meta">
+                  <span id="l-make"></span>
+                  <span id="l-condition"></span>
+                </div>
+              </div>
+              <pre id="label-text" style="display:none"></pre>
+            </div>
+          </div>
+          <div class="output-card">
+            <div class="card-header">
+              <span class="card-title">Shelf / Zone Placard</span>
+            </div>
+            <div class="card-body">
+              <div class="label-preview" style="max-width:220px;text-align:center;padding:12px">
+                <div style="font-size:22px;font-weight:bold;letter-spacing:4px" id="l-address2"></div>
+                <div style="font-size:10px;color:#555;margin-top:4px" id="l-friendly2"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIGN TAB -->
+      <div class="tab-panel" id="tab-sign">
+        <div class="empty-state" id="empty-sign">
+          <div class="empty-icon">🪧</div>
+          <p>Fill in the form and hit Generate</p>
+        </div>
+        <div id="out-sign" style="display:none">
+          <div class="tab-actions">
+            <button class="print-btn" onclick="window.print()">🖨 Print</button>
+          </div>
+          <div class="output-card">
+            <div class="card-header"><span class="card-title">Zone Sign — Dark</span></div>
+            <div class="card-body">
+              <div class="zone-sign">
+                <div class="sign-address" id="s-address"></div>
+                <div class="sign-name" id="s-name"></div>
+                <div class="sign-desc" id="s-desc"></div>
+              </div>
+            </div>
+          </div>
+          <div class="output-card">
+            <div class="card-header"><span class="card-title">Zone Sign — Light</span></div>
+            <div class="card-body">
+              <div class="zone-sign" style="background:#fff;color:#000;border-color:#000">
+                <div class="sign-address" style="color:#000" id="s-address2"></div>
+                <div class="sign-name" style="color:#000" id="s-name2"></div>
+                <div class="sign-desc" style="color:#555" id="s-desc2"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WIKI TAB -->
+      <div class="tab-panel" id="tab-wiki">
+        <div class="empty-state" id="empty-wiki">
+          <div class="empty-icon">📄</div>
+          <p>Fill in the form and hit Generate</p>
+        </div>
+        <div id="out-wiki" style="display:none">
+          <div class="tab-actions">
+            <button class="copy-btn" onclick="copyEl('wiki-md')">Copy Markdown</button>
+          </div>
+          <div class="output-card">
+            <div class="card-header"><span class="card-title">Wiki / Vault Page — Markdown</span></div>
+            <div class="card-body">
+              <pre class="code-block" id="wiki-md"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXCHANGE TAB -->
+      <div class="tab-panel" id="tab-exchange">
+        <div class="empty-state" id="empty-exchange">
+          <div class="empty-icon">🔄</div>
+          <p>Fill in the form and hit Generate</p>
+        </div>
+        <div id="out-exchange" style="display:none">
+          <div class="tab-actions">
+            <button class="copy-btn" onclick="copyEl('exchange-text')">Copy Listing</button>
+          </div>
+          <div class="output-card">
+            <div class="card-header"><span class="card-title">HIL Exchange Listing</span></div>
+            <div class="card-body">
+              <pre class="code-block" id="exchange-text"></pre>
+            </div>
+          </div>
+          <div class="output-card">
+            <div class="card-header"><span class="card-title">Legacy / Estate Mode</span></div>
+            <div class="card-body">
+              <pre class="code-block" id="legacy-text"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HOME ASSISTANT TAB -->
+      <div class="tab-panel" id="tab-ha">
+        <div class="empty-state" id="empty-ha">
+          <div class="empty-icon">🏠</div>
+          <p>Fill in the form and hit Generate</p>
+        </div>
+        <div id="out-ha" style="display:none">
+          <div class="tab-actions">
+            <button class="copy-btn" onclick="copyEl('ha-yaml')">Copy YAML</button>
+          </div>
+          <div class="output-card">
+            <div class="card-header"><span class="card-title">Entity ID & Friendly Name</span></div>
+            <div class="card-body">
+              <pre class="code-block" id="ha-entity"></pre>
+            </div>
+          </div>
+          <div class="output-card">
+            <div class="card-header"><span class="card-title">YAML Configuration</span></div>
+            <div class="card-body">
+              <pre class="code-block" id="ha-yaml"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="status-bar">
+      <span>HL SUPER TOOL <span>v1.1</span></span>
+      <span>ADDRESS: <span id="status-addr">—</span></span>
+      <span>ITEM: <span id="status-item">—</span></span>
+      <span style="margin-left:auto">Runs offline · No data sent</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  function updateAddress() {
+    const parts = [
+      document.getElementById('struct').value,
+      document.getElementById('zone').value,
+      document.getElementById('section').value,
+      document.getElementById('shelf').value,
+      document.getElementById('pos').value
+    ].filter(Boolean);
+    const addr = parts.join('-');
+    document.getElementById('addressPreview').textContent = addr || '—';
+    document.getElementById('status-addr').textContent = addr || '—';
+  }
+
+  function getAddress() {
+    const parts = [
+      document.getElementById('struct').value,
+      document.getElementById('zone').value,
+      document.getElementById('section').value,
+      document.getElementById('shelf').value,
+      document.getElementById('pos').value
+    ].filter(Boolean);
+    return parts.join('-');
+  }
+
+  function showTab(name) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('tab-' + name).classList.add('active');
+  }
+
+  function copyEl(id) {
+    const el = document.getElementById(id);
+    const text = el.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = event.target;
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.style.color = 'var(--accent)';
+      setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 1500);
+    });
+  }
+
+  function generate() {
+    const addr = getAddress();
+    const item = document.getElementById('itemName').value || 'ITEM-UNNAMED';
+    const friendly = document.getElementById('friendlyName').value || '';
+    const make = document.getElementById('make').value || '';
+    const model = document.getElementById('model').value || '';
+    const condition = document.getElementById('condition').value || '';
+    const value = document.getElementById('value').value || '';
+    const notes = document.getElementById('notes').value || '';
+    const haType = document.getElementById('haType').value || 'sensor';
+    const category = document.getElementById('category').value || '';
+    const date = new Date().toISOString().split('T')[0];
+
+    if (!addr) { alert('Please enter at least a structure code and zone to build an address.'); return; }
+
+    document.getElementById('status-item').textContent = item;
+
+    // ── QR CODE ──
+    const vaultUrl = document.getElementById('vaultUrl').value.trim();
+    const qrData = vaultUrl || `HL:${addr}:${item}`;
+    const qrEl = document.getElementById('qr-label');
+    qrEl.innerHTML = '';
+    new QRCode(qrEl, {
+      text: qrData,
+      width: 64,
+      height: 64,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+
+    // ── LABEL ──
+    document.getElementById('l-address').textContent = addr;
+    document.getElementById('l-address2').textContent = addr;
+    document.getElementById('l-item').textContent = item;
+    document.getElementById('l-friendly').textContent = friendly;
+    document.getElementById('l-friendly2').textContent = friendly;
+    document.getElementById('l-make').textContent = [make, model].filter(Boolean).join(' ');
+    document.getElementById('l-condition').textContent = condition;
+    document.getElementById('label-text').textContent =
+      `ADDRESS: ${addr}\nITEM:    ${item}\nNAME:    ${friendly}\nMAKE:    ${[make,model].filter(Boolean).join(' ')}\nCOND:    ${condition}\nDATE:    ${date}`;
+    document.getElementById('empty-label').style.display = 'none';
+    document.getElementById('out-label').style.display = 'block';
+
+    // ── SIGN ──
+    const zoneDesc = category ? `${category} — HL System` : 'HL System';
+    ['s-address','s-address2'].forEach(id => document.getElementById(id).textContent = addr);
+    ['s-name','s-name2'].forEach(id => document.getElementById(id).textContent = friendly || item);
+    ['s-desc','s-desc2'].forEach(id => document.getElementById(id).textContent = zoneDesc);
+    document.getElementById('empty-sign').style.display = 'none';
+    document.getElementById('out-sign').style.display = 'block';
+
+    // ── WIKI ──
+    const wiki = `# ${item}
+> **HL Address:** \`${addr}\`${friendly ? `  |  **Location:** ${friendly}` : ''}
+
+---
+
+## Identity
+
+| Field | Value |
+|---|---|
+| **HL Address** | \`${addr}\` |
+| **Item Name** | \`${item}\` |
+| **Human Name** | ${friendly || '—'} |
+| **Category** | ${category || '—'} |
+| **Make** | ${make || '—'} |
+| **Model** | ${model || '—'} |
+
+---
+
+## Condition & Value
+
+| Field | Value |
+|---|---|
+| **Condition** | ${condition || '—'} |
+| **Est. Value** | ${value ? '$' + value : '—'} |
+| **Record Date** | ${date} |
+
+---
+
+## Provenance & Notes
+
+${notes || '_No notes recorded._'}
+
+---
+
+## History
+
+| Date | Event |
+|---|---|
+| ${date} | Record created via HL Super Tool |
+
+---
+
+*Part of the HL System — Human Layer*  
+*Address: \`${addr}\` — Generated ${date}*`;
+
+    document.getElementById('wiki-md').textContent = wiki;
+    document.getElementById('empty-wiki').style.display = 'none';
+    document.getElementById('out-wiki').style.display = 'block';
+
+    // ── EXCHANGE ──
+    const exchange = `HL EXCHANGE LISTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ITEM:      ${item}
+ADDRESS:   ${addr}
+NAME:      ${friendly || '—'}
+MAKE:      ${[make, model].filter(Boolean).join(' ') || '—'}
+CONDITION: ${condition || '—'}
+VALUE:     ${value ? '$' + value : 'Make offer'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LISTING TYPE:  Trade / Borrow / Sale
+NOTES:
+${notes || '(none)'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Generated: ${date} | HL System v1.0`;
+
+    const legacy = `LEGACY / ESTATE LISTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ITEM:      ${item}
+ADDRESS:   ${addr}
+NAME:      ${friendly || '—'}
+MAKE:      ${[make, model].filter(Boolean).join(' ') || '—'}
+CONDITION: ${condition || '—'}
+EST VALUE: ${value ? '$' + value : 'To be appraised'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PROVENANCE:
+${notes || '(none)'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+This record was created to assist estate
+handling. The item is located at address
+${addr} in the HL System vault.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Generated: ${date} | HL System v1.0`;
+
+    document.getElementById('exchange-text').textContent = exchange;
+    document.getElementById('legacy-text').textContent = legacy;
+    document.getElementById('empty-exchange').style.display = 'none';
+    document.getElementById('out-exchange').style.display = 'block';
+
+    // ── HOME ASSISTANT ──
+    const addrLower = addr.toLowerCase().replace(/-/g, '_');
+    const entityId = `${haType}.${addrLower}`;
+    const haFriendly = friendly || item.toLowerCase().replace(/-/g,'_');
+
+    const haEntityText = `Entity ID:     ${entityId}
+Friendly Name: ${haFriendly}
+HL Address:    ${addr}`;
+
+    const haZone = document.getElementById('zone').value.toLowerCase();
+    const haStruct = document.getElementById('struct').value.toLowerCase();
+
+    const yaml = `# ${item}
+# HL Address: ${addr}
+${haType}:
+  - platform: your_platform
+    name: ${addrLower}
+    friendly_name: "${haFriendly}"
+    labels:
+      - HL-ZONE-${(document.getElementById('zone').value || 'UNKNOWN')}
+      - HL-STRUCT-${(document.getElementById('struct').value || 'UNKNOWN')}
+    tags:
+      - hl_structure_${haStruct || 'unknown'}
+      - hl_zone_${haZone || 'unknown'}
+      - hl_type_${haType}
+    # HL Provenance
+    # Make:      ${make || '—'}
+    # Model:     ${model || '—'}
+    # Condition: ${condition || '—'}
+    # Recorded:  ${date}`;
+
+    document.getElementById('ha-entity').textContent = haEntityText;
+    document.getElementById('ha-yaml').textContent = yaml;
+    document.getElementById('empty-ha').style.display = 'none';
+    document.getElementById('out-ha').style.display = 'block';
+  }
+</script>
+</body>
+</html>

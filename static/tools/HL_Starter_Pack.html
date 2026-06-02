@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HL System — Printable Starter Pack</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=Source+Sans+3:wght@300;400;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: #f0ede8;
+    color: #1a1a1a;
+  }
+
+  /* SCREEN NAV */
+  .screen-only {
+    background: #1a1a1a;
+    color: #f0ede8;
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .screen-only h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 3px;
+    color: #e8c96d;
+  }
+  .screen-only p {
+    font-size: 0.85rem;
+    opacity: 0.6;
+    max-width: 400px;
+  }
+  .print-btn {
+    background: #e8c96d;
+    color: #1a1a1a;
+    border: none;
+    padding: 12px 28px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .print-btn:hover { background: #d4b44a; }
+
+  .section-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 4px;
+    color: #888;
+    text-align: center;
+    padding: 30px 0 10px;
+  }
+
+  /* PRINT PAGES */
+  .print-page {
+    width: 8.5in;
+    min-height: 11in;
+    margin: 20px auto;
+    background: white;
+    padding: 0.5in;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    page-break-after: always;
+  }
+
+  /* PAGE 1 — CARDINAL ANCHOR SIGNS */
+  .anchor-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 0.25in;
+    height: 9.5in;
+  }
+
+  .anchor-sign {
+    border: 4px solid #1a1a1a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    position: relative;
+    background: white;
+  }
+
+  .anchor-sign .direction-letter {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 4.5rem;
+    letter-spacing: 8px;
+    line-height: 1;
+    color: #1a1a1a;
+  }
+
+  .anchor-sign .direction-word {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 4px;
+    color: #666;
+    text-transform: uppercase;
+  }
+
+  .anchor-sign .hl-mark {
+    width: 70px;
+    height: 70px;
+  }
+
+  .anchor-sign .corner-code {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    color: #aaa;
+    letter-spacing: 1px;
+  }
+
+  .anchor-sign .cut-line {
+    position: absolute;
+    bottom: 8px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.5rem;
+    color: #ccc;
+    letter-spacing: 2px;
+  }
+
+  /* PAGE 2 — ZONE SIGNS */
+  .zone-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.2in;
+  }
+
+  .zone-sign {
+    border: 3px solid #1a1a1a;
+    padding: 20px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    aspect-ratio: 1;
+    justify-content: center;
+  }
+
+  .zone-sign .zone-code {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.8rem;
+    letter-spacing: 4px;
+    line-height: 1;
+  }
+
+  .zone-sign .zone-name {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 3px;
+    color: #666;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .zone-sign .zone-example {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.45rem;
+    color: #aaa;
+    letter-spacing: 1px;
+  }
+
+  /* PAGE 3 — REFERENCE CARD */
+  .ref-card {
+    border: 4px solid #1a1a1a;
+    padding: 0.4in;
+    height: 9.8in;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .ref-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 3px solid #1a1a1a;
+    padding-bottom: 16px;
+  }
+
+  .ref-header h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    letter-spacing: 4px;
+  }
+
+  .ref-header .tagline {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    color: #666;
+    text-align: right;
+  }
+
+  .ref-section h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 3px;
+    color: #888;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 4px;
+  }
+
+  .address-breakdown {
+    display: flex;
+    gap: 0;
+    align-items: stretch;
+    margin: 12px 0;
+  }
+
+  .addr-segment {
+    flex: 1;
+    border: 2px solid #1a1a1a;
+    margin-right: -2px;
+    padding: 12px 8px;
+    text-align: center;
+  }
+
+  .addr-segment .seg-code {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 4px;
+  }
+
+  .addr-segment .seg-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 2px;
+    color: #888;
+    display: block;
+    margin-top: 4px;
+  }
+
+  .addr-segment .seg-meaning {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.5rem;
+    color: #aaa;
+    display: block;
+    margin-top: 2px;
+  }
+
+  .code-table {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 8px;
+  }
+
+  .code-col h4 {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    color: #888;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  .code-row {
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+    padding: 3px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .code-key {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    min-width: 40px;
+    color: #1a1a1a;
+  }
+
+  .code-val {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    color: #555;
+    letter-spacing: 1px;
+  }
+
+  .iron-rule {
+    background: #1a1a1a;
+    color: #e8c96d;
+    padding: 16px 20px;
+    margin-top: auto;
+  }
+
+  .iron-rule p {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    line-height: 1.6;
+  }
+
+  .iron-rule .rule-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 4px;
+    color: #aaa;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  /* PAGE 4 — AVERY LABELS */
+  .avery-page {
+    padding: 0.5in 0.19in;
+  }
+
+  .avery-header {
+    text-align: center;
+    margin-bottom: 0.15in;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .avery-header h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 3px;
+  }
+
+  .avery-header p {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.55rem;
+    color: #888;
+    letter-spacing: 2px;
+    margin-top: 4px;
+  }
+
+  .avery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 2.625in);
+    grid-template-rows: repeat(10, 1in);
+    column-gap: 0.125in;
+    row-gap: 0;
+  }
+
+  .avery-label {
+    border: 1px dashed #ccc;
+    padding: 6px 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+  }
+
+  .avery-label .lbl-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    line-height: 1;
+    color: #1a1a1a;
+  }
+
+  .avery-label .lbl-addr {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    color: #555;
+    letter-spacing: 1px;
+  }
+
+  .avery-label .lbl-blank {
+    border-bottom: 1px solid #ddd;
+    height: 14px;
+    margin: 2px 0;
+  }
+
+  .avery-label.template {
+    background: #fafafa;
+  }
+
+  .avery-label.template .lbl-name {
+    color: #bbb;
+  }
+
+  .avery-label.template .lbl-addr {
+    color: #ddd;
+  }
+
+  /* PAGE 5 — MANUAL INSTRUCTIONS */
+  .manual-page {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .manual-header {
+    border-bottom: 4px solid #1a1a1a;
+    padding-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .manual-header h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 4px;
+  }
+
+  .manual-header .sub {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    color: #888;
+    letter-spacing: 2px;
+    text-align: right;
+  }
+
+  .step {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    color: #e8e8e8;
+    line-height: 1;
+    min-width: 48px;
+    text-align: right;
+  }
+
+  .step-content h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 3px;
+    margin-bottom: 6px;
+  }
+
+  .step-content p {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: #444;
+    max-width: 5.5in;
+  }
+
+  .step-content .example {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    background: #f5f5f5;
+    border-left: 3px solid #1a1a1a;
+    padding: 8px 12px;
+    margin-top: 8px;
+    color: #333;
+    line-height: 1.8;
+  }
+
+  .manual-footer {
+    margin-top: auto;
+    border-top: 2px solid #1a1a1a;
+    padding-top: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .manual-footer p {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.55rem;
+    color: #aaa;
+    letter-spacing: 2px;
+  }
+
+  /* SVG COMPASS MARK */
+  .hl-compass {
+    display: block;
+  }
+
+  @media print {
+    .screen-only { display: none !important; }
+    .section-label { display: none; }
+    body { background: white; }
+    .print-page {
+      margin: 0;
+      box-shadow: none;
+      page-break-after: always;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- SCREEN NAV -->
+<div class="screen-only">
+  <div>
+    <h1>HL System — Starter Pack</h1>
+    <p>Print all 5 pages. Cut the signs. Stick them up. Your space is now addressed.</p>
+  </div>
+  <button class="print-btn" onclick="window.print()">PRINT ALL PAGES</button>
+</div>
+
+<!-- HL COMPASS SVG DEFINITION (reused) -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="hl-mark" viewBox="0 0 100 100">
+      <polygon points="50,4 93,27.5 93,72.5 50,96 7,72.5 7,27.5"
+        stroke="currentColor" stroke-width="4" fill="none" stroke-linejoin="round"/>
+      <polygon points="50,18 81,35.5 81,64.5 50,82 19,64.5 19,35.5"
+        stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round" opacity="0.3"/>
+      <!-- N point -->
+      <polygon points="50,22 44,50 50,46 56,50" fill="currentColor"/>
+      <!-- S point -->
+      <polygon points="50,78 44,50 50,54 56,50" fill="currentColor"/>
+      <!-- E point -->
+      <polygon points="78,50 50,44 54,50 50,56" fill="currentColor"/>
+      <!-- W point -->
+      <polygon points="22,50 50,44 46,50 50,56" fill="currentColor"/>
+      <!-- Center -->
+      <circle cx="50" cy="50" r="5" fill="white" stroke="currentColor" stroke-width="2"/>
+      <circle cx="50" cy="50" r="2.5" fill="currentColor"/>
+      <!-- Vertex ticks -->
+      <line x1="50" y1="4" x2="50" y2="12" stroke="currentColor" stroke-width="2" opacity="0.4"/>
+      <line x1="50" y1="88" x2="50" y2="96" stroke="currentColor" stroke-width="2" opacity="0.4"/>
+      <line x1="7" y1="27.5" x2="14" y2="31.5" stroke="currentColor" stroke-width="2" opacity="0.4"/>
+      <line x1="93" y1="27.5" x2="86" y2="31.5" stroke="currentColor" stroke-width="2" opacity="0.4"/>
+      <line x1="7" y1="72.5" x2="14" y2="68.5" stroke="currentColor" stroke-width="2" opacity="0.4"/>
+      <line x1="93" y1="72.5" x2="86" y2="68.5" stroke="currentColor" stroke-width="2" opacity="0.4"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PAGE 1 — CARDINAL ANCHOR SIGNS            -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-label">PAGE 1 — CARDINAL ANCHOR SIGNS</div>
+<div class="print-page">
+  <div class="anchor-grid">
+
+    <div class="anchor-sign">
+      <span class="corner-code">HL-ANCHOR</span>
+      <svg class="hl-mark" viewBox="0 0 100 100"><use href="#hl-mark"/></svg>
+      <div class="direction-letter">N</div>
+      <div class="direction-word">North</div>
+      <div class="cut-line">— CUT AND MOUNT ON NORTH WALL —</div>
+    </div>
+
+    <div class="anchor-sign">
+      <span class="corner-code">HL-ANCHOR</span>
+      <svg class="hl-mark" viewBox="0 0 100 100"><use href="#hl-mark"/></svg>
+      <div class="direction-letter">S</div>
+      <div class="direction-word">South</div>
+      <div class="cut-line">— CUT AND MOUNT ON SOUTH WALL —</div>
+    </div>
+
+    <div class="anchor-sign">
+      <span class="corner-code">HL-ANCHOR</span>
+      <svg class="hl-mark" viewBox="0 0 100 100"><use href="#hl-mark"/></svg>
+      <div class="direction-letter">E</div>
+      <div class="direction-word">East</div>
+      <div class="cut-line">— CUT AND MOUNT ON EAST WALL —</div>
+    </div>
+
+    <div class="anchor-sign">
+      <span class="corner-code">HL-ANCHOR</span>
+      <svg class="hl-mark" viewBox="0 0 100 100"><use href="#hl-mark"/></svg>
+      <div class="direction-letter">W</div>
+      <div class="direction-word">West</div>
+      <div class="cut-line">— CUT AND MOUNT ON WEST WALL —</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PAGE 2 — ZONE SIGNS                       -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-label">PAGE 2 — ZONE SIGNS</div>
+<div class="print-page">
+  <div style="text-align:center; margin-bottom:0.2in;">
+    <div style="font-family:'Bebas Neue',sans-serif; font-size:1.2rem; letter-spacing:4px; color:#888;">HL ZONE SIGNS — CUT AND POST IN EACH AREA</div>
+  </div>
+  <div class="zone-grid">
+    <div class="zone-sign"><div class="zone-code">GR</div><div class="zone-name">Garage</div><div class="zone-example">GR-WS-N1-M0</div></div>
+    <div class="zone-sign"><div class="zone-code">LR</div><div class="zone-name">Living Room</div><div class="zone-example">HM-LR-N1-M0</div></div>
+    <div class="zone-sign"><div class="zone-code">KT</div><div class="zone-name">Kitchen</div><div class="zone-example">HM-KT-C1-F0</div></div>
+    <div class="zone-sign"><div class="zone-code">BD</div><div class="zone-name">Bedroom</div><div class="zone-example">HM-BD-N1-T0</div></div>
+    <div class="zone-sign"><div class="zone-code">WS</div><div class="zone-name">Workshop</div><div class="zone-example">GR-WS-S2-B0</div></div>
+    <div class="zone-sign"><div class="zone-code">UT</div><div class="zone-name">Utility</div><div class="zone-example">HM-UT-W1-F0</div></div>
+    <div class="zone-sign"><div class="zone-code">YD</div><div class="zone-name">Yard</div><div class="zone-example">YD-GN-C1-F0</div></div>
+    <div class="zone-sign"><div class="zone-code">OF</div><div class="zone-name">Office</div><div class="zone-example">HM-OF-E1-M0</div></div>
+    <div class="zone-sign" style="border-style:dashed; border-color:#ccc;">
+      <div class="zone-code" style="color:#ccc; font-size:1.8rem;">YOUR<br>CODE</div>
+      <div class="zone-name" style="color:#ccc;">Custom Zone</div>
+      <div class="zone-example" style="color:#e0e0e0;">Write your own</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PAGE 3 — REFERENCE CARD                   -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-label">PAGE 3 — ADDRESS REFERENCE CARD</div>
+<div class="print-page">
+  <div class="ref-card">
+
+    <div class="ref-header">
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif; font-size:0.75rem; letter-spacing:4px; color:#aaa; margin-bottom:4px;">HL SYSTEM — HUMAN LAYER</div>
+        <h2>Address Reference Card</h2>
+      </div>
+      <div class="tagline">
+        <div>Nothing is lost.</div>
+        <div>Everything is logic.</div>
+        <div style="margin-top:8px; color:#aaa;">github.com/Dvo77/spatial-vector-grammar</div>
+      </div>
+    </div>
+
+    <div class="ref-section">
+      <h3>The Address Format</h3>
+      <div class="address-breakdown">
+        <div class="addr-segment">
+          <div class="seg-code">HM</div>
+          <span class="seg-label">[STRUCTURE]</span>
+          <span class="seg-meaning">House / Building</span>
+        </div>
+        <div class="addr-segment">
+          <div class="seg-code">LR</div>
+          <span class="seg-label">[ZONE]</span>
+          <span class="seg-meaning">Room / Area</span>
+        </div>
+        <div class="addr-segment">
+          <div class="seg-code">N2</div>
+          <span class="seg-label">[ANCHOR+COL]</span>
+          <span class="seg-meaning">Wall + Column #</span>
+        </div>
+        <div class="addr-segment">
+          <div class="seg-code">M0</div>
+          <span class="seg-label">[LEVEL+DEPTH]</span>
+          <span class="seg-meaning">Height + Surface</span>
+        </div>
+      </div>
+      <div style="font-family:'Share Tech Mono',monospace; font-size:0.65rem; color:#888; text-align:center; letter-spacing:2px; margin-top:4px;">
+        EXAMPLE: HM-LR-N2-M0 = Main House, Living Room, North Wall Col 2, Middle Shelf, Surface
+      </div>
+    </div>
+
+    <div class="ref-section">
+      <div class="code-table">
+        <div class="code-col">
+          <h4>Structure Codes</h4>
+          <div class="code-row"><span class="code-key">HM</span><span class="code-val">Main House</span></div>
+          <div class="code-row"><span class="code-key">GR</span><span class="code-val">Garage</span></div>
+          <div class="code-row"><span class="code-key">SH</span><span class="code-val">Shed</span></div>
+          <div class="code-row"><span class="code-key">YD</span><span class="code-val">Yard</span></div>
+          <div class="code-row"><span class="code-key">OB</span><span class="code-val">Outbuilding</span></div>
+
+          <h4 style="margin-top:12px;">Level Codes</h4>
+          <div class="code-row"><span class="code-key">T</span><span class="code-val">Top shelf</span></div>
+          <div class="code-row"><span class="code-key">M</span><span class="code-val">Middle shelf</span></div>
+          <div class="code-row"><span class="code-key">B</span><span class="code-val">Bottom shelf</span></div>
+          <div class="code-row"><span class="code-key">F</span><span class="code-val">Floor level</span></div>
+          <div class="code-row"><span class="code-key">C</span><span class="code-val">Ceiling</span></div>
+
+          <h4 style="margin-top:12px;">Depth Codes</h4>
+          <div class="code-row"><span class="code-key">0</span><span class="code-val">Surface / front</span></div>
+          <div class="code-row"><span class="code-key">1</span><span class="code-val">Inside / behind</span></div>
+        </div>
+
+        <div class="code-col">
+          <h4>Zone Codes</h4>
+          <div class="code-row"><span class="code-key">LR</span><span class="code-val">Living Room</span></div>
+          <div class="code-row"><span class="code-key">KT</span><span class="code-val">Kitchen</span></div>
+          <div class="code-row"><span class="code-key">BD</span><span class="code-val">Bedroom</span></div>
+          <div class="code-row"><span class="code-key">BT</span><span class="code-val">Bathroom</span></div>
+          <div class="code-row"><span class="code-key">WS</span><span class="code-val">Workshop</span></div>
+          <div class="code-row"><span class="code-key">UT</span><span class="code-val">Utility Room</span></div>
+          <div class="code-row"><span class="code-key">OF</span><span class="code-val">Office</span></div>
+          <div class="code-row"><span class="code-key">DN</span><span class="code-val">Dining Room</span></div>
+          <div class="code-row"><span class="code-key">HW</span><span class="code-val">Hallway</span></div>
+
+          <h4 style="margin-top:12px;">Anchor Codes</h4>
+          <div class="code-row"><span class="code-key">N</span><span class="code-val">North wall</span></div>
+          <div class="code-row"><span class="code-key">S</span><span class="code-val">South wall</span></div>
+          <div class="code-row"><span class="code-key">E</span><span class="code-val">East wall</span></div>
+          <div class="code-row"><span class="code-key">W</span><span class="code-val">West wall</span></div>
+          <div class="code-row"><span class="code-key">C</span><span class="code-val">Center</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ref-section">
+      <h3>Item Naming — Noun First, Always</h3>
+      <div style="font-family:'Share Tech Mono',monospace; font-size:0.65rem; line-height:2; color:#444; margin-top:6px;">
+        TOOL-DRILL-CORDLESS-18V | GR-WS-S2-M0<br>
+        FASTENER-SCREW-WOOD-PHILLIPS-2IN | GR-WS-N1-B1<br>
+        CONSUMABLE-TAPE-ELECTRICAL-BLACK | HM-UT-W2-M0<br>
+        APPLIANCE-VACUUM-UPRIGHT-DYSON | HM-UT-C1-F0
+      </div>
+    </div>
+
+    <div class="iron-rule">
+      <span class="rule-label">The Iron Rule</span>
+      <p>No rule can make the system more complicated than no system at all.<br>
+      Start with one shelf. One label. One address. The rest follows.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PAGE 4 — AVERY 5160 LABELS                -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-label">PAGE 4 — AVERY 5160 LABEL TEMPLATES (30 per sheet)</div>
+<div class="print-page avery-page">
+  <div class="avery-header">
+    <h2>HL Item Labels — Avery 5160 Compatible</h2>
+    <p>Print on Avery 5160 labels · 1" × 2-5/8" · 30 per sheet · Fill in name and address by hand or edit before printing</p>
+  </div>
+  <div class="avery-grid">
+    <!-- Sample filled labels -->
+    <div class="avery-label">
+      <div class="lbl-name">TOOL-DRILL-CORDLESS</div>
+      <div class="lbl-addr">GR-WS-S2-M0</div>
+    </div>
+    <div class="avery-label">
+      <div class="lbl-name">FASTENER-SCREW-WOOD</div>
+      <div class="lbl-addr">GR-WS-N1-B1</div>
+    </div>
+    <div class="avery-label">
+      <div class="lbl-name">CONSUMABLE-TAPE-ELEC</div>
+      <div class="lbl-addr">HM-UT-W2-M0</div>
+    </div>
+    <!-- Blank template labels -->
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+    <div class="avery-label template"><div class="lbl-blank"></div><div class="lbl-blank"></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PAGE 5 — MANUAL INSTRUCTIONS              -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-label">PAGE 5 — MANUAL SETUP INSTRUCTIONS (No AI Required)</div>
+<div class="print-page">
+  <div class="manual-page">
+
+    <div class="manual-header">
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif; font-size:0.75rem; letter-spacing:4px; color:#aaa; margin-bottom:4px;">HL SYSTEM — HUMAN LAYER</div>
+        <h2>Set Up Without AI</h2>
+      </div>
+      <div class="sub">
+        <div>No app. No internet.</div>
+        <div>No account required.</div>
+        <div style="margin-top:6px;">Just labels and logic.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h3>Pick Your Structure Code</h3>
+        <p>What is the building or area you're organizing? Choose a 2-letter code that makes sense to you. Common ones are on the reference card. Or make your own — first letter of each word works well.</p>
+        <div class="example">
+          House → HM &nbsp;&nbsp; Garage → GR &nbsp;&nbsp; Shed → SH<br>
+          Fairy Princess Castle → FC &nbsp;&nbsp; The Dungeon → DG
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h3>Post Your Cardinal Signs</h3>
+        <p>Cut out the N, S, E, W signs from Page 1. Tape them to the corresponding walls in your space. This is your anchor system. Every address in this space will reference these walls.</p>
+        <div class="example">
+          North sign → North wall &nbsp;&nbsp; South sign → South wall<br>
+          If you don't know which way is north — your phone compass works fine.
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h3>Name Your Zones</h3>
+        <p>Divide your space into areas. Each area gets a 2-letter zone code. Post the zone sign from Page 2 in that area, or write your own on a piece of paper.</p>
+        <div class="example">
+          Workshop area → WS &nbsp;&nbsp; Storage area → ST<br>
+          GR-WS = Garage, Workshop zone
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h3>Number Your Wall Columns</h3>
+        <p>Standing at the anchor wall (say, North), number shelf columns left to right: N1, N2, N3. Do this for each wall you use. Now every position in the room has a unique address.</p>
+        <div class="example">
+          North wall, column 1 → N1 &nbsp;&nbsp; South wall, column 3 → S3<br>
+          GR-WS-N2 = Garage, Workshop, North wall column 2
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <h3>Add Level and Write Your Labels</h3>
+        <p>Add the shelf level: T (top), M (middle), B (bottom), F (floor). Then name your items noun-first on the Avery labels from Page 4. Stick them on.</p>
+        <div class="example">
+          TOOL-DRILL-CORDLESS → GR-WS-N2-M0<br>
+          FASTENER-SCREW-WOOD → GR-WS-S1-B1<br>
+          Item name first. Address second. That's the whole system.
+        </div>
+      </div>
+    </div>
+
+    <div class="manual-footer">
+      <p>HL SYSTEM — FREE AND OPEN SOURCE — NO RIGHTS RESERVED</p>
+      <p>github.com/Dvo77/spatial-vector-grammar</p>
+      <svg width="32" height="32" viewBox="0 0 100 100" style="opacity:0.3"><use href="#hl-mark"/></svg>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

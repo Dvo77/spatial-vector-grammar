@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HL Room Code Generator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;600;700;900&display=swap');
+
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #242424;
+    --border: #2e2e2e;
+    --accent: #c8ff00;
+    --accent2: #ff6b00;
+    --text: #e8e8e8;
+    --muted: #666;
+    --danger: #ff3333;
+    --success: #00cc66;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 24px 16px;
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    background: var(--surface);
+  }
+
+  .logo {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+  }
+
+  .header-text h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 28px;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .header-text p {
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    font-family: 'Space Mono', monospace;
+    margin-top: 3px;
+  }
+
+  .container {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+  }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .input-area {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  input[type="text"] {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 10px 14px;
+    flex: 1;
+    outline: none;
+    transition: border-color 0.15s;
+    letter-spacing: 0.03em;
+  }
+
+  input[type="text"]:focus {
+    border-color: var(--accent);
+  }
+
+  input[type="text"]::placeholder {
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  button {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    border-radius: 3px;
+    transition: all 0.15s;
+  }
+
+  .btn-add {
+    background: var(--accent);
+    color: #000;
+    font-size: 20px;
+    padding: 10px 18px;
+    line-height: 1;
+  }
+
+  .btn-add:hover { background: #d4ff1a; }
+
+  .btn-generate {
+    background: var(--accent2);
+    color: #fff;
+    font-size: 16px;
+    padding: 12px 28px;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .btn-generate:hover { background: #ff7f1a; }
+
+  .btn-generate:disabled {
+    background: var(--border);
+    color: var(--muted);
+    cursor: not-allowed;
+  }
+
+  .btn-clear {
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    margin-top: 8px;
+    float: right;
+  }
+
+  .btn-clear:hover { color: var(--danger); border-color: var(--danger); }
+
+  .room-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+    min-height: 0;
+  }
+
+  .room-pill {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 8px 12px;
+    animation: slideIn 0.15s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .room-pill-name {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+
+  .room-pill-remove {
+    background: transparent;
+    color: var(--muted);
+    font-size: 18px;
+    padding: 0 4px;
+    line-height: 1;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .room-pill-remove:hover { color: var(--danger); }
+
+  .results {
+    display: none;
+  }
+
+  .results.visible {
+    display: block;
+    animation: fadeIn 0.2s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .results-title {
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+  }
+
+  .btn-copy-all {
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 12px;
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+  }
+
+  .btn-copy-all:hover { border-color: var(--accent); color: var(--accent); }
+
+  .code-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .code-row {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+
+  .code-row.conflict {
+    border-color: var(--accent2);
+  }
+
+  .code-row.standard {
+    border-color: #2e4a1a;
+  }
+
+  .code-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    padding: 14px 18px;
+    min-width: 90px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0.08em;
+    flex-shrink: 0;
+  }
+
+  .code-row.standard .code-badge {
+    background: #1a2e0a;
+    color: var(--accent);
+  }
+
+  .code-row.generated .code-badge {
+    background: #1a1a2e;
+    color: #7788ff;
+  }
+
+  .code-row.conflict .code-badge {
+    background: #2e1a0a;
+    color: var(--accent2);
+  }
+
+  .code-info {
+    padding: 10px 16px;
+    flex: 1;
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .code-room-name {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
+
+  .code-source {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 2px;
+    letter-spacing: 0.05em;
+  }
+
+  .code-row.standard .code-source { color: #5a8a3a; }
+  .code-row.conflict .code-source { color: var(--accent2); }
+
+  .conflict-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    background: var(--accent2);
+    color: #000;
+    padding: 2px 6px;
+    border-radius: 2px;
+    margin-left: 8px;
+    vertical-align: middle;
+    letter-spacing: 0.05em;
+  }
+
+  .conflict-note {
+    background: #1e1008;
+    border: 1px solid var(--accent2);
+    border-radius: 3px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .conflict-note strong {
+    color: var(--accent2);
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    display: block;
+    margin-bottom: 6px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .export-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 16px;
+    margin-top: 16px;
+  }
+
+  .export-block pre {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.8;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  .export-block pre .code-highlight {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .btn-copy-export {
+    background: var(--surface2);
+    color: var(--muted);
+    font-size: 11px;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    margin-top: 10px;
+    display: block;
+  }
+
+  .btn-copy-export:hover { color: var(--accent); border-color: var(--accent); }
+
+  .hint {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.6;
+    padding: 12px 0 0;
+    border-top: 1px solid var(--border);
+    margin-top: 12px;
+  }
+
+  .hint span { color: var(--accent); }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--accent);
+    color: #000;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 10px 18px;
+    border-radius: 3px;
+    letter-spacing: 0.08em;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.2s;
+    pointer-events: none;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    line-height: 2;
+  }
+
+  @media (max-width: 500px) {
+    .code-badge { min-width: 70px; font-size: 16px; padding: 12px 10px; }
+    .code-room-name { font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <svg class="logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="50,2 93,26 93,74 50,98 7,74 7,26" fill="none" stroke="#c8ff00" stroke-width="5"/>
+    <line x1="50" y1="10" x2="50" y2="90" stroke="#c8ff00" stroke-width="2.5"/>
+    <line x1="10" y1="50" x2="90" y2="50" stroke="#c8ff00" stroke-width="2.5"/>
+    <circle cx="50" cy="50" r="6" fill="#c8ff00"/>
+    <polygon points="50,10 57,24 50,20 43,24" fill="#c8ff00"/>
+  </svg>
+  <div class="header-text">
+    <h1>HL ROOM CODE GENERATOR</h1>
+    <p>Human Layer System · Zone Code Builder v1.0</p>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="input-area">
+    <div class="section-label">Add your rooms — plain English</div>
+    <div class="input-row">
+      <input type="text" id="roomInput" placeholder="e.g. Master Bedroom, Workshop, Pantry…" autocomplete="off" />
+      <button class="btn-add" onclick="addRoom()" title="Add room">+</button>
+    </div>
+    <div class="room-list" id="roomList">
+      <div class="empty-state" id="emptyState">Type a room name above and press + or Enter</div>
+    </div>
+    <button class="btn-generate" id="generateBtn" onclick="generate()" disabled>GENERATE CODES</button>
+    <button class="btn-clear" onclick="clearAll()">CLEAR ALL</button>
+    <div style="clear:both"></div>
+  </div>
+
+  <div class="results" id="results">
+    <div class="results-header">
+      <div class="results-title">YOUR ZONE CODES</div>
+      <button class="btn-copy-all" onclick="copyAll()">COPY ALL</button>
+    </div>
+
+    <div class="code-grid" id="codeGrid"></div>
+
+    <div class="conflict-note" id="conflictNote" style="display:none">
+      <strong>⚠ CONFLICTS DETECTED</strong>
+      <span id="conflictText"></span>
+    </div>
+
+    <div class="export-block">
+      <div class="section-label">Export — paste into your wiki or context card</div>
+      <pre id="exportText"></pre>
+      <button class="btn-copy-export" onclick="copyExport()">COPY EXPORT BLOCK</button>
+    </div>
+
+    <div class="hint">
+      <span>STANDARD CODES</span> match architecture defaults and take priority.<br>
+      <span>GENERATED CODES</span> use first+last letter (1 word) or initials (2+ words).<br>
+      <span>CONFLICTS</span> mean two rooms got the same code — resolve manually.<br>
+      Sub-zones: append C=Closet, P=Pantry, U=Utility, S=Storage, L=Laundry, B=Bath
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast">COPIED</div>
+
+<script>
+// Architecture standard codes — these take priority always
+const STANDARDS = {
+  'basement': 'BM',
+  'kitchen': 'KT',
+  'living room': 'LR',
+  'bedroom': 'BR',
+  'bathroom': 'BA',
+  'garage': 'GR',
+  'office': 'OF',
+  'shop': 'SH',
+  'workshop': 'WS',
+  'deck': 'DK',
+  'attic': 'AT',
+  'hallway': 'HW',
+  'hall': 'HW',
+  'master bedroom': 'MB',
+  'master bath': 'MB',
+  'master bathroom': 'MB',
+  'master bed bath': 'MBB',
+  'master suite': 'MBB',
+  'laundry': 'LN',
+  'laundry room': 'LN',
+  'dining room': 'DR',
+  'dining': 'DR',
+  'pantry': 'PT',
+  'mudroom': 'MR',
+  'mud room': 'MR',
+  'foyer': 'FY',
+  'entryway': 'EW',
+  'entry': 'EW',
+  'utility room': 'UT',
+  'utility': 'UT',
+  'storage': 'ST',
+  'basement workshop': 'BW',
+  'great room': 'GRM',
+  'sunroom': 'SR',
+  'sun room': 'SR',
+  'powder room': 'PW',
+  'half bath': 'PW',
+  'loft': 'LF',
+  'bonus room': 'BN',
+  'playroom': 'PL',
+  'play room': 'PL',
+  'gym': 'GM',
+  'library': 'LB',
+  'den': 'DN',
+  'nursery': 'NR',
+  'craft room': 'CR',
+  'media room': 'MD',
+  'theater': 'TH',
+  'wine cellar': 'WC',
+  'cellar': 'CL',
+  'crawl space': 'CS',
+  'mechanical room': 'MC',
+  'server room': 'SV',
+};
+
+let rooms = [];
+
+function normalize(str) {
+  return str.toLowerCase().trim().replace(/\s+/g, ' ');
+}
+
+function generateCode(name) {
+  const key = normalize(name);
+
+  // Check standard
+  if (STANDARDS[key]) {
+    return { code: STANDARDS[key], type: 'standard' };
+  }
+
+  // Partial match against standards
+  for (const [k, v] of Object.entries(STANDARDS)) {
+    if (key === k) {
+      return { code: v, type: 'standard' };
+    }
+  }
+
+  const words = key.split(' ').filter(w => w.length > 0);
+
+  if (words.length === 1) {
+    // First + last letter, uppercase
+    const w = words[0];
+    if (w.length === 1) return { code: w.toUpperCase() + w.toUpperCase(), type: 'generated' };
+    if (w.length === 2) return { code: w.toUpperCase(), type: 'generated' };
+    const code = (w[0] + w[w.length - 1]).toUpperCase();
+    return { code, type: 'generated' };
+  } else if (words.length === 2) {
+    const code = (words[0][0] + words[1][0]).toUpperCase();
+    return { code, type: 'generated' };
+  } else {
+    // 3+ words: first letter of first two meaningful words
+    const meaningful = words.filter(w => !['the','a','an','of','in','at','on'].includes(w));
+    if (meaningful.length >= 2) {
+      return { code: (meaningful[0][0] + meaningful[1][0]).toUpperCase(), type: 'generated' };
+    }
+    return { code: (words[0][0] + words[1][0]).toUpperCase(), type: 'generated' };
+  }
+}
+
+function addRoom() {
+  const input = document.getElementById('roomInput');
+  const val = input.value.trim();
+  if (!val) return;
+
+  // Check duplicate
+  if (rooms.find(r => normalize(r) === normalize(val))) {
+    input.style.borderColor = 'var(--danger)';
+    setTimeout(() => input.style.borderColor = '', 600);
+    input.value = '';
+    return;
+  }
+
+  rooms.push(val);
+  input.value = '';
+  input.focus();
+  renderRoomList();
+  document.getElementById('generateBtn').disabled = rooms.length === 0;
+  document.getElementById('results').classList.remove('visible');
+}
+
+function removeRoom(idx) {
+  rooms.splice(idx, 1);
+  renderRoomList();
+  document.getElementById('generateBtn').disabled = rooms.length === 0;
+  document.getElementById('results').classList.remove('visible');
+}
+
+function clearAll() {
+  rooms = [];
+  renderRoomList();
+  document.getElementById('generateBtn').disabled = true;
+  document.getElementById('results').classList.remove('visible');
+}
+
+function renderRoomList() {
+  const list = document.getElementById('roomList');
+  const empty = document.getElementById('emptyState');
+
+  if (rooms.length === 0) {
+    list.innerHTML = '';
+    list.appendChild(empty);
+    empty.style.display = '';
+    return;
+  }
+
+  empty.style.display = 'none';
+  list.innerHTML = rooms.map((r, i) => `
+    <div class="room-pill">
+      <span class="room-pill-name">${r}</span>
+      <button class="room-pill-remove btn-clear" onclick="removeRoom(${i})" style="border:none;padding:2px 8px;font-size:18px;margin:0">×</button>
+    </div>
+  `).join('');
+}
+
+function generate() {
+  const generated = rooms.map(name => {
+    const result = generateCode(name);
+    return { name, code: result.code, type: result.type };
+  });
+
+  // Detect conflicts
+  const codeCounts = {};
+  generated.forEach(g => {
+    codeCounts[g.code] = (codeCounts[g.code] || 0) + 1;
+  });
+
+  const conflicts = Object.entries(codeCounts)
+    .filter(([, count]) => count > 1)
+    .map(([code]) => code);
+
+  const final = generated.map(g => ({
+    ...g,
+    conflict: conflicts.includes(g.code)
+  }));
+
+  // Resolve conflicts — append alt letter
+  const usedCodes = new Set(final.filter(f => !f.conflict).map(f => f.code));
+  final.forEach(f => {
+    if (f.conflict) {
+      // Try alternatives
+      const name = normalize(f.name);
+      const words = name.split(' ').filter(w => w.length > 0);
+      let resolved = false;
+
+      // Try different letter combos
+      const candidates = [];
+      if (words.length >= 2) {
+        candidates.push(words[0][0].toUpperCase() + words[1][words[1].length-1].toUpperCase());
+        candidates.push(words[0][words[0].length-1].toUpperCase() + words[1][0].toUpperCase());
+        if (words[1].length > 1) candidates.push((words[0][0] + words[1][1]).toUpperCase());
+      }
+      if (words[0].length > 2) {
+        candidates.push((words[0][0] + words[0][1]).toUpperCase());
+        candidates.push((words[0][1] + words[0][words[0].length-1]).toUpperCase());
+      }
+
+      for (const c of candidates) {
+        if (!usedCodes.has(c) && c !== f.code) {
+          f.suggestedCode = c;
+          usedCodes.add(c);
+          resolved = true;
+          break;
+        }
+      }
+
+      if (!resolved) {
+        f.suggestedCode = '???';
+      }
+    }
+  });
+
+  renderResults(final, conflicts);
+}
+
+function renderResults(items, conflicts) {
+  const grid = document.getElementById('codeGrid');
+  const conflictNote = document.getElementById('conflictNote');
+  const conflictText = document.getElementById('conflictText');
+  const exportText = document.getElementById('exportText');
+
+  grid.innerHTML = items.map(item => {
+    const rowClass = item.conflict ? 'conflict' : item.type === 'standard' ? 'standard' : 'generated';
+    const sourceLabel = item.type === 'standard' ? 'ARCHITECTURE STANDARD' :
+                        item.conflict ? `CONFLICT — try: ${item.suggestedCode || '???'}` : 'GENERATED';
+    const displayCode = item.conflict ? item.code : item.code;
+
+    return `
+      <div class="code-row ${rowClass}">
+        <div class="code-badge">${displayCode}</div>
+        <div class="code-info">
+          <div class="code-room-name">${item.name}${item.conflict ? '<span class="conflict-badge">CONFLICT</span>' : ''}</div>
+          <div class="code-source">${sourceLabel}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  if (conflicts.length > 0) {
+    const conflictedRooms = items.filter(i => i.conflict).map(i => `"${i.name}"`).join(', ');
+    conflictText.textContent = `${conflictedRooms} generated the same code. Suggested alternates shown above — or rename the zone to something more specific.`;
+    conflictNote.style.display = '';
+  } else {
+    conflictNote.style.display = 'none';
+  }
+
+  // Export block
+  const lines = items.map(item => {
+    const code = item.conflict ? (item.suggestedCode || item.code + '*') : item.code;
+    const flag = item.conflict ? ' ← RESOLVE' : item.type === 'standard' ? ' ← standard' : '';
+    return `${code.padEnd(6)} ${item.name}${flag}`;
+  });
+
+  exportText.innerHTML = `# HL ZONE CODE REGISTER\n# Generated: ${new Date().toLocaleDateString()}\n\n` +
+    lines.map(l => {
+      const parts = l.split(' ');
+      return `<span class="code-highlight">${parts[0]}</span> ${parts.slice(1).join(' ')}`;
+    }).join('\n');
+
+  document.getElementById('results').classList.add('visible');
+}
+
+function copyAll() {
+  const items = document.querySelectorAll('.code-row');
+  const lines = Array.from(items).map(row => {
+    const code = row.querySelector('.code-badge').textContent.trim();
+    const name = row.querySelector('.code-room-name').textContent.replace('CONFLICT','').trim();
+    return `${code}  ${name}`;
+  });
+  navigator.clipboard.writeText(lines.join('\n')).then(() => showToast());
+}
+
+function copyExport() {
+  const text = document.getElementById('exportText').textContent;
+  navigator.clipboard.writeText(text).then(() => showToast());
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+// Enter key support
+document.getElementById('roomInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addRoom();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HL Estate Package</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;700;900&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root {
+  --bg: #0d0f0e;
+  --surface: #141816;
+  --surface2: #1c201e;
+  --border: #2a302c;
+  --accent: #4cff91;
+  --accent2: #00c9ff;
+  --accent3: #ffd84c;
+  --danger: #ff5c5c;
+  --text: #dde8e2;
+  --muted: #6b7d72;
+  --mono: 'Share Tech Mono', monospace;
+  --head: 'Barlow Condensed', sans-serif;
+  --body: 'Barlow', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--body); min-height: 100vh; display: flex; flex-direction: column; }
+
+/* ── HEADER ── */
+header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; height: 56px; flex-shrink: 0; gap: 0; }
+.logo { display: flex; align-items: center; gap: 12px; margin-right: 32px; }
+.logo-box { width: 34px; height: 34px; background: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--head); font-weight: 900; font-size: 16px; color: #000; }
+.logo h1 { font-family: var(--head); font-weight: 900; font-size: 20px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
+.logo span { font-family: var(--mono); font-size: 9px; color: var(--muted); }
+.hbtn { background: none; border: 1px solid var(--border); color: var(--muted); font-family: var(--mono); font-size: 10px; padding: 5px 14px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: all 0.15s; margin-left: 8px; }
+.hbtn:hover { border-color: var(--accent); color: var(--accent); }
+.hbtn.primary { background: var(--accent); border-color: var(--accent); color: #000; font-weight: bold; }
+.hbtn.primary:hover { background: #6fffaa; }
+.header-right { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+
+/* ── LAYOUT ── */
+.app { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 56px); }
+
+/* ── LEFT CONFIG PANEL ── */
+.config-panel { width: 300px; background: var(--surface); border-right: 1px solid var(--border); overflow-y: auto; flex-shrink: 0; display: flex; flex-direction: column; }
+.config-section { padding: 16px; border-bottom: 1px solid var(--border); }
+.config-label { font-family: var(--mono); font-size: 9px; color: var(--accent); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 10px; }
+.field { margin-bottom: 10px; }
+.field label { font-family: var(--mono); font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 4px; }
+.field input, .field select, .field textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 12px; padding: 8px 10px; outline: none; transition: border-color 0.15s; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
+.field textarea { resize: vertical; min-height: 70px; font-size: 12px; }
+.field select option { background: var(--surface2); }
+
+.toggle-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.toggle-label { font-family: var(--mono); font-size: 11px; color: var(--text); }
+.toggle { position: relative; width: 36px; height: 20px; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; inset: 0; background: var(--surface2); border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; }
+.toggle-slider:before { content: ''; position: absolute; width: 14px; height: 14px; left: 2px; top: 2px; background: var(--muted); transition: all 0.2s; }
+.toggle input:checked + .toggle-slider { background: var(--accent); border-color: var(--accent); }
+.toggle input:checked + .toggle-slider:before { transform: translateX(16px); background: #000; }
+
+.vault-summary { background: var(--bg); border: 1px solid var(--border); padding: 12px; margin-bottom: 10px; }
+.vs-row { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11px; margin-bottom: 4px; }
+.vs-row .k { color: var(--muted); }
+.vs-row .v { color: var(--accent); }
+
+.generate-btn { width: 100%; background: var(--accent); border: none; color: #000; font-family: var(--head); font-weight: 900; font-size: 18px; letter-spacing: 3px; text-transform: uppercase; padding: 14px; cursor: pointer; transition: background 0.15s; margin-top: 4px; }
+.generate-btn:hover { background: #6fffaa; }
+
+/* ── RIGHT PREVIEW ── */
+.preview-area { flex: 1; overflow-y: auto; background: #e8e8e4; }
+
+/* ── PRINT DOCUMENT ── */
+.document { max-width: 800px; margin: 24px auto; background: #fff; color: #000; font-family: Georgia, serif; box-shadow: 0 4px 40px rgba(0,0,0,0.3); }
+
+/* COVER PAGE */
+.cover-page { padding: 80px 72px; min-height: 900px; display: flex; flex-direction: column; border-bottom: 3px solid #000; }
+.cover-top { flex: 1; }
+.cover-seal { width: 72px; height: 72px; background: #000; display: flex; align-items: center; justify-content: center; margin-bottom: 40px; }
+.cover-seal span { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 28px; color: #fff; letter-spacing: -1px; }
+.cover-page h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 64px; letter-spacing: 2px; text-transform: uppercase; color: #000; line-height: 0.9; margin-bottom: 12px; }
+.cover-page .subtitle { font-family: 'Share Tech Mono', monospace; font-size: 14px; color: #555; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 48px; }
+.cover-rule { width: 100%; height: 2px; background: #000; margin-bottom: 32px; }
+.cover-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 48px; }
+.cover-info-field label { font-family: 'Share Tech Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 3px; color: #888; display: block; margin-bottom: 4px; }
+.cover-info-field .val { font-size: 16px; color: #000; font-weight: bold; border-bottom: 1px solid #000; padding-bottom: 4px; min-height: 28px; }
+.cover-summary-box { background: #f5f5f2; border: 1px solid #ccc; padding: 20px 24px; margin-bottom: 32px; }
+.cover-summary-box h3 { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 18px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; color: #000; }
+.csb-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid #e0e0e0; }
+.csb-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; font-weight: bold; }
+.cover-note { font-size: 13px; color: #444; line-height: 1.8; border-left: 3px solid #000; padding-left: 16px; }
+.cover-bottom { padding-top: 32px; border-top: 1px solid #ccc; display: flex; justify-content: space-between; font-family: 'Share Tech Mono', monospace; font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 2px; }
+
+/* INSTRUCTIONS PAGE */
+.doc-page { padding: 56px 72px; border-bottom: 1px solid #ccc; }
+.doc-page h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 36px; letter-spacing: 2px; text-transform: uppercase; color: #000; margin-bottom: 4px; }
+.doc-page .page-rule { width: 48px; height: 3px; background: #000; margin-bottom: 24px; }
+.doc-page p { font-size: 14px; color: #333; line-height: 1.8; margin-bottom: 16px; }
+.doc-page h3 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: 1px; text-transform: uppercase; color: #000; margin: 20px 0 8px; }
+.instructions-steps { counter-reset: step; }
+.instructions-steps .istep { display: flex; gap: 16px; margin-bottom: 16px; align-items: flex-start; }
+.istep-num { width: 32px; height: 32px; background: #000; color: #fff; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.istep-body h4 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 17px; letter-spacing: 1px; text-transform: uppercase; color: #000; margin-bottom: 3px; }
+.istep-body p { font-size: 13px; color: #555; line-height: 1.6; margin: 0; }
+.addr-explain { background: #f5f5f2; border: 1px solid #ccc; padding: 14px 18px; font-family: 'Share Tech Mono', monospace; font-size: 13px; color: #000; margin: 12px 0; }
+.addr-explain .ae-addr { font-size: 20px; letter-spacing: 4px; font-weight: bold; margin-bottom: 6px; }
+.addr-explain .ae-row { font-size: 11px; color: #666; margin-bottom: 3px; }
+.contact-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+.contact-table th { background: #000; color: #fff; font-family: 'Share Tech Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; padding: 8px 12px; text-align: left; }
+.contact-table td { padding: 10px 12px; border-bottom: 1px solid #ddd; font-size: 13px; }
+.contact-table tr:last-child td { border-bottom: none; }
+
+/* SECTION DIVIDER */
+.section-divider { padding: 32px 72px 16px; background: #000; color: #fff; display: flex; align-items: center; justify-content: space-between; }
+.section-divider h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 28px; letter-spacing: 4px; text-transform: uppercase; color: #fff; }
+.section-divider .sd-count { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: #888; }
+
+/* RECORD PAGES */
+.record-page { padding: 40px 72px; border-bottom: 1px solid #ccc; page-break-inside: avoid; }
+.record-page.heirloom { border-left: 6px solid #000; }
+.record-hdr { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #000; }
+.record-addr-block .ra-addr { font-family: 'Share Tech Mono', monospace; font-size: 28px; font-weight: bold; letter-spacing: 4px; color: #000; }
+.record-addr-block .ra-item { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: #666; margin-top: 4px; word-break: break-all; }
+.record-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 28px; letter-spacing: 1px; text-transform: uppercase; color: #000; text-align: right; max-width: 300px; line-height: 1.1; }
+.heirloom-flag { background: #000; color: #fff; font-family: 'Share Tech Mono', monospace; font-size: 9px; padding: 3px 8px; letter-spacing: 2px; text-transform: uppercase; display: inline-block; margin-top: 4px; }
+
+.record-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border: 1px solid #ccc; margin-bottom: 16px; }
+.record-field { padding: 10px 14px; border-right: 1px solid #ccc; border-bottom: 1px solid #ccc; }
+.record-field:nth-child(3n) { border-right: none; }
+.record-field:nth-last-child(-n+3) { border-bottom: none; }
+.record-field label { font-family: 'Share Tech Mono', monospace; font-size: 8px; text-transform: uppercase; letter-spacing: 2px; color: #888; display: block; margin-bottom: 3px; }
+.record-field .fval { font-size: 13px; color: #000; font-weight: 500; }
+.record-field .fval.big { font-size: 18px; font-weight: bold; }
+
+.provenance-block { background: #f9f9f7; border: 1px solid #ddd; border-left: 4px solid #000; padding: 14px 18px; margin-bottom: 14px; font-size: 13px; color: #333; line-height: 1.8; white-space: pre-wrap; word-break: break-word; }
+
+.legacy-block { background: #000; color: #fff; padding: 14px 18px; margin-bottom: 14px; }
+.legacy-block .lb-label { font-family: 'Share Tech Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 3px; color: #888; margin-bottom: 6px; }
+.legacy-block .lb-text { font-size: 13px; line-height: 1.7; color: #fff; }
+
+.record-qr { display: flex; align-items: center; gap: 16px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #ddd; }
+.record-qr .qr-wrap canvas, .record-qr .qr-wrap img { width: 72px !important; height: 72px !important; }
+.record-qr .qr-info { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: #888; line-height: 1.8; }
+.record-qr .qr-info strong { color: #000; font-size: 11px; }
+
+.record-signature { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 20px; padding-top: 16px; border-top: 1px solid #ddd; }
+.sig-field label { font-family: 'Share Tech Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: #888; display: block; margin-bottom: 20px; }
+.sig-line { border-bottom: 1px solid #000; }
+
+/* INDEX PAGE */
+.index-table { width: 100%; border-collapse: collapse; }
+.index-table th { background: #000; color: #fff; font-family: 'Share Tech Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 2px; padding: 8px 12px; text-align: left; }
+.index-table td { padding: 8px 12px; border-bottom: 1px solid #eee; font-size: 12px; }
+.index-table tr:hover td { background: #f5f5f5; }
+.index-table .ia { font-family: 'Share Tech Mono', monospace; font-size: 12px; color: #000; font-weight: bold; }
+.index-table .iv { font-weight: bold; }
+.index-table .ih { background: #f0f0ee; }
+
+/* PAGE NUMBER */
+.page-number { text-align: right; font-family: 'Share Tech Mono', monospace; font-size: 9px; color: #ccc; padding: 8px 72px; }
+
+/* ── PRINT STYLES ── */
+@media print {
+  body { background: #fff; }
+  header, .config-panel { display: none !important; }
+  .preview-area { background: #fff; overflow: visible; }
+  .app { display: block; height: auto; overflow: visible; }
+  .document { margin: 0; box-shadow: none; max-width: 100%; }
+  .cover-page, .doc-page, .section-divider, .record-page { page-break-after: always; }
+  .record-page { page-break-inside: avoid; }
+}
+
+/* EMPTY STATE */
+.empty-doc { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 400px; gap: 16px; color: var(--muted); text-align: center; padding: 40px; }
+.empty-doc .big { font-size: 64px; opacity: 0.3; }
+.empty-doc h3 { font-family: var(--head); font-weight: 900; font-size: 28px; letter-spacing: 2px; text-transform: uppercase; color: var(--text); }
+.empty-doc p { font-family: var(--mono); font-size: 12px; line-height: 1.8; max-width: 400px; }
+
+/* TOAST */
+.toast { position: fixed; bottom: 20px; right: 20px; background: var(--surface); border: 1px solid var(--accent); color: var(--accent); font-family: var(--mono); font-size: 12px; padding: 10px 18px; z-index: 9999; transform: translateY(10px); opacity: 0; transition: all 0.25s; }
+.toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-box">HL</div>
+    <div>
+      <h1>Estate Package</h1>
+      <span>Human Layer System</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="hbtn" onclick="loadFromVault()">↺ Reload from Vault</button>
+    <button class="hbtn" onclick="window.print()">🖨 Print / Save PDF</button>
+    <button class="hbtn primary" onclick="generatePackage()">⚡ Generate Package</button>
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- CONFIG PANEL -->
+  <div class="config-panel">
+
+    <div class="config-section">
+      <div class="config-label">Estate Owner</div>
+      <div class="field"><label>Full Name</label><input type="text" id="owner-name" placeholder="Harry Benjamin Piper"></div>
+      <div class="field"><label>Address</label><input type="text" id="owner-address" placeholder="123 Main St, Sharon, WI"></div>
+      <div class="field"><label>Date of Document</label><input type="date" id="doc-date"></div>
+    </div>
+
+    <div class="config-section">
+      <div class="config-label">Key Contacts</div>
+      <div class="field"><label>Executor / Contact 1</label><input type="text" id="contact1-name" placeholder="Name"></div>
+      <div class="field"><label>Contact 1 Phone / Email</label><input type="text" id="contact1-info" placeholder="Phone or email"></div>
+      <div class="field"><label>Contact 2 (optional)</label><input type="text" id="contact2-name" placeholder="Name"></div>
+      <div class="field"><label>Contact 2 Phone / Email</label><input type="text" id="contact2-info" placeholder="Phone or email"></div>
+    </div>
+
+    <div class="config-section">
+      <div class="config-label">Cover Letter</div>
+      <div class="field">
+        <label>Personal Message</label>
+        <textarea id="cover-message" placeholder="A note to whoever is reading this. Explain what this document is and what you want them to know.">This document was prepared using the HL System — a physical addressing and record-keeping system I used to catalog the contents of my home and property.
+
+Every item listed here has a permanent address. The address tells you exactly where to find it. The record tells you what it is, where it came from, and what it means.
+
+Nothing here is meant to create burden. It is meant to make things easier — for you, at a hard time, when you have enough to think about already.
+
+Handle these things with care. Pass on what matters. Let go of the rest.</textarea>
+      </div>
+    </div>
+
+    <div class="config-section">
+      <div class="config-label">Package Options</div>
+      <div class="toggle-row"><span class="toggle-label">Include all records</span><label class="toggle"><input type="checkbox" id="opt-all" checked><span class="toggle-slider"></span></label></div>
+      <div class="toggle-row"><span class="toggle-label">Heirlooms first</span><label class="toggle"><input type="checkbox" id="opt-heirlooms" checked><span class="toggle-slider"></span></label></div>
+      <div class="toggle-row"><span class="toggle-label">Sort by value</span><label class="toggle"><input type="checkbox" id="opt-sort-value" checked><span class="toggle-slider"></span></label></div>
+      <div class="toggle-row"><span class="toggle-label">Include QR codes</span><label class="toggle"><input type="checkbox" id="opt-qr" checked><span class="toggle-slider"></span></label></div>
+      <div class="toggle-row"><span class="toggle-label">Include signature lines</span><label class="toggle"><input type="checkbox" id="opt-sigs" checked><span class="toggle-slider"></span></label></div>
+      <div class="toggle-row"><span class="toggle-label">Include instructions page</span><label class="toggle"><input type="checkbox" id="opt-instructions" checked><span class="toggle-slider"></span></label></div>
+      <div class="field" style="margin-top:8px"><label>Min value to include ($)</label><input type="number" id="opt-min-value" value="0" placeholder="0 = include all"></div>
+    </div>
+
+    <div class="config-section">
+      <div class="config-label">Vault Summary</div>
+      <div class="vault-summary" id="vault-summary">
+        <div class="vs-row"><span class="k">Records</span><span class="v" id="vs-total">—</span></div>
+        <div class="vs-row"><span class="k">Total Value</span><span class="v" id="vs-value">—</span></div>
+        <div class="vs-row"><span class="k">Heirlooms</span><span class="v" id="vs-heirlooms">—</span></div>
+        <div class="vs-row"><span class="k">Zones</span><span class="v" id="vs-zones">—</span></div>
+      </div>
+      <button class="generate-btn" onclick="generatePackage()">⚡ Generate Package</button>
+    </div>
+
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="preview-area" id="preview-area">
+    <div class="empty-doc" id="empty-doc">
+      <div class="big">📋</div>
+      <h3>Estate Package</h3>
+      <p>Fill in the owner details on the left and click Generate Package.<br><br>The package pulls every record from your Vault and formats it as a complete printable estate document — cover page, instructions, full record for every item, and a master index.</p>
+      <button style="background:var(--accent);border:none;color:#000;font-family:var(--head);font-weight:900;font-size:16px;letter-spacing:2px;text-transform:uppercase;padding:12px 28px;cursor:pointer;margin-top:8px" onclick="generatePackage()">Generate Now →</button>
+    </div>
+    <div id="document-output" style="display:none"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════
+// VAULT
+// ══════════════════════════════════════
+const VAULT_KEY = 'hl_vault_v1';
+
+function loadVault() {
+  try { return JSON.parse(localStorage.getItem(VAULT_KEY)) || []; }
+  catch { return []; }
+}
+
+function loadFromVault() {
+  updateVaultSummary();
+  showToast('Vault data refreshed');
+}
+
+function updateVaultSummary() {
+  const records = loadVault();
+  document.getElementById('vs-total').textContent = records.length;
+  const val = records.reduce((s,r)=>s+(parseFloat(r.value)||0),0);
+  document.getElementById('vs-value').textContent = '$' + val.toLocaleString();
+  document.getElementById('vs-heirlooms').textContent = records.filter(r=>r.category==='HEIRLOOM').length;
+  const zones = new Set(records.map(r=>(r.address||'').split('-').slice(0,2).join('-')).filter(Boolean)).size;
+  document.getElementById('vs-zones').textContent = zones;
+}
+
+// ══════════════════════════════════════
+// GENERATE
+// ══════════════════════════════════════
+function generatePackage() {
+  let records = loadVault();
+  const minVal = parseFloat(document.getElementById('opt-min-value').value) || 0;
+
+  // Filter
+  if (!document.getElementById('opt-all').checked) {
+    records = records.filter(r => r.category === 'HEIRLOOM' || (parseFloat(r.value)||0) > 0);
+  }
+  if (minVal > 0) {
+    records = records.filter(r => r.category === 'HEIRLOOM' || (parseFloat(r.value)||0) >= minVal);
+  }
+  records = records.filter(r => r.category !== 'ZONE');
+
+  // Sort
+  if (document.getElementById('opt-heirlooms').checked) {
+    records.sort((a,b) => {
+      if (a.category==='HEIRLOOM' && b.category!=='HEIRLOOM') return -1;
+      if (b.category==='HEIRLOOM' && a.category!=='HEIRLOOM') return 1;
+      if (document.getElementById('opt-sort-value').checked) {
+        return (parseFloat(b.value)||0) - (parseFloat(a.value)||0);
+      }
+      return 0;
+    });
+  } else if (document.getElementById('opt-sort-value').checked) {
+    records.sort((a,b) => (parseFloat(b.value)||0) - (parseFloat(a.value)||0));
+  }
+
+  const ownerName = document.getElementById('owner-name').value || 'Estate Owner';
+  const ownerAddress = document.getElementById('owner-address').value || '';
+  const docDate = document.getElementById('doc-date').value || new Date().toISOString().split('T')[0];
+  const coverMsg = document.getElementById('cover-message').value || '';
+  const c1Name = document.getElementById('contact1-name').value;
+  const c1Info = document.getElementById('contact1-info').value;
+  const c2Name = document.getElementById('contact2-name').value;
+  const c2Info = document.getElementById('contact2-info').value;
+  const showQR = document.getElementById('opt-qr').checked;
+  const showSigs = document.getElementById('opt-sigs').checked;
+  const showInstructions = document.getElementById('opt-instructions').checked;
+
+  const totalVal = records.reduce((s,r)=>s+(parseFloat(r.value)||0),0);
+  const heirlooms = records.filter(r=>r.category==='HEIRLOOM');
+  const formatted = new Date(docDate).toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
+
+  let html = '';
+
+  // ── COVER PAGE ──
+  html += `
+  <div class="cover-page">
+    <div class="cover-top">
+      <div class="cover-seal"><span>HL</span></div>
+      <h1>Estate<br>Package</h1>
+      <div class="subtitle">Human Layer System — Property Record</div>
+      <div class="cover-rule"></div>
+      <div class="cover-info-grid">
+        <div class="cover-info-field"><label>Prepared For</label><div class="val">${ownerName}</div></div>
+        <div class="cover-info-field"><label>Date of Document</label><div class="val">${formatted}</div></div>
+        <div class="cover-info-field"><label>Property Address</label><div class="val">${ownerAddress}</div></div>
+        <div class="cover-info-field"><label>Total Records</label><div class="val">${records.length} items</div></div>
+      </div>
+      <div class="cover-summary-box">
+        <h3>Summary of Contents</h3>
+        <div class="csb-row"><span>Total Items Recorded</span><span>${records.length}</span></div>
+        <div class="csb-row"><span>Heirloom / Special Items</span><span>${heirlooms.length}</span></div>
+        <div class="csb-row"><span>Items with Recorded Value</span><span>${records.filter(r=>parseFloat(r.value)>0).length}</span></div>
+        <div class="csb-row"><span>Total Estimated Value</span><span>$${totalVal.toLocaleString()}</span></div>
+      </div>
+      ${coverMsg ? `<div class="cover-note">${coverMsg.replace(/\n/g,'<br>')}</div>` : ''}
+    </div>
+    <div class="cover-bottom">
+      <span>HL System — Human Layer</span>
+      <span>Prepared ${formatted}</span>
+      <span>Page 1</span>
+    </div>
+  </div>`;
+
+  // ── KEY CONTACTS ──
+  if (c1Name || c2Name) {
+    html += `
+    <div class="doc-page">
+      <h2>Key Contacts</h2>
+      <div class="page-rule"></div>
+      <p>The following people are named as contacts for this estate. If you have questions about any item in this document, reach out to them first.</p>
+      <table class="contact-table">
+        <thead><tr><th>Name</th><th>Role</th><th>Contact</th></tr></thead>
+        <tbody>
+          ${c1Name ? `<tr><td><strong>${c1Name}</strong></td><td>Primary Executor / Contact</td><td>${c1Info||'—'}</td></tr>` : ''}
+          ${c2Name ? `<tr><td><strong>${c2Name}</strong></td><td>Secondary Contact</td><td>${c2Info||'—'}</td></tr>` : ''}
+        </tbody>
+      </table>
+    </div>`;
+  }
+
+  // ── HOW TO READ THIS DOCUMENT ──
+  if (showInstructions) {
+    html += `
+    <div class="doc-page">
+      <h2>How to Read This Document</h2>
+      <div class="page-rule"></div>
+      <p>Every item in this estate has been given a permanent address using the HL System — a physical addressing standard that works like a street address for the inside of a building. This document tells you what everything is and exactly where to find it.</p>
+
+      <h3>Understanding HL Addresses</h3>
+      <p>An HL address reads from largest to smallest — like a postal address, but for a shelf.</p>
+      <div class="addr-explain">
+        <div class="ae-addr">HM - WS - S2 - A1</div>
+        <div class="ae-row">HM = Structure (House / main building)</div>
+        <div class="ae-row">WS = Zone (Workshop)</div>
+        <div class="ae-row">S2 = Section (South wall, area 2)</div>
+        <div class="ae-row">A1 = Shelf / Mount (Shelf A, position 1)</div>
+      </div>
+      <p>To find any item: start with the structure code, find the zone, find the section, find the shelf. The item is there.</p>
+
+      <h3>Steps for Handling This Estate</h3>
+      <div class="instructions-steps">
+        <div class="istep">
+          <div class="istep-num">1</div>
+          <div class="istep-body">
+            <h4>Start with the index</h4>
+            <p>The last page of this document contains a complete index of all items sorted by value. Start there to understand what is most significant.</p>
+          </div>
+        </div>
+        <div class="istep">
+          <div class="istep-num">2</div>
+          <div class="istep-body">
+            <h4>Locate heirlooms first</h4>
+            <p>Items marked HEIRLOOM carry sentimental or historical value beyond their dollar value. These are listed first in this document and should be handled with special care before any decisions are made.</p>
+          </div>
+        </div>
+        <div class="istep">
+          <div class="istep-num">3</div>
+          <div class="istep-body">
+            <h4>Use the address to find each item</h4>
+            <p>Every record contains a physical address. Use it to locate the item in the property. If labels are still attached, the QR code on the label links to the full digital record.</p>
+          </div>
+        </div>
+        <div class="istep">
+          <div class="istep-num">4</div>
+          <div class="istep-body">
+            <h4>Read the provenance notes</h4>
+            <p>Many items include a provenance section — the story of where they came from and why they matter. Read these before making any decisions. Some items have histories that change their meaning entirely.</p>
+          </div>
+        </div>
+        <div class="istep">
+          <div class="istep-num">5</div>
+          <div class="istep-body">
+            <h4>Get appraisals where noted</h4>
+            <p>Items marked "To be appraised" or with estimated values over $500 should be reviewed by a professional before being sold or dispersed.</p>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ── HEIRLOOMS SECTION ──
+  if (heirlooms.length > 0) {
+    html += `
+    <div class="section-divider">
+      <h2>Heirlooms & Special Items</h2>
+      <div class="sd-count">${heirlooms.length} item${heirlooms.length!==1?'s':''} — handle with care</div>
+    </div>`;
+
+    heirlooms.forEach((r, i) => {
+      html += buildRecordPage(r, i, showQR, showSigs, true);
+    });
+  }
+
+  // ── ALL OTHER RECORDS ──
+  const others = records.filter(r => r.category !== 'HEIRLOOM');
+  if (others.length > 0) {
+    html += `
+    <div class="section-divider">
+      <h2>All Records</h2>
+      <div class="sd-count">${others.length} item${others.length!==1?'s':''} — sorted by value</div>
+    </div>`;
+
+    others.forEach((r, i) => {
+      html += buildRecordPage(r, i + heirlooms.length, showQR, showSigs, false);
+    });
+  }
+
+  // ── MASTER INDEX ──
+  html += `
+  <div class="doc-page">
+    <h2>Master Index</h2>
+    <div class="page-rule"></div>
+    <p>Complete index of all ${records.length} items in this estate package, sorted by estimated value.</p>
+    <table class="index-table">
+      <thead><tr><th>#</th><th>Address</th><th>Item</th><th>Location</th><th>Category</th><th>Value</th></tr></thead>
+      <tbody>
+        ${records.map((r,i) => `
+          <tr class="${r.category==='HEIRLOOM'?'ih':''}">
+            <td>${i+1}</td>
+            <td class="ia">${r.address||'—'}</td>
+            <td>${r.friendlyName||r.itemName||'—'}</td>
+            <td style="font-size:11px;color:#666">${r.make||''}</td>
+            <td style="font-size:10px;font-family:'Share Tech Mono',monospace">${r.category||'—'}</td>
+            <td class="iv">${r.value?'$'+parseFloat(r.value).toLocaleString():'—'}</td>
+          </tr>`).join('')}
+        <tr style="background:#000;color:#fff">
+          <td colspan="5" style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:10px 12px">TOTAL ESTIMATED VALUE</td>
+          <td style="font-weight:bold;font-size:16px;padding:10px 12px">$${totalVal.toLocaleString()}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>`;
+
+  // ── CLOSE ──
+  html += `
+  <div class="doc-page" style="text-align:center;min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#888;letter-spacing:3px;text-transform:uppercase;margin-bottom:12px">End of Document</div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;letter-spacing:4px;text-transform:uppercase;color:#000">HL System — Human Layer</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#999;margin-top:8px">Generated ${formatted} · ${records.length} records · $${totalVal.toLocaleString()} total value</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#bbb;margin-top:16px;max-width:400px;line-height:1.8">Nothing is lost. Everything is logic.<br>This document was built to outlast its author.</div>
+  </div>`;
+
+  // ── RENDER ──
+  document.getElementById('empty-doc').style.display = 'none';
+  const out = document.getElementById('document-output');
+  out.style.display = 'block';
+  out.innerHTML = `<div class="document">${html}</div>`;
+
+  // Generate QR codes after render
+  if (showQR) {
+    setTimeout(() => {
+      records.forEach((r, i) => {
+        const el = document.getElementById(`qr-record-${i}`);
+        if (el && !el.querySelector('canvas')) {
+          try {
+            new QRCode(el, {
+              text: `HL:${r.address}:${r.itemName||''}`,
+              width: 72, height: 72,
+              colorDark: '#000', colorLight: '#fff',
+              correctLevel: QRCode.CorrectLevel.M
+            });
+          } catch(e) {}
+        }
+      });
+    }, 200);
+  }
+
+  updateVaultSummary();
+  showToast(`Package generated — ${records.length} records`);
+}
+
+function buildRecordPage(r, idx, showQR, showSigs, isHeirloom) {
+  const val = parseFloat(r.value) || 0;
+  return `
+  <div class="record-page ${isHeirloom ? 'heirloom' : ''}">
+    <div class="record-hdr">
+      <div class="record-addr-block">
+        <div class="ra-addr">${r.address || '—'}</div>
+        <div class="ra-item">${r.itemName || '—'}</div>
+        ${isHeirloom ? '<span class="heirloom-flag">★ Heirloom</span>' : ''}
+      </div>
+      <div class="record-name">${r.friendlyName || r.itemName || '—'}</div>
+    </div>
+
+    <div class="record-grid">
+      <div class="record-field"><label>Category</label><div class="fval">${r.category||'—'}</div></div>
+      <div class="record-field"><label>Make / Manufacturer</label><div class="fval">${r.make||'—'}</div></div>
+      <div class="record-field"><label>Model / Variant</label><div class="fval">${r.model||'—'}</div></div>
+      <div class="record-field"><label>Condition</label><div class="fval">${r.condition||'—'}</div></div>
+      <div class="record-field"><label>HA Device</label><div class="fval">${r.haType||'None'}</div></div>
+      <div class="record-field"><label>Est. Value</label><div class="fval big">${val > 0 ? '$'+val.toLocaleString() : '—'}</div></div>
+    </div>
+
+    ${r.notes ? `
+    <div style="font-family:'Share Tech Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:3px;color:#888;margin-bottom:6px">Provenance & Notes</div>
+    <div class="provenance-block">${r.notes}</div>` : ''}
+
+    ${isHeirloom ? `
+    <div class="legacy-block">
+      <div class="lb-label">Legacy Note — For Whoever Finds This</div>
+      <div class="lb-text">This item is located at address <strong>${r.address}</strong> in the HL System. ${r.friendlyName ? `It is known as the <strong>${r.friendlyName}</strong>.` : ''} ${r.notes ? `${r.notes.split('.')[0]}.` : ''} ${val > 0 ? `Its estimated value is <strong>$${val.toLocaleString()}</strong>.` : ''} Please do not discard or sell this item without consulting the estate contacts listed at the front of this document.</div>
+    </div>` : ''}
+
+    ${showQR ? `
+    <div class="record-qr">
+      <div class="qr-wrap" id="qr-record-${idx}"></div>
+      <div class="qr-info">
+        <strong>HL:${r.address}</strong><br>
+        Scan to look up this record in the HL Vault<br>
+        Address: ${r.address}<br>
+        Recorded: ${new Date(r.created||Date.now()).toLocaleDateString()}
+      </div>
+    </div>` : ''}
+
+    ${showSigs && isHeirloom ? `
+    <div class="record-signature">
+      <div class="sig-field"><label>Received by / Transferred to</label><div class="sig-line"></div></div>
+      <div class="sig-field"><label>Date</label><div class="sig-line"></div></div>
+    </div>` : ''}
+  </div>`;
+}
+
+// ══════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+document.getElementById('doc-date').value = new Date().toISOString().split('T')[0];
+updateVaultSummary();
+</script>
+</body>
+</html>
