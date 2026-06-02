@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HL Batch Mode</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;700;900&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root {
+  --bg: #0d0f0e;
+  --surface: #141816;
+  --surface2: #1c201e;
+  --surface3: #222824;
+  --border: #2a302c;
+  --accent: #4cff91;
+  --accent2: #00c9ff;
+  --accent3: #ffd84c;
+  --danger: #ff5c5c;
+  --text: #dde8e2;
+  --muted: #6b7d72;
+  --mono: 'Share Tech Mono', monospace;
+  --head: 'Barlow Condensed', sans-serif;
+  --body: 'Barlow', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--body); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+/* HEADER */
+header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; height: 56px; flex-shrink: 0; gap: 0; }
+.logo { display: flex; align-items: center; gap: 12px; margin-right: 32px; }
+.logo-box { width: 34px; height: 34px; background: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--head); font-weight: 900; font-size: 16px; color: #000; }
+.logo h1 { font-family: var(--head); font-weight: 900; font-size: 20px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
+.logo span { font-family: var(--mono); font-size: 9px; color: var(--muted); }
+.hbtn { background: none; border: 1px solid var(--border); color: var(--muted); font-family: var(--mono); font-size: 10px; padding: 5px 14px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: all 0.15s; margin-left: 8px; }
+.hbtn:hover { border-color: var(--accent); color: var(--accent); }
+.hbtn.primary { background: var(--accent); border-color: var(--accent); color: #000; font-weight: bold; }
+.hbtn.primary:hover { background: #6fffaa; }
+.hbtn.danger { border-color: var(--danger); color: var(--danger); }
+.header-right { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+.badge { font-family: var(--mono); font-size: 11px; color: var(--muted); padding: 4px 10px; border: 1px solid var(--border); }
+.badge strong { color: var(--accent); }
+
+/* LAYOUT */
+.app { display: flex; flex: 1; overflow: hidden; }
+
+/* LEFT — INPUT */
+.input-panel { width: 340px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; }
+
+.panel-hdr { padding: 12px 16px; background: var(--surface2); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.panel-label { font-family: var(--mono); font-size: 9px; color: var(--accent); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 4px; }
+.panel-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+
+/* FORMAT TABS */
+.format-tabs { display: flex; background: var(--surface2); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.ftab { flex: 1; padding: 9px 8px; font-family: var(--mono); font-size: 10px; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; text-transform: uppercase; letter-spacing: 1px; text-align: center; background: none; border-top: none; border-left: none; border-right: none; transition: all 0.12s; }
+.ftab:hover { color: var(--text); }
+.ftab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* INPUT AREA */
+.input-area { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field label { font-family: var(--mono); font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; }
+.field input, .field select { background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 12px; padding: 8px 10px; outline: none; width: 100%; transition: border-color 0.15s; }
+.field input:focus, .field select:focus { border-color: var(--accent); }
+.field select option { background: var(--surface2); }
+
+.paste-area { flex: 1; background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 12px; padding: 12px; outline: none; resize: none; min-height: 200px; line-height: 1.8; transition: border-color 0.15s; }
+.paste-area:focus { border-color: var(--accent); }
+.paste-area::placeholder { color: var(--muted); line-height: 2; }
+
+.format-hint { background: var(--bg); border: 1px solid var(--border); border-left: 3px solid var(--accent2); padding: 10px 12px; font-family: var(--mono); font-size: 11px; color: var(--muted); line-height: 1.8; }
+.format-hint strong { color: var(--accent2); display: block; margin-bottom: 4px; font-size: 9px; text-transform: uppercase; letter-spacing: 2px; }
+
+.parse-btn { background: var(--accent); border: none; color: #000; font-family: var(--head); font-weight: 900; font-size: 16px; letter-spacing: 3px; text-transform: uppercase; padding: 14px; cursor: pointer; width: 100%; transition: background 0.15s; flex-shrink: 0; margin-top: 4px; }
+.parse-btn:hover { background: #6fffaa; }
+
+/* RIGHT — OUTPUT */
+.output-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* OUTPUT TABS */
+.output-tabs { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; overflow-x: auto; }
+.otab { padding: 12px 18px; font-family: var(--mono); font-size: 10px; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; text-transform: uppercase; letter-spacing: 1px; background: none; border-top: none; border-left: none; border-right: none; transition: all 0.12s; }
+.otab:hover { color: var(--text); }
+.otab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* STATS */
+.stats-row { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.stat { flex: 1; padding: 10px 16px; border-right: 1px solid var(--border); }
+.stat:last-child { border-right: none; }
+.stat-val { font-family: var(--head); font-weight: 900; font-size: 24px; color: var(--accent); line-height: 1; }
+.stat-lbl { font-family: var(--mono); font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-top: 1px; }
+
+/* OUTPUT CONTENT */
+.output-content { flex: 1; overflow-y: auto; }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* BATCH TABLE */
+.batch-table { width: 100%; border-collapse: collapse; }
+.batch-table thead { position: sticky; top: 0; z-index: 10; }
+.batch-table th { background: var(--surface2); padding: 9px 14px; font-family: var(--mono); font-size: 9px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.batch-table td { padding: 9px 14px; border-bottom: 1px solid var(--border); font-size: 12px; vertical-align: top; }
+tr:hover td { background: var(--surface2); }
+.addr-td { font-family: var(--mono); font-size: 12px; color: var(--accent3); white-space: nowrap; }
+.item-td { font-family: var(--mono); font-size: 11px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.edit-td input { background: none; border: none; color: var(--text); font-family: var(--mono); font-size: 11px; width: 100%; outline: none; padding: 0; min-width: 80px; }
+.edit-td input:focus { border-bottom: 1px solid var(--accent); }
+.row-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 12px; padding: 2px 4px; transition: color 0.12s; }
+.row-del:hover { color: var(--danger); }
+.row-num { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+
+/* CODE OUTPUT PANELS */
+.code-panel { padding: 16px; }
+.code-panel-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.code-panel-hdr h3 { font-family: var(--head); font-weight: 900; font-size: 18px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
+.code-block { background: var(--surface2); border: 1px solid var(--border); padding: 14px 16px; font-family: var(--mono); font-size: 12px; color: #a8c8b0; line-height: 1.9; white-space: pre; overflow-x: auto; max-height: 500px; overflow-y: auto; }
+
+/* LABEL GRID */
+.label-grid { padding: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.label-card { background: #fff; color: #000; padding: 12px 14px; border: 2px solid #000; font-family: var(--mono); }
+.label-card .lc-top { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1.5px solid #000; padding-bottom: 8px; margin-bottom: 8px; }
+.label-card .lc-addr { font-size: 20px; font-weight: bold; letter-spacing: 3px; }
+.label-card .lc-item { font-size: 10px; letter-spacing: 1px; margin-bottom: 3px; word-break: break-all; }
+.label-card .lc-meta { font-size: 9px; color: #555; display: flex; justify-content: space-between; margin-top: 5px; }
+.qr-cell { display: inline-block; }
+.qr-cell canvas, .qr-cell img { width: 48px !important; height: 48px !important; }
+
+/* EMPTY STATE */
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 300px; gap: 12px; color: var(--muted); }
+.empty-state .big { font-size: 48px; opacity: 0.3; }
+.empty-state p { font-family: var(--mono); font-size: 12px; text-align: center; line-height: 1.7; }
+
+/* EXPORT ROW */
+.export-row { padding: 10px 16px; background: var(--surface); border-top: 1px solid var(--border); display: flex; gap: 8px; flex-shrink: 0; }
+
+/* TOAST */
+.toast { position: fixed; bottom: 20px; right: 20px; background: var(--surface); border: 1px solid var(--accent); color: var(--accent); font-family: var(--mono); font-size: 12px; padding: 10px 18px; letter-spacing: 1px; z-index: 9999; transform: translateY(10px); opacity: 0; transition: all 0.25s; }
+.toast.show { opacity: 1; transform: translateY(0); }
+
+@media print {
+  header, .input-panel, .output-tabs, .stats-row, .export-row { display: none !important; }
+  .app { display: block; }
+  .output-panel { display: block; }
+  .output-content { overflow: visible; }
+  .tab-panel { display: block !important; }
+  .label-grid { grid-template-columns: repeat(2, 1fr); }
+  body { background: #fff; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-box">HL</div>
+    <div>
+      <h1>Batch Mode</h1>
+      <span>Human Layer System</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="badge">Items: <strong id="hdr-count">0</strong></div>
+    <button class="hbtn" onclick="loadExample()">Load Example</button>
+    <button class="hbtn" onclick="clearAll()">Clear All</button>
+    <button class="hbtn" onclick="exportCSV()">↓ CSV</button>
+    <button class="hbtn" onclick="exportJSON()">↓ JSON</button>
+    <button class="hbtn primary" onclick="saveAllToVault()">Save All to Vault →</button>
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- INPUT PANEL -->
+  <div class="input-panel">
+    <div class="panel-hdr">
+      <div class="panel-label">Batch Input</div>
+      <div class="panel-sub">Paste a list — generate everything at once</div>
+    </div>
+
+    <div class="format-tabs">
+      <button class="ftab active" id="fmt-simple" onclick="setFormat('simple')">Simple</button>
+      <button class="ftab" id="fmt-csv" onclick="setFormat('csv')">CSV</button>
+      <button class="ftab" id="fmt-ai" onclick="setFormat('ai')">AI Output</button>
+    </div>
+
+    <div class="input-area">
+
+      <!-- GLOBAL DEFAULTS -->
+      <div class="field">
+        <label>Default Structure Code</label>
+        <input type="text" id="default-struct" value="HM" maxlength="4" oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <div class="field">
+        <label>Default Zone</label>
+        <input type="text" id="default-zone" placeholder="WS, GR, LR…" maxlength="4" oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <div class="field">
+        <label>Default Category</label>
+        <select id="default-cat">
+          <option value="OTHER">Other</option>
+          <option value="TOOL">Tool</option>
+          <option value="FASTENER">Fastener</option>
+          <option value="APPLIANCE">Appliance</option>
+          <option value="CONTAINER">Container</option>
+          <option value="ZONE">Zone</option>
+          <option value="HEIRLOOM">Heirloom</option>
+          <option value="ELECTRICAL">Electrical</option>
+          <option value="SUPPLY">Supply</option>
+        </select>
+      </div>
+
+      <!-- FORMAT HINTS -->
+      <div class="format-hint" id="hint-simple">
+        <strong>Simple Format</strong>
+        One item per line. Describe in plain language.
+        Auto-converts to HL noun-first format.
+
+        drill
+        Milwaukee 18V circular saw
+        box of assorted screws
+        Grandpa's Craftsman socket set
+        tractor — 1939 Ford 9N</div>
+
+      <div class="format-hint" id="hint-csv" style="display:none">
+        <strong>CSV Format</strong>
+        address, item_name, friendly_name, make, condition, value
+
+        GR-WS-S1,TOOL-DRILL-18V,Shop Drill,Milwaukee,Good,180
+        HM-LR-N1,LIGHT-LAMP-FLOOR,Living Room Lamp,,Excellent,</div>
+
+      <div class="format-hint" id="hint-ai" style="display:none">
+        <strong>AI Output Format</strong>
+        Paste the block output from the
+        HL AI Prompt Helper directly here.
+        Detects ITEM RECORD blocks automatically.</div>
+
+      <!-- PASTE AREA -->
+      <textarea class="paste-area" id="paste-input" placeholder="Paste your list here…
+
+One item per line for Simple mode.
+Each item gets an address, label,
+wiki page, and exchange listing.
+
+Try the Load Example button to see
+how it works."></textarea>
+
+      <button class="parse-btn" onclick="parseBatch()">⚡ Generate Batch</button>
+
+    </div>
+  </div>
+
+  <!-- OUTPUT PANEL -->
+  <div class="output-panel">
+
+    <div class="output-tabs">
+      <button class="otab active" onclick="showOTab('records')">📋 Records</button>
+      <button class="otab" onclick="showOTab('labels')">📎 Labels</button>
+      <button class="otab" onclick="showOTab('wiki')">📄 Wiki</button>
+      <button class="otab" onclick="showOTab('exchange')">🔄 Exchange</button>
+      <button class="otab" onclick="showOTab('ha')">🏠 HA Config</button>
+      <button class="otab" onclick="showOTab('addresses')">📍 Addresses</button>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat"><div class="stat-val" id="s-total">0</div><div class="stat-lbl">Items</div></div>
+      <div class="stat"><div class="stat-val" id="s-value">$0</div><div class="stat-lbl">Total Value</div></div>
+      <div class="stat"><div class="stat-val" id="s-heirlooms">0</div><div class="stat-lbl">Heirlooms</div></div>
+      <div class="stat"><div class="stat-val" id="s-zones">0</div><div class="stat-lbl">Zones</div></div>
+    </div>
+
+    <div class="output-content">
+
+      <!-- RECORDS TAB -->
+      <div class="tab-panel active" id="otab-records">
+        <div class="empty-state" id="empty-records">
+          <div class="big">📋</div>
+          <p>Paste a list on the left<br>and hit Generate Batch</p>
+        </div>
+        <table class="batch-table" id="records-table" style="display:none">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Address</th>
+              <th>Item Name</th>
+              <th>Human Name</th>
+              <th>Make</th>
+              <th>Condition</th>
+              <th>Value</th>
+              <th>Cat</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="records-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- LABELS TAB -->
+      <div class="tab-panel" id="otab-labels">
+        <div class="empty-state" id="empty-labels">
+          <div class="big">📎</div>
+          <p>Generate a batch to see labels</p>
+        </div>
+        <div class="label-grid" id="label-grid" style="display:none"></div>
+      </div>
+
+      <!-- WIKI TAB -->
+      <div class="tab-panel" id="otab-wiki">
+        <div class="code-panel">
+          <div class="code-panel-hdr">
+            <h3>Wiki Pages — Markdown</h3>
+            <button class="hbtn" onclick="copyCode('wiki-code')">Copy All</button>
+          </div>
+          <pre class="code-block" id="wiki-code">Generate a batch to see wiki output…</pre>
+        </div>
+      </div>
+
+      <!-- EXCHANGE TAB -->
+      <div class="tab-panel" id="otab-exchange">
+        <div class="code-panel">
+          <div class="code-panel-hdr">
+            <h3>HIL Exchange Listings</h3>
+            <button class="hbtn" onclick="copyCode('exchange-code')">Copy All</button>
+          </div>
+          <pre class="code-block" id="exchange-code">Generate a batch to see exchange listings…</pre>
+        </div>
+      </div>
+
+      <!-- HA TAB -->
+      <div class="tab-panel" id="otab-ha">
+        <div class="code-panel">
+          <div class="code-panel-hdr">
+            <h3>Home Assistant YAML</h3>
+            <button class="hbtn" onclick="copyCode('ha-code')">Copy All</button>
+          </div>
+          <pre class="code-block" id="ha-code">Generate a batch to see HA config…</pre>
+        </div>
+      </div>
+
+      <!-- ADDRESSES TAB -->
+      <div class="tab-panel" id="otab-addresses">
+        <div class="code-panel">
+          <div class="code-panel-hdr">
+            <h3>Address List</h3>
+            <button class="hbtn" onclick="copyCode('addr-code')">Copy All</button>
+          </div>
+          <pre class="code-block" id="addr-code">Generate a batch to see addresses…</pre>
+        </div>
+      </div>
+
+    </div><!-- end output-content -->
+
+    <div class="export-row">
+      <button class="hbtn" onclick="exportCSV()">↓ CSV</button>
+      <button class="hbtn" onclick="exportJSON()">↓ JSON</button>
+      <button class="hbtn" onclick="exportMarkdown()">↓ Markdown</button>
+      <button class="hbtn" onclick="window.print()">🖨 Print Labels</button>
+      <button class="hbtn primary" style="margin-left:auto" onclick="saveAllToVault()">Save All to Vault →</button>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+let batchItems = [];
+let activeFormat = 'simple';
+
+// ══════════════════════════════════════
+// FORMAT SWITCHING
+// ══════════════════════════════════════
+function setFormat(f) {
+  activeFormat = f;
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+  document.getElementById('fmt-' + f).classList.add('active');
+  ['simple','csv','ai'].forEach(x => {
+    document.getElementById('hint-' + x).style.display = x === f ? 'block' : 'none';
+  });
+}
+
+// ══════════════════════════════════════
+// PARSING
+// ══════════════════════════════════════
+function parseBatch() {
+  const raw = document.getElementById('paste-input').value.trim();
+  if (!raw) { showToast('Paste some items first'); return; }
+
+  const struct = document.getElementById('default-struct').value || 'HM';
+  const zone = document.getElementById('default-zone').value || 'GN';
+  const cat = document.getElementById('default-cat').value || 'OTHER';
+
+  if (activeFormat === 'simple') batchItems = parseSimple(raw, struct, zone, cat);
+  else if (activeFormat === 'csv') batchItems = parseCSV(raw, struct, zone, cat);
+  else if (activeFormat === 'ai') batchItems = parseAI(raw, struct, zone, cat);
+
+  renderAll();
+  showOTab('records');
+  showToast(`${batchItems.length} items generated`);
+}
+
+function autoHLName(plain) {
+  const CATS = {
+    'DRILL':'TOOL','SAW':'TOOL','HAMMER':'TOOL','WRENCH':'TOOL','SCREWDRIVER':'TOOL','SOCKET':'TOOL',
+    'PLANE':'TOOL','CHISEL':'TOOL','LEVEL':'TOOL','CLAMP':'TOOL','VISE':'TOOL','GRINDER':'TOOL',
+    'SCREW':'FASTENER','BOLT':'FASTENER','NUT':'FASTENER','NAIL':'FASTENER','WASHER':'FASTENER','RIVET':'FASTENER',
+    'FRIDGE':'APPLIANCE','FREEZER':'APPLIANCE','WASHER':'APPLIANCE','DRYER':'APPLIANCE','VACUUM':'APPLIANCE','BLENDER':'APPLIANCE',
+    'BIN':'CONTAINER','BOX':'CONTAINER','TOTE':'CONTAINER','CHEST':'CONTAINER','CABINET':'CONTAINER','BAG':'CONTAINER',
+    'TRACTOR':'EQUIPMENT','MOWER':'EQUIPMENT','GENERATOR':'EQUIPMENT','COMPRESSOR':'EQUIPMENT',
+    'LAMP':'LIGHT','LIGHT':'LIGHT','FIXTURE':'LIGHT',
+    'SWITCH':'ELECTRICAL','OUTLET':'ELECTRICAL','PANEL':'ELECTRICAL','BREAKER':'ELECTRICAL',
+    'PAINT':'SUPPLY','OIL':'SUPPLY','LUBRICANT':'SUPPLY','TAPE':'SUPPLY',
+  };
+  const BRANDS = ['MILWAUKEE','DEWALT','CRAFTSMAN','RYOBI','MAKITA','STANLEY','FORD','SNAP-ON','KOBALT','RIDGID','BOSCH','HUSKY','KLEIN','CHANNELLOCK'];
+
+  let words = plain.trim().toUpperCase()
+    .replace(/['']/g,'')
+    .replace(/[^A-Z0-9\s\-]/g,' ')
+    .split(/[\s\-]+/)
+    .filter(Boolean);
+
+  let category = 'ITEM';
+  for (const [kw, c] of Object.entries(CATS)) {
+    if (words.some(w => w.includes(kw))) { category = c; break; }
+  }
+
+  const brandWords = words.filter(w => BRANDS.some(b => w.includes(b)));
+  const nonBrand = words.filter(w => !BRANDS.some(b => w.includes(b)));
+
+  return [category, ...nonBrand, ...brandWords]
+    .filter(Boolean)
+    .join('-')
+    .replace(/--+/g, '-')
+    .slice(0, 60);
+}
+
+function makeRecord(overrides, struct, zone, cat, idx) {
+  const shelf = String.fromCharCode(65 + (idx % 26)) + Math.floor(idx / 26);
+  const addr = [struct, zone, 'S1', shelf].filter(Boolean).join('-');
+  return {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,5) + idx,
+    address: addr,
+    itemName: '',
+    friendlyName: '',
+    category: cat,
+    make: '',
+    model: '',
+    condition: '',
+    value: '',
+    haType: '',
+    notes: '',
+    created: Date.now(),
+    updated: Date.now(),
+    ...overrides
+  };
+}
+
+function parseSimple(raw, struct, zone, cat) {
+  return raw.split('\n')
+    .map(l => l.trim())
+    .filter(l => l && !l.startsWith('#'))
+    .map((line, i) => {
+      // Check for address override: "GR-WS: drill"
+      let addr = null;
+      let plain = line;
+      const colonMatch = line.match(/^([A-Z][A-Z0-9\-]+):\s*(.+)/i);
+      if (colonMatch) { addr = colonMatch[1].toUpperCase(); plain = colonMatch[2]; }
+
+      // Check for dash note: "drill — 1939 Ford"
+      let notes = '';
+      const dashMatch = plain.match(/^(.+?)\s*[—–-]{2}\s*(.+)$/);
+      if (dashMatch) { plain = dashMatch[1]; notes = dashMatch[2]; }
+
+      const hlName = autoHLName(plain);
+      const shelf = String.fromCharCode(65 + (i % 26)) + '0';
+      const defaultAddr = [struct, zone, 'S1', shelf].filter(Boolean).join('-');
+
+      return {
+        id: Date.now().toString(36) + i,
+        address: addr || defaultAddr,
+        itemName: hlName,
+        friendlyName: plain.trim(),
+        category: cat,
+        make: '', model: '', condition: '', value: '', haType: '',
+        notes: notes,
+        created: Date.now(), updated: Date.now()
+      };
+    });
+}
+
+function parseCSV(raw, struct, zone, cat) {
+  return raw.split('\n')
+    .map(l => l.trim())
+    .filter(l => l && !l.startsWith('#') && !l.toLowerCase().startsWith('address'))
+    .map((line, i) => {
+      const cols = line.split(',').map(c => c.replace(/^"|"$/g,'').trim());
+      const shelf = String.fromCharCode(65 + (i % 26)) + '0';
+      const defaultAddr = [struct, zone, 'S1', shelf].filter(Boolean).join('-');
+      return {
+        id: Date.now().toString(36) + i,
+        address: cols[0]?.toUpperCase() || defaultAddr,
+        itemName: cols[1]?.toUpperCase() || autoHLName(cols[2] || ''),
+        friendlyName: cols[2] || '',
+        make: cols[3] || '',
+        model: '',
+        condition: cols[4] || '',
+        value: cols[5] || '',
+        category: cols[6]?.toUpperCase() || cat,
+        haType: cols[7] || '',
+        notes: cols[8] || '',
+        created: Date.now(), updated: Date.now()
+      };
+    });
+}
+
+function parseAI(raw, struct, zone, cat) {
+  const blocks = raw.split(/---+/).filter(b => b.includes('Address:') || b.includes('ADDRESS:'));
+  if (!blocks.length) return parseSimple(raw, struct, zone, cat);
+
+  return blocks.map((block, i) => {
+    const get = (key) => {
+      const m = block.match(new RegExp(key + '[:\\s]+(.+)', 'i'));
+      return m ? m[1].trim() : '';
+    };
+    const addr = get('address').toUpperCase() || [struct, zone, 'S1', String.fromCharCode(65+i)+'0'].join('-');
+    return {
+      id: Date.now().toString(36) + i,
+      address: addr,
+      itemName: get('item.?name').toUpperCase() || autoHLName(get('human.?name')),
+      friendlyName: get('human.?name') || '',
+      category: get('category').toUpperCase() || cat,
+      make: get('make') || '',
+      model: get('model') || '',
+      condition: get('condition') || '',
+      value: get('value').replace(/[$,]/g,'') || '',
+      haType: get('ha.?type').toLowerCase().replace(/none/i,'') || '',
+      notes: get('notes') || '',
+      created: Date.now(), updated: Date.now()
+    };
+  }).filter(r => r.itemName);
+}
+
+// ══════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════
+function renderAll() {
+  updateStats();
+  renderRecordsTable();
+  renderLabels();
+  renderWiki();
+  renderExchange();
+  renderHA();
+  renderAddresses();
+}
+
+function updateStats() {
+  document.getElementById('hdr-count').textContent = batchItems.length;
+  document.getElementById('s-total').textContent = batchItems.length;
+  const val = batchItems.reduce((s,r)=>s+(parseFloat(r.value)||0),0);
+  document.getElementById('s-value').textContent = '$' + val.toLocaleString();
+  document.getElementById('s-heirlooms').textContent = batchItems.filter(r=>r.category==='HEIRLOOM').length;
+  const zones = new Set(batchItems.map(r=>(r.address||'').split('-').slice(0,2).join('-'))).size;
+  document.getElementById('s-zones').textContent = zones;
+}
+
+function renderRecordsTable() {
+  const tbody = document.getElementById('records-tbody');
+  const table = document.getElementById('records-table');
+  const empty = document.getElementById('empty-records');
+
+  if (!batchItems.length) { table.style.display='none'; empty.style.display='flex'; return; }
+  empty.style.display = 'none';
+  table.style.display = 'table';
+
+  tbody.innerHTML = batchItems.map((r, i) => `
+    <tr>
+      <td class="row-num">${i+1}</td>
+      <td class="addr-td"><input style="background:none;border:none;color:var(--accent3);font-family:var(--mono);font-size:12px;width:120px;outline:none;padding:0" value="${r.address}" onchange="updateItem(${i},'address',this.value.toUpperCase());this.value=this.value.toUpperCase()"></td>
+      <td class="item-td" title="${r.itemName}"><input style="background:none;border:none;color:var(--text);font-family:var(--mono);font-size:11px;width:160px;outline:none;padding:0" value="${r.itemName}" onchange="updateItem(${i},'itemName',this.value.toUpperCase());this.value=this.value.toUpperCase()"></td>
+      <td class="edit-td"><input value="${r.friendlyName}" onchange="updateItem(${i},'friendlyName',this.value)" style="min-width:120px"></td>
+      <td class="edit-td"><input value="${r.make}" onchange="updateItem(${i},'make',this.value)" style="min-width:80px"></td>
+      <td class="edit-td">
+        <select style="background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:10px;padding:3px;outline:none" onchange="updateItem(${i},'condition',this.value)">
+          <option value="">—</option>
+          ${['New','Excellent','Good','Fair','Restored','For Parts'].map(c=>`<option ${r.condition===c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </td>
+      <td class="edit-td"><input value="${r.value}" onchange="updateItem(${i},'value',this.value)" style="min-width:60px" placeholder="$0"></td>
+      <td>
+        <select style="background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:9px;padding:3px;outline:none" onchange="updateItem(${i},'category',this.value)">
+          ${['TOOL','FASTENER','APPLIANCE','CONTAINER','ZONE','HEIRLOOM','ELECTRICAL','SUPPLY','OTHER'].map(c=>`<option value="${c}" ${r.category===c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </td>
+      <td><button class="row-del" onclick="deleteItem(${i})">✕</button></td>
+    </tr>
+  `).join('');
+}
+
+function renderLabels() {
+  const grid = document.getElementById('label-grid');
+  const empty = document.getElementById('empty-labels');
+  if (!batchItems.length) { grid.style.display='none'; empty.style.display='flex'; return; }
+  empty.style.display = 'none';
+  grid.style.display = 'grid';
+
+  grid.innerHTML = batchItems.map((r, i) => `
+    <div class="label-card">
+      <div class="lc-top">
+        <div>
+          <div class="lc-addr">${r.address}</div>
+        </div>
+        <div class="qr-cell" id="qr-batch-${i}"></div>
+      </div>
+      <div class="lc-item">${r.itemName}</div>
+      <div class="lc-item" style="color:#444;font-size:9px">${r.friendlyName}</div>
+      <div class="lc-meta">
+        <span>${[r.make, r.model].filter(Boolean).join(' ')}</span>
+        <span>${r.condition}</span>
+      </div>
+    </div>
+  `).join('');
+
+  // Generate QR codes
+  batchItems.forEach((r, i) => {
+    const el = document.getElementById(`qr-batch-${i}`);
+    if (el) {
+      new QRCode(el, {
+        text: `HL:${r.address}:${r.itemName}`,
+        width: 48, height: 48,
+        colorDark: '#000', colorLight: '#fff',
+        correctLevel: QRCode.CorrectLevel.L
+      });
+    }
+  });
+}
+
+function renderWiki() {
+  document.getElementById('wiki-code').textContent = batchItems.map(r => `# ${r.itemName || r.address}
+> **HL Address:** \`${r.address}\`  |  **Location:** ${r.friendlyName || '—'}
+
+| Field | Value |
+|---|---|
+| **HL Address** | \`${r.address}\` |
+| **Item Name** | \`${r.itemName}\` |
+| **Human Name** | ${r.friendlyName || '—'} |
+| **Category** | ${r.category || '—'} |
+| **Make** | ${r.make || '—'} |
+| **Model** | ${r.model || '—'} |
+| **Condition** | ${r.condition || '—'} |
+| **Est. Value** | ${r.value ? '$'+r.value : '—'} |
+
+## Notes
+${r.notes || '_No notes recorded._'}
+
+---
+`).join('\n');
+}
+
+function renderExchange() {
+  const date = new Date().toISOString().split('T')[0];
+  document.getElementById('exchange-code').textContent = batchItems.map(r => `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ITEM:      ${r.itemName}
+ADDRESS:   ${r.address}
+NAME:      ${r.friendlyName || '—'}
+MAKE:      ${[r.make,r.model].filter(Boolean).join(' ')||'—'}
+CONDITION: ${r.condition || '—'}
+VALUE:     ${r.value ? '$'+r.value : 'Make offer'}
+NOTES:     ${r.notes || '—'}
+DATE:      ${date}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`).join('\n');
+}
+
+function renderHA() {
+  document.getElementById('ha-code').textContent = batchItems
+    .filter(r => r.haType)
+    .map(r => {
+      const entityId = r.address.toLowerCase().replace(/-/g,'_');
+      const parts = r.address.split('-');
+      return `# ${r.itemName}
+${r.haType}:
+  - platform: your_platform
+    name: ${entityId}
+    friendly_name: "${r.friendlyName || r.itemName}"
+    labels:
+      - HL-ZONE-${parts[1]||'UNKNOWN'}
+      - HL-STRUCT-${parts[0]||'UNKNOWN'}
+    tags:
+      - hl_address_${entityId}
+      - hl_type_${r.haType}
+`;}).join('\n') || '# No HA device types set.\n# Add haType in the Records tab.';
+}
+
+function renderAddresses() {
+  document.getElementById('addr-code').textContent =
+    batchItems.map(r => `${r.address.padEnd(20)} ${r.itemName.padEnd(40)} ${r.friendlyName}`).join('\n');
+}
+
+// ══════════════════════════════════════
+// EDITING
+// ══════════════════════════════════════
+function updateItem(i, field, val) {
+  if (batchItems[i]) {
+    batchItems[i][field] = val;
+    updateStats();
+    // Re-render light outputs without rebuilding table
+    renderWiki();
+    renderExchange();
+    renderHA();
+    renderAddresses();
+  }
+}
+
+function deleteItem(i) {
+  batchItems.splice(i, 1);
+  renderAll();
+}
+
+// ══════════════════════════════════════
+// EXPORT
+// ══════════════════════════════════════
+function exportCSV() {
+  if (!batchItems.length) { showToast('No items to export'); return; }
+  const headers = ['Address','Item Name','Human Name','Category','Make','Model','Condition','Value','HA Type','Notes'];
+  const rows = batchItems.map(r => [
+    r.address, r.itemName, r.friendlyName, r.category,
+    r.make, r.model, r.condition, r.value, r.haType,
+    (r.notes||'').replace(/\n/g,' ')
+  ].map(v => `"${(v||'').replace(/"/g,'""')}"`));
+  const csv = [headers.join(','), ...rows.map(r=>r.join(','))].join('\n');
+  download(csv, 'hl-batch-export.csv', 'text/csv');
+  showToast('CSV downloaded');
+}
+
+function exportJSON() {
+  if (!batchItems.length) { showToast('No items to export'); return; }
+  download(JSON.stringify({ version:'1.0', exported: new Date().toISOString(), records: batchItems }, null, 2),
+    'hl-batch-export.json', 'application/json');
+  showToast('JSON downloaded');
+}
+
+function exportMarkdown() {
+  if (!batchItems.length) { showToast('No items to export'); return; }
+  download(document.getElementById('wiki-code').textContent, 'hl-batch-wiki.md', 'text/markdown');
+  showToast('Markdown downloaded');
+}
+
+function download(content, name, mime) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], {type: mime}));
+  a.download = name;
+  a.click();
+}
+
+function copyCode(id) {
+  navigator.clipboard.writeText(document.getElementById(id).textContent)
+    .then(() => showToast('Copied!'));
+}
+
+// ══════════════════════════════════════
+// VAULT
+// ══════════════════════════════════════
+function saveAllToVault() {
+  if (!batchItems.length) { showToast('No items to save'); return; }
+  const VAULT_KEY = 'hl_vault_v1';
+  let vault = [];
+  try { vault = JSON.parse(localStorage.getItem(VAULT_KEY)) || []; } catch {}
+
+  let added = 0;
+  batchItems.forEach(r => {
+    if (!vault.find(v => v.address === r.address && v.itemName === r.itemName)) {
+      vault.unshift({ ...r, updated: Date.now() });
+      added++;
+    }
+  });
+
+  localStorage.setItem(VAULT_KEY, JSON.stringify(vault));
+  showToast(`${added} items saved to Vault`);
+}
+
+// ══════════════════════════════════════
+// CLEAR / EXAMPLE
+// ══════════════════════════════════════
+function clearAll() {
+  batchItems = [];
+  document.getElementById('paste-input').value = '';
+  renderAll();
+  showToast('Cleared');
+}
+
+function loadExample() {
+  document.getElementById('default-struct').value = 'GR';
+  document.getElementById('default-zone').value = 'WS';
+  document.getElementById('default-cat').value = 'TOOL';
+  setFormat('simple');
+  document.getElementById('paste-input').value = `Milwaukee 18V cordless drill
+DeWalt circular saw 7.25 inch
+Craftsman socket set — grandpa's, vintage 1970s
+old hand plane with wooden handle — possible heirloom
+box of assorted wood screws
+Ryobi cordless jigsaw
+floor lamp — northwest corner living room
+GR-WS-BENCH: workbench vise — heavy cast iron
+HM-LR-N1: smart ceiling light — main room
+1939 Ford 9N tractor — Dr. Piper's original farm tractor, fully restored`;
+  parseBatch();
+}
+
+// ══════════════════════════════════════
+// UI
+// ══════════════════════════════════════
+function showOTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.otab').forEach(t => t.classList.remove('active'));
+  document.getElementById('otab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
