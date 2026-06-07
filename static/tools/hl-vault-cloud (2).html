@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HL Vault</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f0e;
+  --surface: #141816;
+  --surface2: #1c201e;
+  --surface3: #222824;
+  --border: #2a302c;
+  --accent: #4cff91;
+  --accent2: #00c9ff;
+  --accent3: #ffd84c;
+  --danger: #ff5c5c;
+  --text: #dde8e2;
+  --muted: #6b7d72;
+  --mono: 'Share Tech Mono', monospace;
+  --head: 'Barlow Condensed', sans-serif;
+  --body: 'Barlow', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--body); min-height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ── HEADER ── */
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 56px;
+  flex-shrink: 0;
+}
+.logo { display: flex; align-items: center; gap: 12px; margin-right: 32px; }
+.logo-box { width: 34px; height: 34px; background: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--head); font-weight: 900; font-size: 16px; color: #000; letter-spacing: -1px; }
+.logo h1 { font-family: var(--head); font-weight: 900; font-size: 20px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); }
+.logo span { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; }
+
+.nav-tabs { display: flex; height: 100%; }
+.nav-tab { padding: 0 20px; font-family: var(--mono); font-size: 11px; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; transition: all 0.15s; background: none; border-top: none; border-left: none; border-right: none; }
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.header-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.hbtn { background: none; border: 1px solid var(--border); color: var(--muted); font-family: var(--mono); font-size: 10px; padding: 5px 14px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: all 0.15s; }
+.hbtn:hover { border-color: var(--accent); color: var(--accent); }
+.hbtn.primary { background: var(--accent); border-color: var(--accent); color: #000; font-weight: bold; }
+.hbtn.primary:hover { background: #6fffaa; }
+
+/* ── LAYOUT ── */
+.app { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 56px); }
+
+/* ── SIDEBAR ── */
+.sidebar { width: 220px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
+.sidebar-section { padding: 16px 16px 8px; }
+.sidebar-label { font-family: var(--mono); font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 8px; }
+.filter-btn { display: block; width: 100%; text-align: left; padding: 7px 12px; font-family: var(--mono); font-size: 11px; color: var(--muted); background: none; border: none; cursor: pointer; letter-spacing: 1px; border-left: 2px solid transparent; transition: all 0.12s; }
+.filter-btn:hover { color: var(--text); background: var(--surface2); }
+.filter-btn.active { color: var(--accent); border-left-color: var(--accent); background: var(--surface2); }
+.filter-btn .count { float: right; color: var(--muted); font-size: 10px; }
+.filter-btn.active .count { color: var(--accent); }
+.sidebar-divider { border: none; border-top: 1px solid var(--border); margin: 8px 16px; }
+
+/* ── MAIN ── */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ── TOOLBAR ── */
+.toolbar { padding: 12px 20px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.search-wrap { flex: 1; position: relative; max-width: 400px; }
+.search-wrap input { width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 13px; padding: 8px 12px 8px 34px; outline: none; transition: border-color 0.15s; }
+.search-wrap input:focus { border-color: var(--accent); }
+.search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; pointer-events: none; }
+.sort-select { background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 11px; padding: 8px 12px; outline: none; cursor: pointer; }
+.sort-select option { background: var(--surface2); }
+.toolbar-right { margin-left: auto; display: flex; gap: 8px; }
+
+/* ── STATS BAR ── */
+.stats-bar { display: flex; gap: 0; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.stat { flex: 1; padding: 12px 20px; border-right: 1px solid var(--border); }
+.stat:last-child { border-right: none; }
+.stat-val { font-family: var(--head); font-weight: 900; font-size: 28px; color: var(--accent); line-height: 1; }
+.stat-label { font-family: var(--mono); font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-top: 2px; }
+
+/* ── RECORDS TABLE ── */
+.records-area { flex: 1; overflow-y: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead { position: sticky; top: 0; z-index: 10; }
+th { background: var(--surface2); padding: 10px 16px; font-family: var(--mono); font-size: 9px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; cursor: pointer; user-select: none; }
+th:hover { color: #fff; }
+td { padding: 11px 16px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text); vertical-align: middle; }
+tr:hover td { background: var(--surface2); }
+.addr-cell { font-family: var(--mono); font-size: 12px; color: var(--accent3); white-space: nowrap; }
+.item-cell { font-family: var(--mono); font-size: 11px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cat-pill { display: inline-block; padding: 2px 8px; font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1px; border: 1px solid; }
+.cat-TOOL { color: var(--accent2); border-color: var(--accent2); }
+.cat-FASTENER { color: #a0c4a0; border-color: #a0c4a0; }
+.cat-APPLIANCE { color: var(--accent3); border-color: var(--accent3); }
+.cat-HEIRLOOM { color: #ff9ecd; border-color: #ff9ecd; }
+.cat-ZONE { color: var(--accent); border-color: var(--accent); }
+.cat-CONTAINER { color: #c4a0ff; border-color: #c4a0ff; }
+.cat-ELECTRICAL { color: #ffb347; border-color: #ffb347; }
+.cat-SUPPLY { color: #87ceeb; border-color: #87ceeb; }
+.cat-OTHER { color: var(--muted); border-color: var(--muted); }
+.cond-cell { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+.val-cell { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+.row-actions { display: flex; gap: 6px; opacity: 0; transition: opacity 0.15s; }
+tr:hover .row-actions { opacity: 1; }
+.row-btn { background: none; border: 1px solid var(--border); color: var(--muted); font-family: var(--mono); font-size: 9px; padding: 3px 8px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: all 0.12s; white-space: nowrap; }
+.row-btn:hover { border-color: var(--accent); color: var(--accent); }
+.row-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+.empty-state { text-align: center; padding: 80px 20px; color: var(--muted); }
+.empty-state .big { font-size: 48px; margin-bottom: 16px; }
+.empty-state h3 { font-family: var(--head); font-weight: 900; font-size: 24px; letter-spacing: 2px; text-transform: uppercase; color: var(--text); margin-bottom: 8px; }
+.empty-state p { font-family: var(--mono); font-size: 12px; }
+
+/* ── MODAL ── */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--surface); border: 1px solid var(--border); width: 640px; max-width: 95vw; max-height: 90vh; display: flex; flex-direction: column; }
+.modal-header { padding: 16px 20px; background: var(--surface2); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.modal-title { font-family: var(--head); font-weight: 900; font-size: 20px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
+.modal-close { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; padding: 0 4px; transition: color 0.15s; }
+.modal-close:hover { color: var(--danger); }
+.modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+.modal-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; flex-shrink: 0; }
+
+/* FORM */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-group label { font-family: var(--mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.form-group input, .form-group select, .form-group textarea { background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 13px; padding: 9px 12px; outline: none; width: 100%; transition: border-color 0.15s; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); }
+.form-group textarea { resize: vertical; min-height: 80px; }
+.form-group select option { background: var(--surface2); }
+.addr-preview-form { background: var(--bg); border: 1px solid var(--accent); padding: 8px 12px; font-family: var(--mono); font-size: 16px; color: var(--accent); text-align: center; letter-spacing: 3px; margin-top: 6px; }
+.form-section-label { font-family: var(--mono); font-size: 9px; color: var(--accent); text-transform: uppercase; letter-spacing: 3px; margin: 16px 0 10px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+.addr-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+
+/* DETAIL MODAL */
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.detail-field label { font-family: var(--mono); font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 3px; }
+.detail-field .val { font-family: var(--mono); font-size: 13px; color: var(--text); }
+.detail-field .val.accent { color: var(--accent3); font-size: 16px; }
+.notes-block { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent); padding: 14px 16px; font-size: 14px; color: var(--text); line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
+
+/* EXPORT / IMPORT */
+.export-option { background: var(--surface2); border: 1px solid var(--border); padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+.export-option h4 { font-family: var(--head); font-weight: 700; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; color: #fff; }
+.export-option p { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+/* TOAST */
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--accent); color: var(--accent); font-family: var(--mono); font-size: 12px; padding: 10px 20px; letter-spacing: 1px; z-index: 9999; transform: translateY(60px); opacity: 0; transition: all 0.3s; }
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* TABS */
+.page { display: none; }
+.page.active { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+
+/* STATUS */
+.status { padding: 5px 20px; background: var(--surface2); border-top: 1px solid var(--border); font-family: var(--mono); font-size: 10px; color: var(--muted); display: flex; gap: 24px; flex-shrink: 0; }
+.status span { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-box">HL</div>
+    <div>
+      <h1>Vault</h1>
+      <span>Human Layer System</span>
+    </div>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('records')">Records</button>
+    <button class="nav-tab" onclick="showPage('dashboard')">Dashboard</button>
+    <button class="nav-tab" onclick="showPage('export')">Export / Import</button>
+  </div>
+  <div class="header-right">
+    <div id="cloud-status" style="font-family:var(--mono);font-size:10px;color:var(--muted);display:flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid var(--border);"><span id="cloud-dot" style="width:7px;height:7px;border-radius:50%;background:var(--muted);display:inline-block;transition:background 0.3s;"></span><span id="cloud-label">connecting...</span></div>
+    <button class="hbtn" onclick="openSuperTool()">Super Tool ↗</button>
+    <button class="hbtn" onclick="openImportDialog()">Import JSON</button>
+    <button class="hbtn primary" onclick="openAddModal()">+ Add Record</button>
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Filter by Category</div>
+      <button class="filter-btn active" onclick="setFilter('all')" id="f-all">All Records <span class="count" id="fc-all">0</span></button>
+      <button class="filter-btn" onclick="setFilter('TOOL')" id="f-TOOL">Tools <span class="count" id="fc-TOOL">0</span></button>
+      <button class="filter-btn" onclick="setFilter('FASTENER')" id="f-FASTENER">Fasteners <span class="count" id="fc-FASTENER">0</span></button>
+      <button class="filter-btn" onclick="setFilter('APPLIANCE')" id="f-APPLIANCE">Appliances <span class="count" id="fc-APPLIANCE">0</span></button>
+      <button class="filter-btn" onclick="setFilter('HEIRLOOM')" id="f-HEIRLOOM">Heirlooms <span class="count" id="fc-HEIRLOOM">0</span></button>
+      <button class="filter-btn" onclick="setFilter('ZONE')" id="f-ZONE">Zones <span class="count" id="fc-ZONE">0</span></button>
+      <button class="filter-btn" onclick="setFilter('CONTAINER')" id="f-CONTAINER">Containers <span class="count" id="fc-CONTAINER">0</span></button>
+      <button class="filter-btn" onclick="setFilter('ELECTRICAL')" id="f-ELECTRICAL">Electrical <span class="count" id="fc-ELECTRICAL">0</span></button>
+      <button class="filter-btn" onclick="setFilter('SUPPLY')" id="f-SUPPLY">Supplies <span class="count" id="fc-SUPPLY">0</span></button>
+      <button class="filter-btn" onclick="setFilter('OTHER')" id="f-OTHER">Other <span class="count" id="fc-OTHER">0</span></button>
+    </div>
+    <hr class="sidebar-divider">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Filter by Structure</div>
+      <div id="struct-filters"></div>
+    </div>
+    <hr class="sidebar-divider">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Flagged</div>
+      <button class="filter-btn" onclick="setFilter('flagged')" id="f-flagged">High Value / Estate <span class="count" id="fc-flagged">0</span></button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+
+    <!-- RECORDS PAGE -->
+    <div class="page active" id="page-records">
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input type="text" id="search-input" placeholder="Search address, item, name, notes…" oninput="renderRecords()">
+        </div>
+        <select class="sort-select" id="sort-select" onchange="renderRecords()">
+          <option value="date-desc">Newest First</option>
+          <option value="date-asc">Oldest First</option>
+          <option value="addr-asc">Address A→Z</option>
+          <option value="item-asc">Item Name A→Z</option>
+          <option value="value-desc">Highest Value</option>
+        </select>
+        <div class="toolbar-right">
+          <button class="hbtn" onclick="exportCSV()">↓ CSV</button>
+          <button class="hbtn" onclick="exportJSON()">↓ JSON</button>
+          <button class="hbtn" onclick="exportMarkdown()">↓ Markdown</button>
+        </div>
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat"><div class="stat-val" id="stat-total">0</div><div class="stat-label">Total Records</div></div>
+        <div class="stat"><div class="stat-val" id="stat-value">$0</div><div class="stat-label">Total Est. Value</div></div>
+        <div class="stat"><div class="stat-val" id="stat-heirlooms">0</div><div class="stat-label">Heirlooms</div></div>
+        <div class="stat"><div class="stat-val" id="stat-zones">0</div><div class="stat-label">Zones Mapped</div></div>
+        <div class="stat"><div class="stat-val" id="stat-shown">0</div><div class="stat-label">Showing</div></div>
+      </div>
+
+      <div class="records-area">
+        <table>
+          <thead>
+            <tr>
+              <th onclick="setSortCol('address')">Address ↕</th>
+              <th onclick="setSortCol('itemName')">Item Name ↕</th>
+              <th onclick="setSortCol('friendlyName')">Human Name ↕</th>
+              <th onclick="setSortCol('category')">Category ↕</th>
+              <th onclick="setSortCol('condition')">Condition</th>
+              <th onclick="setSortCol('value')">Value ↕</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="records-tbody"></tbody>
+        </table>
+        <div class="empty-state" id="empty-state" style="display:none">
+          <div class="big">📦</div>
+          <h3>No Records Yet</h3>
+          <p>Click "+ Add Record" to create your first HL record,<br>or import a JSON backup to restore your vault.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD PAGE -->
+    <div class="page" id="page-dashboard">
+      <div style="padding:32px;overflow-y:auto;flex:1">
+        <h2 style="font-family:var(--head);font-weight:900;font-size:36px;letter-spacing:3px;text-transform:uppercase;color:#fff;margin-bottom:24px">Vault Dashboard</h2>
+        <div id="dashboard-content"></div>
+      </div>
+    </div>
+
+    <!-- EXPORT / IMPORT PAGE -->
+    <div class="page" id="page-export">
+      <div style="padding:32px;overflow-y:auto;flex:1;max-width:700px">
+        <h2 style="font-family:var(--head);font-weight:900;font-size:36px;letter-spacing:3px;text-transform:uppercase;color:#fff;margin-bottom:6px">Export & Import</h2>
+        <p style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:28px">Your data stays on your device. Export regularly to keep a backup.</p>
+
+        <div style="font-family:var(--mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:3px;margin-bottom:12px">Export</div>
+
+        <div class="export-option">
+          <div><h4>JSON Backup</h4><p>Complete vault backup. Use this to restore or move to another device.</p></div>
+          <button class="hbtn primary" onclick="exportJSON()">↓ Download JSON</button>
+        </div>
+        <div class="export-option">
+          <div><h4>CSV Spreadsheet</h4><p>Open in Excel, Google Sheets, or Numbers. Good for sorting and printing.</p></div>
+          <button class="hbtn" onclick="exportCSV()">↓ Download CSV</button>
+        </div>
+        <div class="export-option">
+          <div><h4>Markdown Wiki</h4><p>All records as Markdown pages. Paste into Obsidian, Wiki.js, or GitHub.</p></div>
+          <button class="hbtn" onclick="exportMarkdown()">↓ Download .md</button>
+        </div>
+        <div class="export-option">
+          <div><h4>Estate Package</h4><p>All records formatted for estate handling. Print and file with important documents.</p></div>
+          <button class="hbtn" onclick="exportEstate()">↓ Download Estate PDF</button>
+        </div>
+
+        <div style="font-family:var(--mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:3px;margin:28px 0 12px">Import</div>
+
+        <div class="export-option" style="flex-direction:column;align-items:stretch;gap:12px">
+          <div><h4>Import JSON Backup</h4><p>Restore from a previous export. Choose merge (keep existing + add new) or replace (overwrite everything).</p></div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <input type="file" id="import-file" accept=".json" style="font-family:var(--mono);font-size:12px;color:var(--muted);background:var(--surface2);border:1px solid var(--border);padding:6px 10px;flex:1">
+            <button class="hbtn" onclick="importJSON('merge')">Merge</button>
+            <button class="hbtn danger" onclick="importJSON('replace')" style="border-color:var(--danger);color:var(--danger)">Replace All</button>
+          </div>
+        </div>
+
+        <div style="font-family:var(--mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:3px;margin:28px 0 12px">Danger Zone</div>
+        <div class="export-option" style="border-color:var(--danger)">
+          <div><h4 style="color:var(--danger)">Clear All Records</h4><p>Permanently delete everything in the vault. Export a backup first.</p></div>
+          <button class="hbtn" onclick="clearAll()" style="border-color:var(--danger);color:var(--danger)">Clear Vault</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end main -->
+</div><!-- end app -->
+
+<!-- STATUS BAR -->
+<div class="status">
+  <span>HL VAULT <span>v1.0</span></span>
+  <span>RECORDS: <span id="s-total">0</span></span>
+  <span>VALUE: <span id="s-value">$0</span></span>
+  <span style="margin-left:auto">Cloud sync active · Firestore · hlsystem.org</span>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-overlay" id="modal-edit">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-edit-title">Add Record</span>
+      <button class="modal-close" onclick="closeModal('modal-edit')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-id">
+
+      <div class="form-section-label">HL Address</div>
+      <div class="addr-row">
+        <div class="form-group">
+          <label>Structure</label>
+          <input type="text" id="e-struct" placeholder="HM" maxlength="4" oninput="this.value=this.value.toUpperCase();updateEditAddr()">
+        </div>
+        <div class="form-group">
+          <label>Zone</label>
+          <input type="text" id="e-zone" placeholder="WS" maxlength="4" oninput="this.value=this.value.toUpperCase();updateEditAddr()">
+        </div>
+        <div class="form-group">
+          <label>Section</label>
+          <input type="text" id="e-section" placeholder="S2" maxlength="4" oninput="this.value=this.value.toUpperCase();updateEditAddr()">
+        </div>
+        <div class="form-group">
+          <label>Shelf</label>
+          <input type="text" id="e-shelf" placeholder="A1" maxlength="4" oninput="this.value=this.value.toUpperCase();updateEditAddr()">
+        </div>
+      </div>
+      <div class="addr-preview-form" id="edit-addr-preview">—</div>
+
+      <div class="form-section-label">Identity</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Item Name (HL format)</label>
+          <input type="text" id="e-item" placeholder="TOOL-DRILL-CORDLESS-18V" oninput="this.value=this.value.toUpperCase()">
+        </div>
+        <div class="form-group">
+          <label>Human-Readable Name</label>
+          <input type="text" id="e-friendly" placeholder="Workshop South Drill">
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="e-category">
+            <option value="">— Select —</option>
+            <option>TOOL</option><option>FASTENER</option><option>APPLIANCE</option>
+            <option>CONTAINER</option><option>ZONE</option><option>ELECTRICAL</option>
+            <option>SUPPLY</option><option>HEIRLOOM</option><option>OTHER</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Condition</label>
+          <select id="e-condition">
+            <option value="">— Select —</option>
+            <option>New</option><option>Excellent</option><option>Good</option>
+            <option>Fair</option><option>Restored</option><option>For Parts</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Make / Manufacturer</label>
+          <input type="text" id="e-make" placeholder="Milwaukee, Ford…">
+        </div>
+        <div class="form-group">
+          <label>Model / Variant</label>
+          <input type="text" id="e-model" placeholder="M18 FUEL, Model 9N…">
+        </div>
+        <div class="form-group">
+          <label>Est. Value ($)</label>
+          <input type="text" id="e-value" placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label>HA Device Type</label>
+          <select id="e-hatype">
+            <option value="">None / N/A</option>
+            <option>light</option><option>switch</option><option>sensor</option>
+            <option>binary_sensor</option><option>lock</option><option>climate</option>
+            <option>media_player</option><option>camera</option><option>cover</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Notes / Provenance</label>
+          <textarea id="e-notes" placeholder="Story, history, purchase date, anything worth remembering…"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="hbtn" onclick="closeModal('modal-edit')">Cancel</button>
+      <button class="hbtn" onclick="saveAndOpenSuperTool()">Save + Open Super Tool</button>
+      <button class="hbtn primary" onclick="saveRecord()">Save Record</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="modal-detail">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="detail-title">Record</span>
+      <button class="modal-close" onclick="closeModal('modal-detail')">✕</button>
+    </div>
+    <div class="modal-body" id="detail-body"></div>
+    <div class="modal-footer">
+      <button class="hbtn" onclick="closeModal('modal-detail')">Close</button>
+      <button class="hbtn" onclick="detailEdit()" id="detail-edit-btn">Edit</button>
+      <button class="hbtn primary" onclick="detailOpenSuperTool()" id="detail-super-btn">Open in Super Tool ↗</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ══════════════════════════════════════
+// FIREBASE CONFIG
+// ══════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyARjQ3kD8iz9rD-2Fl1zNASnlVDmvDeVb4",
+  authDomain: "project-97444efa-3b6f-493b-b96.firebaseapp.com",
+  projectId: "project-97444efa-3b6f-493b-b96",
+  storageBucket: "project-97444efa-3b6f-493b-b96.firebasestorage.app",
+  messagingSenderId: "937314472168",
+  appId: "1:937314472168:web:5ad7b916ac01a9e649b95d"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const COLLECTION = 'vault_records';
+
+// ══════════════════════════════════════
+// DATA LAYER — FIRESTORE
+// ══════════════════════════════════════
+function genId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+async function saveVaultRecord(data) {
+  try {
+    await setDoc(doc(db, COLLECTION, data.id), data);
+    updateStatus();
+  } catch(e) {
+    showToast('⚠ Save failed: ' + e.message);
+    console.error(e);
+  }
+}
+
+async function deleteVaultRecord(id) {
+  try {
+    await deleteDoc(doc(db, COLLECTION, id));
+  } catch(e) {
+    showToast('⚠ Delete failed: ' + e.message);
+  }
+}
+
+// Real-time listener — keeps records in sync automatically
+function startRealtimeSync() {
+  setCloudStatus('connecting', 'connecting...');
+  const q = query(collection(db, COLLECTION));
+  onSnapshot(q, (snapshot) => {
+    records = snapshot.docs.map(d => d.data());
+    renderRecords();
+    updateStatus();
+    updateSidebar();
+    setCloudStatus('live', 'cloud live');
+  }, (err) => {
+    setCloudStatus('error', 'sync error');
+    showToast('⚠ Sync error: ' + err.message);
+  });
+}
+
+function setCloudStatus(state, label) {
+  const dot = document.getElementById('cloud-dot');
+  const lbl = document.getElementById('cloud-label');
+  if (!dot || !lbl) return;
+  lbl.textContent = label;
+  dot.style.background = state === 'live' ? 'var(--accent)' : state === 'error' ? 'var(--danger)' : 'var(--accent3)';
+}
+
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+let records = [];
+let activeFilter = 'all';
+let activeStructFilter = null;
+let currentDetailId = null;
+
+// ══════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════
+function getFiltered() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  return records.filter(r => {
+    // category filter
+    if (activeFilter === 'flagged') {
+      const v = parseFloat(r.value) || 0;
+      if (r.category !== 'HEIRLOOM' && v < 100) return false;
+    } else if (activeFilter !== 'all') {
+      if (r.category !== activeFilter) return false;
+    }
+    // struct filter
+    if (activeStructFilter) {
+      if (!r.address.toUpperCase().startsWith(activeStructFilter)) return false;
+    }
+    // search
+    if (q) {
+      const hay = [r.address, r.itemName, r.friendlyName, r.make, r.model, r.notes, r.category].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function getSorted(list) {
+  const s = document.getElementById('sort-select').value;
+  return [...list].sort((a, b) => {
+    if (s === 'date-desc') return b.created - a.created;
+    if (s === 'date-asc') return a.created - b.created;
+    if (s === 'addr-asc') return (a.address||'').localeCompare(b.address||'');
+    if (s === 'item-asc') return (a.itemName||'').localeCompare(b.itemName||'');
+    if (s === 'value-desc') return (parseFloat(b.value)||0) - (parseFloat(a.value)||0);
+    return 0;
+  });
+}
+
+function renderRecords() {
+  const filtered = getSorted(getFiltered());
+  const tbody = document.getElementById('records-tbody');
+  const empty = document.getElementById('empty-state');
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+  } else {
+    empty.style.display = 'none';
+    tbody.innerHTML = filtered.map(r => `
+      <tr onclick="openDetail('${r.id}')" style="cursor:pointer">
+        <td class="addr-cell">${r.address || '—'}</td>
+        <td class="item-cell" title="${r.itemName}">${r.itemName || '—'}</td>
+        <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.friendlyName || '—'}</td>
+        <td><span class="cat-pill cat-${r.category||'OTHER'}">${r.category||'OTHER'}</span></td>
+        <td class="cond-cell">${r.condition || '—'}</td>
+        <td class="val-cell">${r.value ? '$'+parseFloat(r.value).toLocaleString() : '—'}</td>
+        <td onclick="event.stopPropagation()">
+          <div class="row-actions">
+            <button class="row-btn" onclick="openEditModal('${r.id}')">Edit</button>
+            <button class="row-btn" onclick="openInSuperTool('${r.id}')">Super Tool</button>
+            <button class="row-btn danger" onclick="deleteRecord('${r.id}')">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // stats
+  const total = records.length;
+  const totalVal = records.reduce((s,r)=>s+(parseFloat(r.value)||0),0);
+  const heirlooms = records.filter(r=>r.category==='HEIRLOOM').length;
+  const zones = [...new Set(records.map(r=>(r.address||'').split('-').slice(0,2).join('-')).filter(Boolean))].length;
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-value').textContent = '$' + totalVal.toLocaleString();
+  document.getElementById('stat-heirlooms').textContent = heirlooms;
+  document.getElementById('stat-zones').textContent = zones;
+  document.getElementById('stat-shown').textContent = filtered.length;
+
+  updateSidebarCounts();
+  updateStatus();
+}
+
+function updateSidebarCounts() {
+  const cats = ['TOOL','FASTENER','APPLIANCE','HEIRLOOM','ZONE','CONTAINER','ELECTRICAL','SUPPLY','OTHER'];
+  document.getElementById('fc-all').textContent = records.length;
+  cats.forEach(c => {
+    const el = document.getElementById('fc-'+c);
+    if (el) el.textContent = records.filter(r=>r.category===c).length;
+  });
+  const flagged = records.filter(r=>r.category==='HEIRLOOM'||(parseFloat(r.value)||0)>=100).length;
+  document.getElementById('fc-flagged').textContent = flagged;
+
+  // struct filters
+  const structs = [...new Set(records.map(r=>(r.address||'').split('-')[0]).filter(Boolean))];
+  const sf = document.getElementById('struct-filters');
+  sf.innerHTML = structs.map(s=>`
+    <button class="filter-btn ${activeStructFilter===s?'active':''}" onclick="setStructFilter('${s}')">
+      ${s} <span class="count">${records.filter(r=>(r.address||'').startsWith(s)).length}</span>
+    </button>`).join('');
+}
+
+function updateStatus() {
+  const total = records.length;
+  const val = records.reduce((s,r)=>s+(parseFloat(r.value)||0),0);
+  document.getElementById('s-total').textContent = total;
+  document.getElementById('s-value').textContent = '$' + val.toLocaleString();
+}
+
+// ══════════════════════════════════════
+// FILTERS
+// ══════════════════════════════════════
+function setFilter(f) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('f-' + f);
+  if (btn) btn.classList.add('active');
+  renderRecords();
+}
+
+function setStructFilter(s) {
+  activeStructFilter = activeStructFilter === s ? null : s;
+  renderRecords();
+  updateSidebarCounts();
+}
+
+function setSortCol(col) {
+  const sel = document.getElementById('sort-select');
+  if (col === 'value') sel.value = 'value-desc';
+  else if (col === 'address') sel.value = 'addr-asc';
+  else if (col === 'itemName') sel.value = 'item-asc';
+  renderRecords();
+}
+
+// ══════════════════════════════════════
+// ADD / EDIT
+// ══════════════════════════════════════
+function openAddModal() {
+  document.getElementById('modal-edit-title').textContent = 'Add Record';
+  document.getElementById('edit-id').value = '';
+  ['e-struct','e-zone','e-section','e-shelf','e-item','e-friendly','e-make','e-model','e-value','e-notes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('e-category').value = '';
+  document.getElementById('e-condition').value = '';
+  document.getElementById('e-hatype').value = '';
+  document.getElementById('edit-addr-preview').textContent = '—';
+  document.getElementById('modal-edit').classList.add('open');
+}
+
+function openEditModal(id) {
+  const r = records.find(x => x.id === id);
+  if (!r) return;
+  document.getElementById('modal-edit-title').textContent = 'Edit Record';
+  document.getElementById('edit-id').value = id;
+  const parts = (r.address || '').split('-');
+  document.getElementById('e-struct').value = parts[0] || '';
+  document.getElementById('e-zone').value = parts[1] || '';
+  document.getElementById('e-section').value = parts[2] || '';
+  document.getElementById('e-shelf').value = parts[3] || '';
+  document.getElementById('e-item').value = r.itemName || '';
+  document.getElementById('e-friendly').value = r.friendlyName || '';
+  document.getElementById('e-category').value = r.category || '';
+  document.getElementById('e-condition').value = r.condition || '';
+  document.getElementById('e-make').value = r.make || '';
+  document.getElementById('e-model').value = r.model || '';
+  document.getElementById('e-value').value = r.value || '';
+  document.getElementById('e-hatype').value = r.haType || '';
+  document.getElementById('e-notes').value = r.notes || '';
+  updateEditAddr();
+  document.getElementById('modal-edit').classList.add('open');
+}
+
+function updateEditAddr() {
+  const parts = ['e-struct','e-zone','e-section','e-shelf'].map(id => document.getElementById(id).value).filter(Boolean);
+  document.getElementById('edit-addr-preview').textContent = parts.join('-') || '—';
+}
+
+function getEditAddr() {
+  return ['e-struct','e-zone','e-section','e-shelf'].map(id => document.getElementById(id).value).filter(Boolean).join('-');
+}
+
+function saveRecord() {
+  const id = document.getElementById('edit-id').value;
+  const addr = getEditAddr();
+  if (!addr) { showToast('Address is required'); return; }
+
+  const data = {
+    id: id || genId(),
+    address: addr,
+    itemName: document.getElementById('e-item').value,
+    friendlyName: document.getElementById('e-friendly').value,
+    category: document.getElementById('e-category').value || 'OTHER',
+    condition: document.getElementById('e-condition').value,
+    make: document.getElementById('e-make').value,
+    model: document.getElementById('e-model').value,
+    value: document.getElementById('e-value').value,
+    haType: document.getElementById('e-hatype').value,
+    notes: document.getElementById('e-notes').value,
+    created: id ? (records.find(r=>r.id===id)||{}).created || Date.now() : Date.now(),
+    updated: Date.now()
+  };
+
+  saveVaultRecord(data);
+  closeModal('modal-edit');
+  showToast(id ? 'Record updated' : 'Record saved');
+}
+
+function saveAndOpenSuperTool() {
+  saveRecord();
+  const addr = getEditAddr();
+  const r = records.find(x => x.address === addr);
+  if (r) openInSuperTool(r.id);
+}
+
+function deleteRecord(id) {
+  if (!confirm('Delete this record? This cannot be undone.')) return;
+  deleteVaultRecord(id);
+  showToast('Record deleted');
+}
+
+// ══════════════════════════════════════
+// DETAIL VIEW
+// ══════════════════════════════════════
+function openDetail(id) {
+  const r = records.find(x => x.id === id);
+  if (!r) return;
+  currentDetailId = id;
+  document.getElementById('detail-title').textContent = r.address || 'Record';
+  document.getElementById('detail-body').innerHTML = `
+    <div class="detail-grid">
+      <div class="detail-field"><label>HL Address</label><div class="val accent">${r.address||'—'}</div></div>
+      <div class="detail-field"><label>Item Name</label><div class="val" style="font-family:var(--mono);font-size:12px">${r.itemName||'—'}</div></div>
+      <div class="detail-field"><label>Human Name</label><div class="val">${r.friendlyName||'—'}</div></div>
+      <div class="detail-field"><label>Category</label><div class="val"><span class="cat-pill cat-${r.category||'OTHER'}">${r.category||'OTHER'}</span></div></div>
+      <div class="detail-field"><label>Make</label><div class="val">${r.make||'—'}</div></div>
+      <div class="detail-field"><label>Model</label><div class="val">${r.model||'—'}</div></div>
+      <div class="detail-field"><label>Condition</label><div class="val">${r.condition||'—'}</div></div>
+      <div class="detail-field"><label>Est. Value</label><div class="val" style="color:var(--accent)">${r.value?'$'+parseFloat(r.value).toLocaleString():'—'}</div></div>
+      <div class="detail-field"><label>HA Type</label><div class="val" style="font-family:var(--mono);font-size:12px">${r.haType||'None'}</div></div>
+      <div class="detail-field"><label>Recorded</label><div class="val" style="font-family:var(--mono);font-size:11px">${new Date(r.created).toLocaleDateString()}</div></div>
+    </div>
+    ${r.notes ? `<div style="font-family:var(--mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:3px;margin-bottom:8px">Notes / Provenance</div><div class="notes-block">${r.notes}</div>` : ''}
+  `;
+  document.getElementById('modal-detail').classList.add('open');
+}
+
+function detailEdit() {
+  closeModal('modal-detail');
+  if (currentDetailId) openEditModal(currentDetailId);
+}
+
+function detailOpenSuperTool() {
+  closeModal('modal-detail');
+  if (currentDetailId) openInSuperTool(currentDetailId);
+}
+
+// ══════════════════════════════════════
+// SUPER TOOL INTEGRATION
+// ══════════════════════════════════════
+function openInSuperTool(id) {
+  const r = records.find(x => x.id === id);
+  if (!r) return;
+  const params = new URLSearchParams({
+    addr: r.address||'',
+    item: r.itemName||'',
+    friendly: r.friendlyName||'',
+    make: r.make||'',
+    model: r.model||'',
+    condition: r.condition||'',
+    value: r.value||'',
+    notes: r.notes||'',
+    hatype: r.haType||'',
+    category: r.category||''
+  });
+  // Open super tool with params — when hosted together, this pre-fills the form
+  const url = 'hl-super-tool.html?' + params.toString();
+  window.open(url, '_blank');
+  showToast('Opening in Super Tool…');
+}
+
+function openSuperTool() {
+  window.open('hl-super-tool.html', '_blank');
+}
+
+// ══════════════════════════════════════
+// EXPORT
+// ══════════════════════════════════════
+function downloadFile(content, filename, mime) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], {type: mime}));
+  a.download = filename;
+  a.click();
+}
+
+function exportJSON() {
+  const data = { version: '1.0', exported: new Date().toISOString(), records };
+  downloadFile(JSON.stringify(data, null, 2), 'hl-vault-backup.json', 'application/json');
+  showToast('JSON exported');
+}
+
+function exportCSV() {
+  const headers = ['Address','Item Name','Human Name','Category','Make','Model','Condition','Value','HA Type','Notes','Created'];
+  const rows = records.map(r => [
+    r.address, r.itemName, r.friendlyName, r.category, r.make, r.model,
+    r.condition, r.value, r.haType, (r.notes||'').replace(/\n/g,' '),
+    new Date(r.created).toLocaleDateString()
+  ].map(v => `"${(v||'').replace(/"/g,'""')}"`));
+  const csv = [headers.join(','), ...rows.map(r=>r.join(','))].join('\n');
+  downloadFile(csv, 'hl-vault-export.csv', 'text/csv');
+  showToast('CSV exported');
+}
+
+function exportMarkdown() {
+  const md = records.map(r => `# ${r.itemName || r.address}
+> **HL Address:** \`${r.address||'—'}\`  |  **Location:** ${r.friendlyName||'—'}
+
+| Field | Value |
+|---|---|
+| **HL Address** | \`${r.address||'—'}\` |
+| **Item Name** | \`${r.itemName||'—'}\` |
+| **Human Name** | ${r.friendlyName||'—'} |
+| **Category** | ${r.category||'—'} |
+| **Make** | ${r.make||'—'} |
+| **Model** | ${r.model||'—'} |
+| **Condition** | ${r.condition||'—'} |
+| **Est. Value** | ${r.value?'$'+r.value:'—'} |
+| **Recorded** | ${new Date(r.created).toLocaleDateString()} |
+
+## Notes
+${r.notes||'_No notes recorded._'}
+
+---
+`).join('\n');
+  downloadFile(md, 'hl-vault-wiki.md', 'text/markdown');
+  showToast('Markdown exported');
+}
+
+function exportEstate() {
+  const sorted = [...records].sort((a,b)=>(parseFloat(b.value)||0)-(parseFloat(a.value)||0));
+  const totalVal = records.reduce((s,r)=>s+(parseFloat(r.value)||0),0);
+  const date = new Date().toLocaleDateString();
+  let txt = `HL VAULT — ESTATE PACKAGE
+Generated: ${date}
+Total Records: ${records.length}
+Total Estimated Value: $${totalVal.toLocaleString()}
+${'═'.repeat(60)}
+
+This document was generated by the HL System Vault.
+Each item listed below has a physical address in the HL System.
+The address tells you exactly where to find the item.
+
+${'═'.repeat(60)}
+
+`;
+  sorted.forEach((r,i) => {
+    txt += `RECORD ${String(i+1).padStart(3,'0')}
+${'─'.repeat(40)}
+ADDRESS:   ${r.address||'—'}
+ITEM:      ${r.itemName||'—'}
+NAME:      ${r.friendlyName||'—'}
+MAKE:      ${[r.make,r.model].filter(Boolean).join(' ')||'—'}
+CONDITION: ${r.condition||'—'}
+VALUE:     ${r.value?'$'+parseFloat(r.value).toLocaleString():'Unknown'}
+NOTES:
+${r.notes||'(none)'}
+
+`;
+  });
+  downloadFile(txt, 'hl-estate-package.txt', 'text/plain');
+  showToast('Estate package exported');
+}
+
+// ══════════════════════════════════════
+// IMPORT
+// ══════════════════════════════════════
+function openImportDialog() { showPage('export'); }
+
+function importJSON(mode) {
+  const file = document.getElementById('import-file').files[0];
+  if (!file) { showToast('Choose a JSON file first'); return; }
+  const reader = new FileReader();
+  reader.onload = async e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      const imported = data.records || (Array.isArray(data) ? data : []);
+      if (!imported.length) { showToast('No records found in file'); return; }
+      let toSave = [];
+      if (mode === 'replace') {
+        if (!confirm(`Replace all ${records.length} existing records with ${imported.length} imported records?`)) return;
+        // Delete all existing then save imported
+        for (const r of records) { deleteVaultRecord(r.id); }
+        toSave = imported;
+        showToast(`Replaced with ${imported.length} records`);
+      } else {
+        const existingIds = new Set(records.map(r=>r.id));
+        toSave = imported.filter(r=>!existingIds.has(r.id));
+        showToast(`Merged: ${toSave.length} new records added`);
+      }
+      for (const r of toSave) { saveVaultRecord(r); }
+    } catch { showToast('Invalid JSON file'); }
+  };
+  reader.readAsText(file);
+}
+
+function clearAll() {
+  if (!confirm(`Delete all ${records.length} records? Export a backup first!`)) return;
+  const toDelete = [...records];
+  toDelete.forEach(r => deleteVaultRecord(r.id));
+  showToast('Vault cleared');
+}
+
+// ══════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════
+function renderDashboard() {
+  const cats = {};
+  const structs = {};
+  records.forEach(r => {
+    cats[r.category||'OTHER'] = (cats[r.category||'OTHER']||0)+1;
+    const s = (r.address||'').split('-')[0];
+    if (s) structs[s] = (structs[s]||0)+1;
+  });
+
+  const topVal = [...records].sort((a,b)=>(parseFloat(b.value)||0)-(parseFloat(a.value)||0)).slice(0,5);
+  const recent = [...records].sort((a,b)=>b.created-a.created).slice(0,5);
+
+  document.getElementById('dashboard-content').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:3px;margin-bottom:12px">By Category</div>
+        ${Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <span class="cat-pill cat-${k}" style="min-width:100px;text-align:center">${k}</span>
+            <div style="flex:1;background:var(--surface2);height:8px;border:1px solid var(--border)">
+              <div style="width:${Math.round(v/records.length*100)}%;height:100%;background:var(--accent);opacity:0.7"></div>
+            </div>
+            <span style="font-family:var(--mono);font-size:11px;color:var(--muted);min-width:24px;text-align:right">${v}</span>
+          </div>`).join('')}
+      </div>
+      <div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:3px;margin-bottom:12px">By Structure</div>
+        ${Object.entries(structs).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <span style="font-family:var(--mono);font-size:12px;color:var(--accent3);min-width:50px">${k}</span>
+            <div style="flex:1;background:var(--surface2);height:8px;border:1px solid var(--border)">
+              <div style="width:${Math.round(v/records.length*100)}%;height:100%;background:var(--accent3);opacity:0.7"></div>
+            </div>
+            <span style="font-family:var(--mono);font-size:11px;color:var(--muted);min-width:24px;text-align:right">${v}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:28px">
+      <div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:3px;margin-bottom:12px">Top 5 by Value</div>
+        ${topVal.length ? topVal.map(r=>`
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);margin-bottom:4px;cursor:pointer" onclick="showPage('records')">
+            <div>
+              <div style="font-family:var(--mono);font-size:11px;color:var(--accent3)">${r.address||'—'}</div>
+              <div style="font-size:12px;color:var(--muted)">${r.friendlyName||r.itemName||'—'}</div>
+            </div>
+            <div style="font-family:var(--mono);font-size:14px;color:var(--accent)">$${parseFloat(r.value||0).toLocaleString()}</div>
+          </div>`).join('') : '<p style="font-family:var(--mono);font-size:12px;color:var(--muted)">No values recorded yet</p>'}
+      </div>
+      <div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:3px;margin-bottom:12px">Recently Added</div>
+        ${recent.length ? recent.map(r=>`
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);margin-bottom:4px;cursor:pointer" onclick="openDetail('${r.id}')">
+            <div>
+              <div style="font-family:var(--mono);font-size:11px;color:var(--accent3)">${r.address||'—'}</div>
+              <div style="font-size:12px;color:var(--muted)">${r.friendlyName||r.itemName||'—'}</div>
+            </div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">${new Date(r.created).toLocaleDateString()}</div>
+          </div>`).join('') : '<p style="font-family:var(--mono);font-size:12px;color:var(--muted)">No records yet</p>'}
+      </div>
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════
+// UI HELPERS
+// ══════════════════════════════════════
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    if (t.textContent.toLowerCase().includes(name === 'export' ? 'export' : name)) t.classList.add('active');
+  });
+  if (name === 'dashboard') renderDashboard();
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+});
+
+// ══════════════════════════════════════
+// INIT + URL PARAMS (receive from Super Tool)
+// ══════════════════════════════════════
+function checkURLParams() {
+  const p = new URLSearchParams(window.location.search);
+  if (p.get('save')) {
+    const addr = p.get('addr') || '';
+    const existing = records.find(r => r.address === addr);
+    if (existing) {
+      // update
+      existing.itemName = p.get('item') || existing.itemName;
+      existing.friendlyName = p.get('friendly') || existing.friendlyName;
+      existing.make = p.get('make') || existing.make;
+      existing.model = p.get('model') || existing.model;
+      existing.condition = p.get('condition') || existing.condition;
+      existing.value = p.get('value') || existing.value;
+      existing.notes = p.get('notes') || existing.notes;
+      existing.haType = p.get('hatype') || existing.haType;
+      existing.updated = Date.now();
+      showToast('Record updated from Super Tool');
+    } else if (addr) {
+      records.unshift({
+        id: genId(),
+        address: addr,
+        itemName: p.get('item')||'',
+        friendlyName: p.get('friendly')||'',
+        category: p.get('category')||'OTHER',
+        make: p.get('make')||'',
+        model: p.get('model')||'',
+        condition: p.get('condition')||'',
+        value: p.get('value')||'',
+        haType: p.get('hatype')||'',
+        notes: p.get('notes')||'',
+        created: Date.now(),
+        updated: Date.now()
+      });
+      saveVaultRecord(newRec);
+      showToast('New record saved from Super Tool');
+    }
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+}
+
+// Seed with Dr. Piper tractor example if vault is empty
+function maybeSeedExample() {
+  if (records.length === 0) {
+    const seed = {
+      id: genId(),
+      address: 'SH-MM-S2-M0',
+      itemName: 'TRACTOR-FORD-9N-1939',
+      friendlyName: 'Sharon Homestead Main Machine',
+      category: 'HEIRLOOM',
+      make: 'Ford Motor Company',
+      model: 'Model 9N with Dearborn Plow',
+      condition: 'Restored',
+      value: '8500',
+      haType: '',
+      notes: 'Purchased in 1939 by Dr. Harry Benjamin Piper of Sharon, Wisconsin. Total investment $1,050 — $700 financed over six months and $350 cash down payment advanced by his daughter Doris. Fully restored and retained within the family workshop as an active historical artifact.',
+      created: Date.now(),
+      updated: Date.now()
+    };
+    saveVaultRecord(seed);
+  }
+}
+
+// Boot sequence
+startRealtimeSync();
+checkURLParams();
+setTimeout(() => { if (records.length === 0) maybeSeedExample(); }, 3000);
+
+// Expose to window (module scope fix)
+Object.assign(window, {
+  renderRecords, renderDashboard, openModal, closeModal, showPage,
+  openEdit, saveRecord, saveAndOpenSuperTool, deleteRecord,
+  openDetail, closeDetail, detailEdit, detailDelete, detailOpenSuperTool,
+  updateEditAddr, updateSidebar, updateStatus,
+  setFilter, setStructFilter, setSortCol,
+  exportJSON, exportCSV, exportMarkdown,
+  importJSON, clearAll, showToast, openInSuperTool, setCloudStatus
+});
+</script>
+</body>
+</html>
