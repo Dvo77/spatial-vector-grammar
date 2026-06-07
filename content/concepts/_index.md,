@@ -1,0 +1,39 @@
+---
+title: "Concepts"
+description: "What the HL grammar makes possible beyond home inventory."
+author: "Daniel DeVoy"
+---
+
+The HL System is a spatial grammar. These are the things that grammar enables.
+
+---
+
+## Intelligent Systems
+
+**[Robotics Navigation](/concepts/edge-processing)** — An HL-addressed environment gives robots a pre-loaded map. No SLAM required at runtime. No compute overhead for known spaces. The device wakes up, reads the local address, and acts.
+
+**[House Brain](/concepts/house-brain)** — A permanent local AI installed in a home like a furnace. It knows the wiring, the plumbing, the appliance history, the permit records. When owners change, it stays.
+
+**[Home Assistant](/concepts/home-assistant)** — HL addresses map directly to Home Assistant entity IDs. Every switch, sensor, and light gets a stable, human-readable name tied to its physical location.
+
+---
+
+## Record & Continuity
+
+**[Living Provenance](/concepts/living-provenance)** — Objects carry origin records. An item sold at an estate sale can still find its family. The record travels with the object.
+
+**[Living Archive](/concepts/living-archive)** — A home's complete spatial and material record, maintained over time. Not a snapshot. A running log.
+
+---
+
+## Human Extension
+
+**[Human OS](/concepts/human-os)** — The same grammar that addresses a garage can address knowledge, projects, and time.
+
+**[Artist Reward](/concepts/artist-reward)** — A handmade object deserves a record as much as a tractor. HL provenance applied to creative work.
+
+---
+
+## Infrastructure Argument
+
+**[Edge Processing](/concepts/edge-processing)** — Smart home devices currently offload spatial processing to remote servers because local environments lack structure. HL addresses make that round-trip unnecessary.
