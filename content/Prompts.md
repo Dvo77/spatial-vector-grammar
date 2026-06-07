@@ -1,36 +1,27 @@
 ---
 title: "Prompts"
-description: "Ready-to-use AI prompts for the HL System. Copy and paste into any AI."
-weight: 7
+description: "Ready-to-use AI prompts for the HL System."
+author: "Daniel DeVoy"
 ---
 
-Paste any of these into ChatGPT, Claude, Gemini, or any AI. 
-No account needed for local models.
-
----
-
-## Onboarding Prompt
-Your first zone. One space, one address, one piece of tape.
-
-**[Open on GitHub →](https://github.com/Dvo77/spatial-vector-grammar/blob/main/prompts/HL_Prompt_Onboarding_v1.md)**
+Paste any of these into ChatGPT, Claude, Gemini, or any AI. No account needed for local models.
 
 ---
 
-## Vault Setup Prompt
-Build your first structured vault page for a space or room.
+## Getting Started
 
-**[Open on GitHub →](https://github.com/Dvo77/spatial-vector-grammar/blob/main/prompts/HL_Prompt_Vault_Setup.md)**
+**[Your First Zone](https://github.com/Dvo77/spatial-vector-grammar/blob/main/prompts/HL_Onboarding_Prompt_v1.md)** — Pick one space. Get your first address. Takes five minutes.
 
----
-
-## Items, Labels & Kits Prompt
-Name and address individual items, build kit records.
-
-**[Open on GitHub →](https://github.com/Dvo77/spatial-vector-grammar/blob/main/prompts/HL_Prompt_Items_Labels_Kits.md)**
+**[Vault Setup](https://github.com/Dvo77/spatial-vector-grammar/blob/main/prompts/HL_Vault_Setup_Prompt_v3.md)** — Build your first structured vault page for a space or room.
 
 ---
 
-## Developer Prompt
-Full system context for developers and power users.
+## Working Your Space
 
-**[Open on GitHub →](https://github.com/Dvo77/spatial-vector-grammar/blob/main/prompts/HL_Prompt_Developer_v1.md)**
+**[Items, Labels & Kits](https://github.com/Dvo77/spatial-vector-grammar/blob/main/prompts/HL_Item_Onboarding_Prompt_v2.md)** — Name and address individual items, build kit records, generate label batches.
+
+---
+
+## Power Users
+
+**[Developer Prompt](https://github.com/Dvo77/spatial-vector-grammar/blob/main/prompts/HL_Developer_Prompt_v4.md)** — Full system context for developers, integrators, and power users.
