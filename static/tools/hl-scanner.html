@@ -26,636 +26,235 @@
   --body: 'Barlow', sans-serif;
   --safe-bottom: env(safe-area-inset-bottom, 16px);
 }
-
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--body); overflow: hidden; touch-action: manipulation; }
 
-html, body {
-  height: 100%;
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--body);
-  overflow: hidden;
-  touch-action: manipulation;
-}
-
-/* ── HEADER ── */
-.header {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 14px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 100;
-  height: 58px;
-}
-
+.header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 58px; }
 .logo { display: flex; align-items: center; gap: 10px; }
 .logo-box { width: 32px; height: 32px; background: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--head); font-weight: 900; font-size: 15px; color: #000; }
 .logo h1 { font-family: var(--head); font-weight: 900; font-size: 18px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
 .logo span { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 1px; display: block; }
-
 .vault-count { font-family: var(--mono); font-size: 10px; color: var(--muted); text-align: right; }
 .vault-count strong { color: var(--accent); font-size: 16px; display: block; line-height: 1; }
 
-/* ── MAIN SCROLL AREA ── */
-.scroll-area {
-  position: fixed;
-  top: 58px;
-  bottom: calc(72px + var(--safe-bottom));
-  left: 0; right: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
+.scroll-area { position: fixed; top: 58px; bottom: calc(72px + var(--safe-bottom)); left: 0; right: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 
-/* ── SCREENS ── */
 .screen { display: none; padding: 16px; }
 .screen.active { display: block; }
 
-/* ── SEARCH SCREEN ── */
-.search-hero {
-  text-align: center;
-  padding: 24px 0 20px;
-}
-
-.search-hero h2 {
-  font-family: var(--head);
-  font-weight: 900;
-  font-size: 32px;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: #fff;
-  margin-bottom: 4px;
-}
-
-.search-hero p {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--muted);
-  letter-spacing: 2px;
-}
-
-.search-box {
-  position: relative;
-  margin-bottom: 12px;
-}
-
-.search-box input {
-  width: 100%;
-  background: var(--surface);
-  border: 2px solid var(--border);
-  color: var(--text);
-  font-family: var(--mono);
-  font-size: 22px;
-  padding: 16px 56px 16px 16px;
-  outline: none;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  transition: border-color 0.15s;
-  -webkit-appearance: none;
-}
-
-.search-box input:focus { border-color: var(--accent); }
-.search-box input::placeholder { font-size: 16px; letter-spacing: 1px; text-transform: none; color: var(--muted); }
-
-.search-box .mic-btn {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  padding: 8px;
-  color: var(--muted);
-  transition: color 0.15s;
-}
-
-.search-box .mic-btn.listening { color: var(--danger); animation: pulse 1s infinite; }
-
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-
-.search-btn {
-  width: 100%;
-  background: var(--accent);
-  border: none;
-  color: #000;
-  font-family: var(--head);
-  font-weight: 900;
-  font-size: 20px;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  padding: 18px;
-  cursor: pointer;
-  margin-bottom: 12px;
-  transition: background 0.15s;
-  -webkit-appearance: none;
-}
-
-.search-btn:active { background: #6fffaa; }
-
-/* QUICK ADDR BUILDER */
-.quick-builder {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  padding: 14px;
-  margin-bottom: 12px;
-}
-
-.quick-label {
-  font-family: var(--mono);
-  font-size: 9px;
-  color: var(--accent);
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  margin-bottom: 10px;
-}
-
-.seg-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-  margin-bottom: 8px;
-}
-
-.seg-input {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  color: var(--text);
-  font-family: var(--mono);
-  font-size: 16px;
-  padding: 10px 6px;
-  text-align: center;
-  text-transform: uppercase;
-  outline: none;
-  width: 100%;
-  -webkit-appearance: none;
-  transition: border-color 0.15s;
-}
-
-.seg-input:focus { border-color: var(--accent); }
-
-.seg-labels {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-  margin-bottom: 10px;
-}
-
-.seg-lbl {
-  font-family: var(--mono);
-  font-size: 8px;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  text-align: center;
-}
-
-.addr-built {
-  background: var(--bg);
-  border: 1px solid var(--accent);
-  padding: 10px;
-  font-family: var(--mono);
-  font-size: 20px;
-  color: var(--accent);
-  text-align: center;
-  letter-spacing: 4px;
-  margin-bottom: 10px;
-}
-
-.use-addr-btn {
-  width: 100%;
-  background: none;
-  border: 1px solid var(--accent);
-  color: var(--accent);
-  font-family: var(--mono);
-  font-size: 13px;
-  padding: 10px;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  transition: all 0.15s;
-  -webkit-appearance: none;
-}
-
-.use-addr-btn:active { background: var(--accent); color: #000; }
-
-/* RECENT SEARCHES */
-.recent-section { margin-top: 8px; }
-.section-head {
-  font-family: var(--mono);
-  font-size: 9px;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  margin-bottom: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.clear-btn {
-  background: none;
-  border: none;
-  color: var(--muted);
-  font-family: var(--mono);
-  font-size: 9px;
-  cursor: pointer;
-  text-decoration: underline;
-  padding: 0;
-}
-
-.recent-chip {
-  display: inline-block;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--accent3);
-  font-family: var(--mono);
-  font-size: 13px;
-  padding: 7px 12px;
-  margin: 0 6px 6px 0;
-  cursor: pointer;
-  letter-spacing: 2px;
-  transition: all 0.12s;
-}
-
-.recent-chip:active { background: var(--surface2); border-color: var(--accent3); }
-
-/* ── RESULT SCREEN ── */
-.result-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  margin-bottom: 12px;
-}
-
-.result-addr-bar {
-  background: var(--surface2);
+/* ── MAPPER HANDOFF BANNER ── */
+.handoff-banner {
+  background: linear-gradient(135deg, rgba(0,201,255,0.12), rgba(0,201,255,0.06));
+  border: 1px solid var(--accent2);
   padding: 14px 16px;
+  margin-bottom: 14px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--border);
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
 }
+.handoff-banner:active { background: rgba(0,201,255,0.2); }
+.handoff-icon { font-size: 24px; flex-shrink: 0; }
+.handoff-text { flex: 1; }
+.handoff-title { font-family: var(--head); font-weight: 900; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; color: var(--accent2); }
+.handoff-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 2px; letter-spacing: 1px; }
+.handoff-arrow { font-size: 20px; color: var(--accent2); }
+.handoff-dismiss { background: none; border: none; color: var(--muted); font-size: 18px; cursor: pointer; padding: 4px; flex-shrink: 0; }
 
-.result-addr {
-  font-family: var(--mono);
-  font-size: 28px;
-  color: var(--accent3);
-  letter-spacing: 4px;
-  font-weight: bold;
-}
-
-.result-badge {
-  font-family: var(--mono);
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: 3px 8px;
-  border: 1px solid;
-}
-
-.result-body { padding: 16px; }
-
-.result-name {
-  font-family: var(--head);
-  font-weight: 900;
-  font-size: 26px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: #fff;
-  margin-bottom: 4px;
-  line-height: 1.1;
-}
-
-.result-item {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--muted);
+/* ── HANDOFF SCREEN ── */
+.handoff-header {
+  background: linear-gradient(135deg, rgba(0,201,255,0.1), transparent);
+  border: 1px solid var(--accent2);
+  padding: 16px;
   margin-bottom: 14px;
-  word-break: break-all;
 }
+.handoff-header h2 { font-family: var(--head); font-weight: 900; font-size: 26px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent2); margin-bottom: 4px; }
+.handoff-header p { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 1px; }
 
-.result-meta {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+.handoff-progress {
+  display: flex;
+  align-items: center;
   gap: 10px;
   margin-bottom: 14px;
-}
-
-.meta-field label {
-  font-family: var(--mono);
-  font-size: 8px;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  display: block;
-  margin-bottom: 2px;
-}
-
-.meta-field .val {
-  font-family: var(--mono);
-  font-size: 13px;
-  color: var(--text);
-}
-
-.meta-field .val.green { color: var(--accent); }
-
-.result-notes {
-  background: var(--surface2);
-  border-left: 3px solid var(--accent);
-  padding: 10px 12px;
-  font-size: 13px;
-  color: var(--text);
-  line-height: 1.6;
-  margin-bottom: 14px;
-  display: none;
-}
-
-.result-notes.show { display: block; }
-
-.toggle-notes {
-  background: none;
-  border: none;
-  color: var(--accent2);
   font-family: var(--mono);
   font-size: 11px;
-  cursor: pointer;
-  padding: 0 0 12px;
-  text-decoration: underline;
-  display: block;
+  color: var(--muted);
 }
+.progress-bar { flex: 1; height: 3px; background: var(--surface2); }
+.progress-fill { height: 100%; background: var(--accent2); transition: width 0.3s; }
 
-.result-qr {
-  display: flex;
-  justify-content: center;
-  padding: 12px 0;
-  border-top: 1px solid var(--border);
-}
-
-.result-qr canvas, .result-qr img {
-  width: 120px !important;
-  height: 120px !important;
-}
-
-/* ACTION ROW */
-.action-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.action-btn {
+.handoff-item {
   background: var(--surface);
   border: 1px solid var(--border);
-  color: var(--text);
-  font-family: var(--head);
-  font-weight: 700;
-  font-size: 16px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  padding: 16px 8px;
-  cursor: pointer;
-  text-align: center;
-  transition: all 0.12s;
-  -webkit-appearance: none;
+  margin-bottom: 8px;
+  overflow: hidden;
+  transition: border-color 0.15s;
 }
+.handoff-item.done { opacity: 0.45; }
+.handoff-item.skipped { opacity: 0.3; }
 
+.handoff-item-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  gap: 10px;
+}
+.hi-addr { font-family: var(--mono); font-size: 18px; color: var(--accent3); letter-spacing: 3px; flex: 1; }
+.hi-name { font-family: var(--mono); font-size: 10px; color: var(--muted); display: block; letter-spacing: 1px; margin-top: 2px; }
+.hi-status { font-family: var(--mono); font-size: 10px; letter-spacing: 1px; padding: 3px 8px; border: 1px solid; flex-shrink: 0; }
+.hi-status.exists { color: var(--accent); border-color: var(--accent); }
+.hi-status.new { color: var(--muted); border-color: var(--border); }
+.hi-status.done { color: var(--accent); border-color: var(--accent); }
+.hi-status.skipped { color: var(--muted); border-color: var(--border); }
+
+.handoff-item-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--border);
+}
+.hi-btn { background: none; border: none; color: var(--text); font-family: var(--head); font-weight: 700; font-size: 15px; letter-spacing: 1px; text-transform: uppercase; padding: 12px; cursor: pointer; transition: background 0.12s; border-right: 1px solid var(--border); }
+.hi-btn:last-child { border-right: none; }
+.hi-btn:active { background: var(--surface2); }
+.hi-btn.add { color: var(--accent2); }
+.hi-btn.skip { color: var(--muted); }
+
+.handoff-quick-add {
+  background: var(--surface2);
+  border-top: 1px solid var(--accent2);
+  padding: 14px;
+}
+.hqa-title { font-family: var(--mono); font-size: 9px; color: var(--accent2); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 10px; }
+.hqa-field { margin-bottom: 8px; }
+.hqa-field label { font-family: var(--mono); font-size: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 3px; }
+.hqa-field input, .hqa-field select { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 13px; padding: 8px 10px; outline: none; -webkit-appearance: none; }
+.hqa-field input:focus, .hqa-field select:focus { border-color: var(--accent2); }
+.hqa-save { width: 100%; background: var(--accent2); border: none; color: #000; font-family: var(--head); font-weight: 900; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; padding: 12px; cursor: pointer; margin-top: 6px; }
+
+.handoff-complete {
+  text-align: center;
+  padding: 32px 16px;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  margin-bottom: 12px;
+}
+.handoff-complete .big { font-size: 48px; margin-bottom: 12px; }
+.handoff-complete h3 { font-family: var(--head); font-weight: 900; font-size: 24px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+.handoff-complete p { font-family: var(--mono); font-size: 11px; color: var(--muted); line-height: 1.6; }
+.done-btn { width: 100%; background: var(--accent); border: none; color: #000; font-family: var(--head); font-weight: 900; font-size: 18px; letter-spacing: 2px; text-transform: uppercase; padding: 16px; cursor: pointer; margin-top: 14px; }
+
+/* SEARCH SCREEN */
+.search-hero { text-align: center; padding: 24px 0 20px; }
+.search-hero h2 { font-family: var(--head); font-weight: 900; font-size: 32px; letter-spacing: 3px; text-transform: uppercase; color: #fff; margin-bottom: 4px; }
+.search-hero p { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 2px; }
+
+.search-box { position: relative; margin-bottom: 12px; }
+.search-box input { width: 100%; background: var(--surface); border: 2px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 22px; padding: 16px 56px 16px 16px; outline: none; letter-spacing: 3px; text-transform: uppercase; transition: border-color 0.15s; -webkit-appearance: none; }
+.search-box input:focus { border-color: var(--accent); }
+.search-box input::placeholder { font-size: 16px; letter-spacing: 1px; text-transform: none; color: var(--muted); }
+.search-box .mic-btn { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 24px; cursor: pointer; padding: 8px; color: var(--muted); transition: color 0.15s; }
+.search-box .mic-btn.listening { color: var(--danger); animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.search-btn { width: 100%; background: var(--accent); border: none; color: #000; font-family: var(--head); font-weight: 900; font-size: 20px; letter-spacing: 3px; text-transform: uppercase; padding: 18px; cursor: pointer; margin-bottom: 12px; transition: background 0.15s; -webkit-appearance: none; }
+.search-btn:active { background: #6fffaa; }
+
+.quick-builder { background: var(--surface); border: 1px solid var(--border); padding: 14px; margin-bottom: 12px; }
+.quick-label { font-family: var(--mono); font-size: 9px; color: var(--accent); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 10px; }
+.seg-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px; }
+.seg-input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 16px; padding: 10px 6px; text-align: center; text-transform: uppercase; outline: none; width: 100%; -webkit-appearance: none; transition: border-color 0.15s; }
+.seg-input:focus { border-color: var(--accent); }
+.seg-labels { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
+.seg-lbl { font-family: var(--mono); font-size: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; text-align: center; }
+.addr-built { background: var(--bg); border: 1px solid var(--accent); padding: 10px; font-family: var(--mono); font-size: 20px; color: var(--accent); text-align: center; letter-spacing: 4px; margin-bottom: 10px; }
+.use-addr-btn { width: 100%; background: none; border: 1px solid var(--accent); color: var(--accent); font-family: var(--mono); font-size: 13px; padding: 10px; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; transition: all 0.15s; -webkit-appearance: none; }
+.use-addr-btn:active { background: var(--accent); color: #000; }
+
+.recent-section { margin-top: 8px; }
+.section-head { font-family: var(--mono); font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+.clear-btn { background: none; border: none; color: var(--muted); font-family: var(--mono); font-size: 9px; cursor: pointer; text-decoration: underline; padding: 0; }
+.recent-chip { display: inline-block; background: var(--surface); border: 1px solid var(--border); color: var(--accent3); font-family: var(--mono); font-size: 13px; padding: 7px 12px; margin: 0 6px 6px 0; cursor: pointer; letter-spacing: 2px; transition: all 0.12s; }
+.recent-chip:active { background: var(--surface2); border-color: var(--accent3); }
+
+/* RESULT SCREEN */
+.result-card { background: var(--surface); border: 1px solid var(--border); margin-bottom: 12px; }
+.result-addr-bar { background: var(--surface2); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+.result-addr { font-family: var(--mono); font-size: 28px; color: var(--accent3); letter-spacing: 4px; font-weight: bold; }
+.result-badge { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1px; padding: 3px 8px; border: 1px solid; }
+.result-body { padding: 16px; }
+.result-name { font-family: var(--head); font-weight: 900; font-size: 26px; letter-spacing: 1px; text-transform: uppercase; color: #fff; margin-bottom: 4px; line-height: 1.1; }
+.result-item { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 14px; word-break: break-all; }
+.result-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.meta-field label { font-family: var(--mono); font-size: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 2px; }
+.meta-field .val { font-family: var(--mono); font-size: 13px; color: var(--text); }
+.meta-field .val.green { color: var(--accent); }
+.result-notes { background: var(--surface2); border-left: 3px solid var(--accent); padding: 10px 12px; font-size: 13px; color: var(--text); line-height: 1.6; margin-bottom: 14px; display: none; }
+.result-notes.show { display: block; }
+.toggle-notes { background: none; border: none; color: var(--accent2); font-family: var(--mono); font-size: 11px; cursor: pointer; padding: 0 0 12px; text-decoration: underline; display: block; }
+.result-qr { display: flex; justify-content: center; padding: 12px 0; border-top: 1px solid var(--border); }
+.result-qr canvas, .result-qr img { width: 120px !important; height: 120px !important; }
+
+.action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.action-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); font-family: var(--head); font-weight: 700; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; padding: 16px 8px; cursor: pointer; text-align: center; transition: all 0.12s; -webkit-appearance: none; }
 .action-btn:active { background: var(--surface2); }
 .action-btn.primary { background: var(--accent); color: #000; border-color: var(--accent); }
 .action-btn.primary:active { background: #6fffaa; }
 .action-btn .icon { font-size: 20px; display: block; margin-bottom: 2px; }
 
-.back-btn {
-  width: 100%;
-  background: none;
-  border: 1px solid var(--border);
-  color: var(--muted);
-  font-family: var(--mono);
-  font-size: 12px;
-  padding: 12px;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  margin-bottom: 12px;
-  -webkit-appearance: none;
-}
+.back-btn { width: 100%; background: none; border: 1px solid var(--border); color: var(--muted); font-family: var(--mono); font-size: 12px; padding: 12px; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; -webkit-appearance: none; }
 
-/* NOT FOUND */
-.not-found {
-  text-align: center;
-  padding: 32px 16px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  margin-bottom: 12px;
-}
-
+.not-found { text-align: center; padding: 32px 16px; background: var(--surface); border: 1px solid var(--border); margin-bottom: 12px; }
 .not-found .big { font-size: 48px; margin-bottom: 12px; }
 .not-found h3 { font-family: var(--head); font-weight: 900; font-size: 24px; letter-spacing: 2px; text-transform: uppercase; color: #fff; margin-bottom: 6px; }
 .not-found p { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 16px; line-height: 1.6; }
+.add-quick-btn { width: 100%; background: var(--accent); border: none; color: #000; font-family: var(--head); font-weight: 900; font-size: 18px; letter-spacing: 2px; text-transform: uppercase; padding: 16px; cursor: pointer; -webkit-appearance: none; }
 
-.add-quick-btn {
-  width: 100%;
-  background: var(--accent);
-  border: none;
-  color: #000;
-  font-family: var(--head);
-  font-weight: 900;
-  font-size: 18px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  padding: 16px;
-  cursor: pointer;
-  -webkit-appearance: none;
-}
-
-/* QUICK ADD FORM */
-.quick-add-form {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  padding: 16px;
-  margin-bottom: 12px;
-}
-
-.quick-add-form h3 {
-  font-family: var(--head);
-  font-weight: 900;
-  font-size: 20px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 14px;
-}
-
+.quick-add-form { background: var(--surface); border: 1px solid var(--border); padding: 16px; margin-bottom: 12px; }
+.quick-add-form h3 { font-family: var(--head); font-weight: 900; font-size: 20px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
 .qf-field { margin-bottom: 10px; }
 .qf-field label { font-family: var(--mono); font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 4px; }
-.qf-field input, .qf-field select, .qf-field textarea {
-  width: 100%;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  color: var(--text);
-  font-family: var(--mono);
-  font-size: 14px;
-  padding: 10px 12px;
-  outline: none;
-  -webkit-appearance: none;
-  transition: border-color 0.15s;
-}
-
+.qf-field input, .qf-field select, .qf-field textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 14px; padding: 10px 12px; outline: none; -webkit-appearance: none; transition: border-color 0.15s; }
 .qf-field input:focus, .qf-field select:focus, .qf-field textarea:focus { border-color: var(--accent); }
 .qf-field textarea { min-height: 60px; resize: vertical; }
 .qf-field select option { background: var(--surface2); }
+.save-quick-btn { width: 100%; background: var(--accent); border: none; color: #000; font-family: var(--head); font-weight: 900; font-size: 18px; letter-spacing: 2px; text-transform: uppercase; padding: 16px; cursor: pointer; margin-top: 6px; -webkit-appearance: none; }
 
-.save-quick-btn {
-  width: 100%;
-  background: var(--accent);
-  border: none;
-  color: #000;
-  font-family: var(--head);
-  font-weight: 900;
-  font-size: 18px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  padding: 16px;
-  cursor: pointer;
-  margin-top: 6px;
-  -webkit-appearance: none;
-}
-
-/* ALL RECORDS SCREEN */
-.all-list .list-item {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-bottom: none;
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  transition: background 0.12s;
-}
-
+/* ALL RECORDS */
+.all-list .list-item { background: var(--surface); border: 1px solid var(--border); border-bottom: none; padding: 14px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: background 0.12s; }
 .all-list .list-item:last-child { border-bottom: 1px solid var(--border); }
 .all-list .list-item:active { background: var(--surface2); }
-
-.list-addr {
-  font-family: var(--mono);
-  font-size: 14px;
-  color: var(--accent3);
-  letter-spacing: 2px;
-  white-space: nowrap;
-  min-width: 90px;
-}
-
-.list-name {
-  flex: 1;
-  overflow: hidden;
-}
-
+.list-addr { font-family: var(--mono); font-size: 14px; color: var(--accent3); letter-spacing: 2px; white-space: nowrap; min-width: 90px; }
+.list-name { flex: 1; overflow: hidden; }
 .list-name-main { font-size: 14px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .list-name-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
 .list-arrow { color: var(--muted); font-size: 16px; }
 
 /* TOAST */
-.toast {
-  position: fixed;
-  bottom: calc(80px + var(--safe-bottom));
-  left: 16px; right: 16px;
-  background: var(--surface);
-  border: 1px solid var(--accent);
-  color: var(--accent);
-  font-family: var(--mono);
-  font-size: 13px;
-  padding: 12px 16px;
-  letter-spacing: 1px;
-  z-index: 9999;
-  text-align: center;
-  transform: translateY(20px);
-  opacity: 0;
-  transition: all 0.25s;
-  pointer-events: none;
-}
-
+.toast { position: fixed; bottom: calc(80px + var(--safe-bottom)); left: 16px; right: 16px; background: var(--surface); border: 1px solid var(--accent); color: var(--accent); font-family: var(--mono); font-size: 13px; padding: 12px 16px; letter-spacing: 1px; z-index: 9999; text-align: center; transform: translateY(20px); opacity: 0; transition: all 0.25s; pointer-events: none; }
 .toast.show { transform: translateY(0); opacity: 1; }
 
-/* ── BOTTOM NAV ── */
-.bottom-nav {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  height: calc(72px + var(--safe-bottom));
-  padding-bottom: var(--safe-bottom);
-  z-index: 100;
-}
-
-.nav-btn {
-  background: none;
-  border: none;
-  color: var(--muted);
-  font-family: var(--mono);
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  transition: color 0.15s;
-  padding: 0;
-  -webkit-appearance: none;
-}
-
+/* BOTTOM NAV */
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); display: grid; height: calc(72px + var(--safe-bottom)); padding-bottom: var(--safe-bottom); z-index: 100; }
+.bottom-nav.four-tabs { grid-template-columns: repeat(4, 1fr); }
+.bottom-nav.three-tabs { grid-template-columns: repeat(3, 1fr); }
+.nav-btn { background: none; border: none; color: var(--muted); font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; transition: color 0.15s; padding: 0; -webkit-appearance: none; position: relative; }
 .nav-btn .nav-icon { font-size: 22px; }
 .nav-btn.active { color: var(--accent); }
 .nav-btn:active { color: var(--text); }
+.nav-btn.accent2 { color: var(--accent2); }
+.nav-badge { position: absolute; top: 6px; right: calc(50% - 18px); background: var(--accent2); color: #000; font-family: var(--mono); font-size: 9px; font-weight: bold; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1; }
 
-/* ── LISTENING OVERLAY ── */
-.listen-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.92);
-  z-index: 200;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-}
-
+/* VOICE OVERLAY */
+.listen-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 200; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
 .listen-overlay.open { display: flex; }
-
-.listen-ring {
-  width: 120px; height: 120px;
-  border: 3px solid var(--danger);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 52px;
-  animation: ring-pulse 1.2s infinite;
-}
-
-@keyframes ring-pulse {
-  0%,100%{ box-shadow: 0 0 0 0 rgba(255,92,92,0.4); }
-  50%{ box-shadow: 0 0 0 20px rgba(255,92,92,0); }
-}
-
+.listen-ring { width: 120px; height: 120px; border: 3px solid var(--danger); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 52px; animation: ring-pulse 1.2s infinite; }
+@keyframes ring-pulse { 0%,100%{ box-shadow: 0 0 0 0 rgba(255,92,92,0.4); } 50%{ box-shadow: 0 0 0 20px rgba(255,92,92,0); } }
 .listen-text { font-family: var(--mono); font-size: 14px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
 .listen-cancel { font-family: var(--mono); font-size: 12px; color: var(--muted); text-decoration: underline; cursor: pointer; background: none; border: none; color: var(--muted); padding: 8px; }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <header class="header">
   <div class="logo">
     <div class="logo-box">HL</div>
@@ -670,11 +269,21 @@ html, body {
   </div>
 </header>
 
-<!-- SCROLL AREA -->
 <div class="scroll-area">
 
   <!-- SEARCH SCREEN -->
   <div class="screen active" id="screen-search">
+    <!-- Mapper handoff banner (shown when handoff exists) -->
+    <div class="handoff-banner" id="handoff-banner" style="display:none" onclick="showScreen('handoff')">
+      <div class="handoff-icon">📍</div>
+      <div class="handoff-text">
+        <div class="handoff-title">Room Map Ready</div>
+        <div class="handoff-sub" id="handoff-banner-sub">addresses from Room Mapper — tap to add records</div>
+      </div>
+      <div class="handoff-arrow">›</div>
+      <button class="handoff-dismiss" onclick="event.stopPropagation();dismissHandoff()">✕</button>
+    </div>
+
     <div class="search-hero">
       <h2>Find It</h2>
       <p>Enter an HL address to look up a record</p>
@@ -689,7 +298,6 @@ html, body {
 
     <button class="search-btn" onclick="doSearch()">⌕ Look Up</button>
 
-    <!-- Quick Builder -->
     <div class="quick-builder">
       <div class="quick-label">Quick Address Builder</div>
       <div class="seg-row">
@@ -708,7 +316,6 @@ html, body {
       <button class="use-addr-btn" onclick="useQuickAddr()">Use This Address →</button>
     </div>
 
-    <!-- Recent searches -->
     <div class="recent-section" id="recent-section">
       <div class="section-head">
         Recent
@@ -737,10 +344,28 @@ html, body {
     </div>
   </div>
 
-</div><!-- end scroll area -->
+  <!-- HANDOFF SCREEN -->
+  <div class="screen" id="screen-handoff">
+    <button class="back-btn" onclick="showScreen('search')">← Back to Search</button>
 
-<!-- BOTTOM NAV -->
-<nav class="bottom-nav">
+    <div class="handoff-header">
+      <h2>📍 Room Map</h2>
+      <p id="handoff-screen-sub">addresses from Room Mapper — add records below</p>
+    </div>
+
+    <div class="handoff-progress">
+      <span id="progress-text">0 of 0 done</span>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <span id="progress-pct">0%</span>
+    </div>
+
+    <div id="handoff-list"></div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV (3 tabs default, 4 when handoff active) -->
+<nav class="bottom-nav three-tabs" id="bottom-nav">
   <button class="nav-btn active" id="nav-search" onclick="showScreen('search')">
     <span class="nav-icon">⌕</span>
     Search
@@ -749,31 +374,35 @@ html, body {
     <span class="nav-icon">📦</span>
     All Records
   </button>
+  <button class="nav-btn" id="nav-handoff" onclick="showScreen('handoff')" style="display:none">
+    <span class="nav-icon">📍</span>
+    <span id="nav-handoff-badge" class="nav-badge">0</span>
+    Mapper
+  </button>
   <button class="nav-btn" id="nav-vault" onclick="openVault()">
     <span class="nav-icon">🗄</span>
     Full Vault
   </button>
 </nav>
 
-<!-- VOICE LISTENING OVERLAY -->
 <div class="listen-overlay" id="listen-overlay">
   <div class="listen-ring">🎤</div>
   <div class="listen-text">Listening… say an HL address</div>
   <button class="listen-cancel" onclick="stopVoice()">Cancel</button>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
 // ══════════════════════════════════════
-// VAULT DATA
+// VAULT
 // ══════════════════════════════════════
 const VAULT_KEY = 'hl_vault_v1';
+const HANDOFF_KEY = 'hl_mapper_handoff';
+const HANDOFF_TTL = 10 * 60 * 1000; // 10 minutes
 
 function loadVault() {
-  try { return JSON.parse(localStorage.getItem(VAULT_KEY)) || []; }
-  catch { return []; }
+  try { return JSON.parse(localStorage.getItem(VAULT_KEY)) || []; } catch { return []; }
 }
 
 function saveVault(records) {
@@ -789,13 +418,185 @@ function updateHeader() {
 }
 
 // ══════════════════════════════════════
+// MAPPER HANDOFF
+// ══════════════════════════════════════
+let handoffData = null;
+let handoffState = {}; // { [address]: 'pending' | 'done' | 'skipped' }
+let expandedHandoffItem = null;
+
+function checkMapperHandoff() {
+  try {
+    const raw = localStorage.getItem(HANDOFF_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (!data || !data.addresses || !data.addresses.length) return;
+    if (Date.now() - data.timestamp > HANDOFF_TTL) {
+      localStorage.removeItem(HANDOFF_KEY);
+      return;
+    }
+    handoffData = data;
+    handoffState = {};
+    data.addresses.forEach(a => { handoffState[a.address] = 'pending'; });
+    showHandoffBanner();
+    renderHandoffScreen();
+  } catch { localStorage.removeItem(HANDOFF_KEY); }
+}
+
+function showHandoffBanner() {
+  if (!handoffData) return;
+  const count = handoffData.addresses.length;
+  const banner = document.getElementById('handoff-banner');
+  banner.style.display = 'flex';
+  document.getElementById('handoff-banner-sub').textContent = count + ' addresses from Room Mapper — tap to add records';
+  document.getElementById('handoff-screen-sub').textContent = count + ' addresses from Room Mapper — add records below';
+  // Show 4th nav tab
+  document.getElementById('nav-handoff').style.display = 'flex';
+  document.getElementById('nav-handoff-badge').textContent = count;
+  document.getElementById('bottom-nav').className = 'bottom-nav four-tabs';
+}
+
+function dismissHandoff() {
+  localStorage.removeItem(HANDOFF_KEY);
+  handoffData = null;
+  handoffState = {};
+  document.getElementById('handoff-banner').style.display = 'none';
+  document.getElementById('nav-handoff').style.display = 'none';
+  document.getElementById('bottom-nav').className = 'bottom-nav three-tabs';
+}
+
+function renderHandoffScreen() {
+  if (!handoffData) {
+    document.getElementById('handoff-list').innerHTML = '<div style="text-align:center;padding:40px;font-family:var(--mono);font-size:12px;color:var(--muted)">No active handoff from Room Mapper.</div>';
+    return;
+  }
+
+  const addresses = handoffData.addresses;
+  const vault = loadVault();
+  const done = Object.values(handoffState).filter(s => s === 'done' || s === 'skipped').length;
+  const total = addresses.length;
+  const pct = total ? Math.round(done / total * 100) : 0;
+
+  document.getElementById('progress-text').textContent = done + ' of ' + total + ' done';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '%';
+
+  // Update badge
+  const remaining = Object.values(handoffState).filter(s => s === 'pending').length;
+  document.getElementById('nav-handoff-badge').textContent = remaining;
+
+  if (done === total) {
+    document.getElementById('handoff-list').innerHTML = `
+      <div class="handoff-complete">
+        <div class="big">✅</div>
+        <h3>All Done!</h3>
+        <p>${total} addresses processed.<br>Your vault is up to date.</p>
+        <button class="done-btn" onclick="dismissHandoff();showScreen('search')">Back to Search</button>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('handoff-list').innerHTML = addresses.map((item, idx) => {
+    const state = handoffState[item.address] || 'pending';
+    const exists = vault.find(r => r.address === item.address);
+    const statusLabel = state === 'done' ? 'SAVED' : state === 'skipped' ? 'SKIPPED' : exists ? 'EXISTS' : 'NEW';
+    const statusClass = state === 'done' ? 'done' : state === 'skipped' ? 'skipped' : exists ? 'exists' : 'new';
+    const isExpanded = expandedHandoffItem === idx;
+
+    return `<div class="handoff-item ${state !== 'pending' ? state : ''}" id="hitem-${idx}">
+      <div class="handoff-item-header">
+        <div>
+          <div class="hi-addr">${item.address}</div>
+          <span class="hi-name">${item.friendlyName || ''}</span>
+        </div>
+        <span class="hi-status ${statusClass}">${statusLabel}</span>
+      </div>
+      ${state === 'pending' ? `
+      <div class="handoff-item-actions">
+        <button class="hi-btn add" onclick="expandHandoffAdd(${idx})">+ Add Record</button>
+        <button class="hi-btn skip" onclick="skipHandoffItem(${idx})">Skip →</button>
+      </div>
+      ${isExpanded ? renderHandoffQuickAdd(item, idx) : ''}
+      ` : ''}
+    </div>`;
+  }).join('');
+}
+
+function renderHandoffQuickAdd(item, idx) {
+  return `<div class="handoff-quick-add">
+    <div class="hqa-title">New Record — ${item.address}</div>
+    <div class="hqa-field"><label>Item Name (HL format)</label>
+      <input type="text" id="hqa-item-${idx}" placeholder="TOOL-DRILL-CORDLESS" oninput="this.value=this.value.toUpperCase()" autocorrect="off"></div>
+    <div class="hqa-field"><label>Human Name</label>
+      <input type="text" id="hqa-friendly-${idx}" value="${item.friendlyName || ''}"></div>
+    <div class="hqa-field"><label>Category</label>
+      <select id="hqa-cat-${idx}">
+        <option value="ZONE" ${item.category==='ZONE'?'selected':''}>Zone</option>
+        <option value="TOOL">Tool</option><option value="FASTENER">Fastener</option>
+        <option value="APPLIANCE">Appliance</option><option value="CONTAINER">Container</option>
+        <option value="SUPPLY">Supply</option><option value="OTHER">Other</option>
+      </select></div>
+    <div class="hqa-field"><label>Notes</label>
+      <input type="text" id="hqa-notes-${idx}" placeholder="Optional…"></div>
+    <button class="hqa-save" onclick="saveHandoffRecord(${idx}, '${item.address}')">💾 Save to Vault</button>
+  </div>`;
+}
+
+function expandHandoffAdd(idx) {
+  expandedHandoffItem = (expandedHandoffItem === idx) ? null : idx;
+  renderHandoffScreen();
+  if (expandedHandoffItem !== null) {
+    setTimeout(() => {
+      const el = document.getElementById('hitem-' + idx);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
+  }
+}
+
+function skipHandoffItem(idx) {
+  const addr = handoffData.addresses[idx].address;
+  handoffState[addr] = 'skipped';
+  if (expandedHandoffItem === idx) expandedHandoffItem = null;
+  renderHandoffScreen();
+}
+
+function saveHandoffRecord(idx, addr) {
+  const itemEl = document.getElementById('hqa-item-' + idx);
+  const item = itemEl ? itemEl.value.trim() : '';
+  const friendly = document.getElementById('hqa-friendly-' + idx).value;
+  const cat = document.getElementById('hqa-cat-' + idx).value;
+  const notes = document.getElementById('hqa-notes-' + idx).value;
+
+  // Item name optional for ZONE records
+  const finalItem = item || ('ZONE-' + addr.split('-')[1]);
+
+  const rec = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,5),
+    address: addr,
+    itemName: finalItem,
+    friendlyName: friendly,
+    category: cat,
+    make: '', model: '', condition: '', value: '', haType: '',
+    notes: notes || 'Added via Room Mapper handoff',
+    created: Date.now(), updated: Date.now()
+  };
+
+  records = loadVault();
+  records.unshift(rec);
+  saveVault(records);
+
+  handoffState[addr] = 'done';
+  expandedHandoffItem = null;
+  showToast('Saved: ' + addr);
+  renderHandoffScreen();
+}
+
+// ══════════════════════════════════════
 // RECENT SEARCHES
 // ══════════════════════════════════════
 const RECENT_KEY = 'hl_scanner_recent';
 
 function getRecent() {
-  try { return JSON.parse(localStorage.getItem(RECENT_KEY)) || []; }
-  catch { return []; }
+  try { return JSON.parse(localStorage.getItem(RECENT_KEY)) || []; } catch { return []; }
 }
 
 function addRecent(addr) {
@@ -806,10 +607,7 @@ function addRecent(addr) {
   renderRecent();
 }
 
-function clearRecent() {
-  localStorage.removeItem(RECENT_KEY);
-  renderRecent();
-}
+function clearRecent() { localStorage.removeItem(RECENT_KEY); renderRecent(); }
 
 function renderRecent() {
   const recent = getRecent();
@@ -817,9 +615,7 @@ function renderRecent() {
   const chips = document.getElementById('recent-chips');
   if (!recent.length) { sec.style.display = 'none'; return; }
   sec.style.display = 'block';
-  chips.innerHTML = recent.map(a =>
-    `<span class="recent-chip" onclick="searchAddr('${a}')">${a}</span>`
-  ).join('');
+  chips.innerHTML = recent.map(a => '<span class="recent-chip" onclick="searchAddr(\'' + a + '\')">' + a + '</span>').join('');
 }
 
 // ══════════════════════════════════════
@@ -835,92 +631,52 @@ function searchAddr(addr) {
   records = loadVault();
   document.getElementById('search-input').value = addr;
   addRecent(addr);
-
-  // Find exact or partial match
   const exact = records.find(r => r.address === addr);
   const partials = exact ? [] : records.filter(r => r.address.startsWith(addr) && r.address !== addr);
-
   showScreen('result');
   renderResult(addr, exact, partials);
 }
 
 function renderResult(addr, record, partials) {
   const el = document.getElementById('result-content');
-
   if (record) {
-    // FOUND
     const catClass = record.category || 'OTHER';
-    el.innerHTML = `
-      <div class="result-card">
-        <div class="result-addr-bar">
-          <div class="result-addr">${addr}</div>
-          <span class="result-badge cat-pill cat-${catClass}">${catClass}</span>
-        </div>
-        <div class="result-body">
-          <div class="result-name">${record.friendlyName || record.itemName || '—'}</div>
-          <div class="result-item">${record.itemName || '—'}</div>
-          <div class="result-meta">
-            <div class="meta-field"><label>Make</label><div class="val">${record.make||'—'}</div></div>
-            <div class="meta-field"><label>Model</label><div class="val">${record.model||'—'}</div></div>
-            <div class="meta-field"><label>Condition</label><div class="val">${record.condition||'—'}</div></div>
-            <div class="meta-field"><label>Est. Value</label><div class="val green">${record.value?'$'+parseFloat(record.value).toLocaleString():'—'}</div></div>
-          </div>
-          ${record.notes ? `<button class="toggle-notes" onclick="toggleNotes(this)">▶ Show Notes / Provenance</button><div class="result-notes">${record.notes}</div>` : ''}
-          <div class="result-qr" id="result-qr"></div>
-        </div>
+    el.innerHTML = `<div class="result-card">
+      <div class="result-addr-bar">
+        <div class="result-addr">${addr}</div>
+        <span class="result-badge">${catClass}</span>
       </div>
-      <div class="action-row">
-        <button class="action-btn primary" onclick="openInSuperTool('${record.id}')">
-          <span class="icon">⚡</span>Super Tool
-        </button>
-        <button class="action-btn" onclick="shareRecord('${addr}','${(record.friendlyName||record.itemName||'').replace(/'/g,"\\'")}')">
-          <span class="icon">📤</span>Share
-        </button>
-        <button class="action-btn" onclick="editRecord('${record.id}')">
-          <span class="icon">✏️</span>Edit
-        </button>
-        <button class="action-btn" onclick="deleteRecord('${record.id}')">
-          <span class="icon">🗑</span>Delete
-        </button>
+      <div class="result-body">
+        <div class="result-name">${record.friendlyName || record.itemName || '—'}</div>
+        <div class="result-item">${record.itemName || '—'}</div>
+        <div class="result-meta">
+          <div class="meta-field"><label>Make</label><div class="val">${record.make||'—'}</div></div>
+          <div class="meta-field"><label>Model</label><div class="val">${record.model||'—'}</div></div>
+          <div class="meta-field"><label>Condition</label><div class="val">${record.condition||'—'}</div></div>
+          <div class="meta-field"><label>Est. Value</label><div class="val green">${record.value?'$'+parseFloat(record.value).toLocaleString():'—'}</div></div>
+        </div>
+        ${record.notes ? '<button class="toggle-notes" onclick="toggleNotes(this)">▶ Show Notes / Provenance</button><div class="result-notes">' + record.notes + '</div>' : ''}
+        <div class="result-qr" id="result-qr"></div>
       </div>
-    `;
-    // Generate QR
+    </div>
+    <div class="action-row">
+      <button class="action-btn primary" onclick="openInSuperTool('${record.id}')"><span class="icon">⚡</span>Super Tool</button>
+      <button class="action-btn" onclick="shareRecord('${addr}','${(record.friendlyName||record.itemName||'').replace(/'/g,"\\'")}')"><span class="icon">📤</span>Share</button>
+      <button class="action-btn" onclick="editRecord('${record.id}')"><span class="icon">✏️</span>Edit</button>
+      <button class="action-btn" onclick="deleteRecord('${record.id}')"><span class="icon">🗑</span>Delete</button>
+    </div>`;
     const qrEl = document.getElementById('result-qr');
-    new QRCode(qrEl, {
-      text: `HL:${addr}:${record.itemName||''}`,
-      width: 120, height: 120,
-      colorDark: '#000', colorLight: '#fff',
-      correctLevel: QRCode.CorrectLevel.M
-    });
-
+    new QRCode(qrEl, { text: 'HL:' + addr + ':' + (record.itemName||''), width:120, height:120, colorDark:'#000', colorLight:'#fff', correctLevel: QRCode.CorrectLevel.M });
   } else if (partials.length) {
-    // PARTIAL MATCHES
-    el.innerHTML = `
-      <div style="background:var(--surface);border:1px solid var(--border);padding:14px 16px;margin-bottom:12px">
-        <div style="font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:2px;margin-bottom:10px">PARTIAL MATCHES FOR ${addr}</div>
-        ${partials.map(r => `
-          <div style="padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="searchAddr('${r.address}')">
-            <div style="font-family:var(--mono);font-size:16px;color:var(--accent3);letter-spacing:2px">${r.address}</div>
-            <div style="font-size:13px;color:var(--muted)">${r.friendlyName||r.itemName||'—'}</div>
-          </div>`).join('')}
-      </div>
-      <div class="not-found">
-        <div class="big">📭</div>
-        <h3>No exact match</h3>
-        <p>No record found for <strong style="color:var(--accent3)">${addr}</strong> exactly,<br>but ${partials.length} record${partials.length>1?'s':''} found in this zone.</p>
-      </div>
-      <button class="add-quick-btn" onclick="showQuickAdd('${addr}')">+ Create Record for ${addr}</button>
-    `;
+    el.innerHTML = `<div style="background:var(--surface);border:1px solid var(--border);padding:14px 16px;margin-bottom:12px">
+      <div style="font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:2px;margin-bottom:10px">PARTIAL MATCHES FOR ${addr}</div>
+      ${partials.map(r => '<div style="padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="searchAddr(\'' + r.address + '\')"><div style="font-family:var(--mono);font-size:16px;color:var(--accent3);letter-spacing:2px">' + r.address + '</div><div style="font-size:13px;color:var(--muted)">' + (r.friendlyName||r.itemName||'—') + '</div></div>').join('')}
+    </div>
+    <div class="not-found"><div class="big">📭</div><h3>No exact match</h3><p>No record found for <strong style="color:var(--accent3)">${addr}</strong> exactly,<br>but ${partials.length} record${partials.length>1?'s':''} found in this zone.</p></div>
+    <button class="add-quick-btn" onclick="showQuickAdd('${addr}')">+ Create Record for ${addr}</button>`;
   } else {
-    // NOT FOUND
-    el.innerHTML = `
-      <div class="not-found">
-        <div class="big">📭</div>
-        <h3>Not Found</h3>
-        <p>No record found for<br><strong style="color:var(--accent3);font-family:var(--mono);font-size:20px;letter-spacing:3px">${addr}</strong><br><br>This address hasn't been recorded yet.</p>
-        <button class="add-quick-btn" onclick="showQuickAdd('${addr}')">+ Create Record for ${addr}</button>
-      </div>
-    `;
+    el.innerHTML = `<div class="not-found"><div class="big">📭</div><h3>Not Found</h3><p>No record found for<br><strong style="color:var(--accent3);font-family:var(--mono);font-size:20px;letter-spacing:3px">${addr}</strong><br><br>This address hasn't been recorded yet.</p>
+      <button class="add-quick-btn" onclick="showQuickAdd('${addr}')">+ Create Record for ${addr}</button></div>`;
   }
 }
 
@@ -932,57 +688,42 @@ function toggleNotes(btn) {
 
 function showQuickAdd(addr) {
   const el = document.getElementById('result-content');
-  const parts = addr.split('-');
-  el.innerHTML += `
-    <div class="quick-add-form" id="quick-add">
-      <h3>+ New Record</h3>
-      <div style="background:var(--bg);border:1px solid var(--accent);padding:10px;font-family:var(--mono);font-size:18px;color:var(--accent);text-align:center;letter-spacing:3px;margin-bottom:14px">${addr}</div>
-      <div class="qf-field"><label>Item Name (HL format)</label><input type="text" id="qa-item" placeholder="TOOL-DRILL-CORDLESS-18V" oninput="this.value=this.value.toUpperCase()" autocorrect="off"></div>
-      <div class="qf-field"><label>Human Name</label><input type="text" id="qa-friendly" placeholder="Workshop South Drill"></div>
-      <div class="qf-field"><label>Category</label>
-        <select id="qa-cat">
-          <option value="OTHER">Other</option>
-          <option value="TOOL">Tool</option><option value="FASTENER">Fastener</option>
-          <option value="APPLIANCE">Appliance</option><option value="CONTAINER">Container</option>
-          <option value="ZONE">Zone</option><option value="HEIRLOOM">Heirloom</option>
-          <option value="ELECTRICAL">Electrical</option><option value="SUPPLY">Supply</option>
-        </select>
-      </div>
-      <div class="qf-field"><label>Make</label><input type="text" id="qa-make" placeholder="Milwaukee, Ford…"></div>
-      <div class="qf-field"><label>Condition</label>
-        <select id="qa-cond">
-          <option value="">—</option><option>New</option><option>Excellent</option>
-          <option>Good</option><option>Fair</option><option>Restored</option><option>For Parts</option>
-        </select>
-      </div>
-      <div class="qf-field"><label>Est. Value ($)</label><input type="text" id="qa-value" placeholder="0.00" inputmode="decimal"></div>
-      <div class="qf-field"><label>Notes</label><textarea id="qa-notes" placeholder="Story, history, where it came from…"></textarea></div>
-      <button class="save-quick-btn" onclick="saveQuickRecord('${addr}')">💾 Save to Vault</button>
-    </div>
-  `;
-  document.getElementById('quick-add').scrollIntoView({behavior:'smooth'});
+  el.innerHTML += `<div class="quick-add-form" id="quick-add">
+    <h3>+ New Record</h3>
+    <div style="background:var(--bg);border:1px solid var(--accent);padding:10px;font-family:var(--mono);font-size:18px;color:var(--accent);text-align:center;letter-spacing:3px;margin-bottom:14px">${addr}</div>
+    <div class="qf-field"><label>Item Name (HL format)</label><input type="text" id="qa-item" placeholder="TOOL-DRILL-CORDLESS-18V" oninput="this.value=this.value.toUpperCase()" autocorrect="off"></div>
+    <div class="qf-field"><label>Human Name</label><input type="text" id="qa-friendly" placeholder="Workshop South Drill"></div>
+    <div class="qf-field"><label>Category</label><select id="qa-cat">
+      <option value="OTHER">Other</option><option value="TOOL">Tool</option><option value="FASTENER">Fastener</option>
+      <option value="APPLIANCE">Appliance</option><option value="CONTAINER">Container</option>
+      <option value="ZONE">Zone</option><option value="HEIRLOOM">Heirloom</option>
+      <option value="ELECTRICAL">Electrical</option><option value="SUPPLY">Supply</option>
+    </select></div>
+    <div class="qf-field"><label>Make</label><input type="text" id="qa-make" placeholder="Milwaukee, Ford…"></div>
+    <div class="qf-field"><label>Condition</label><select id="qa-cond">
+      <option value="">—</option><option>New</option><option>Excellent</option><option>Good</option><option>Fair</option><option>Restored</option><option>For Parts</option>
+    </select></div>
+    <div class="qf-field"><label>Est. Value ($)</label><input type="text" id="qa-value" placeholder="0.00" inputmode="decimal"></div>
+    <div class="qf-field"><label>Notes</label><textarea id="qa-notes" placeholder="Story, history, where it came from…"></textarea></div>
+    <button class="save-quick-btn" onclick="saveQuickRecord('${addr}')">💾 Save to Vault</button>
+  </div>`;
+  document.getElementById('quick-add').scrollIntoView({ behavior: 'smooth' });
 }
 
 function saveQuickRecord(addr) {
   const item = document.getElementById('qa-item').value.trim();
   if (!item) { showToast('Item name is required'); return; }
-
   const rec = {
     id: Date.now().toString(36) + Math.random().toString(36).slice(2,5),
-    address: addr,
-    itemName: item,
+    address: addr, itemName: item,
     friendlyName: document.getElementById('qa-friendly').value,
     category: document.getElementById('qa-cat').value || 'OTHER',
-    make: document.getElementById('qa-make').value,
-    model: '',
+    make: document.getElementById('qa-make').value, model: '',
     condition: document.getElementById('qa-cond').value,
     value: document.getElementById('qa-value').value,
-    haType: '',
-    notes: document.getElementById('qa-notes').value,
-    created: Date.now(),
-    updated: Date.now()
+    haType: '', notes: document.getElementById('qa-notes').value,
+    created: Date.now(), updated: Date.now()
   };
-
   records = loadVault();
   records.unshift(rec);
   saveVault(records);
@@ -996,27 +737,18 @@ function saveQuickRecord(addr) {
 function openInSuperTool(id) {
   const r = records.find(x => x.id === id);
   if (!r) return;
-  const params = new URLSearchParams({
-    addr: r.address||'', item: r.itemName||'', friendly: r.friendlyName||'',
-    make: r.make||'', model: r.model||'', condition: r.condition||'',
-    value: r.value||'', notes: r.notes||'', hatype: r.haType||'', category: r.category||''
-  });
+  const params = new URLSearchParams({ addr: r.address||'', item: r.itemName||'', friendly: r.friendlyName||'', make: r.make||'', model: r.model||'', condition: r.condition||'', value: r.value||'', notes: r.notes||'', hatype: r.haType||'', category: r.category||'' });
   window.open('hl-super-tool.html?' + params.toString(), '_blank');
   showToast('Opening Super Tool…');
 }
 
 function shareRecord(addr, name) {
-  const text = `HL Address: ${addr}\n${name}\nLooked up via HL Scanner`;
-  if (navigator.share) {
-    navigator.share({ title: `HL: ${addr}`, text }).catch(()=>{});
-  } else {
-    navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard'));
-  }
+  const text = 'HL Address: ' + addr + '\n' + name + '\nLooked up via HL Scanner';
+  if (navigator.share) { navigator.share({ title: 'HL: ' + addr, text }).catch(()=>{}); }
+  else { navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard')); }
 }
 
-function editRecord(id) {
-  showToast('Open the full Vault to edit records');
-}
+function editRecord(id) { showToast('Open the full Vault to edit records'); }
 
 function deleteRecord(id) {
   if (!confirm('Delete this record?')) return;
@@ -1027,36 +759,24 @@ function deleteRecord(id) {
 }
 
 // ══════════════════════════════════════
-// ALL RECORDS LIST
+// ALL RECORDS
 // ══════════════════════════════════════
 function renderAllList() {
   records = loadVault();
   const q = (document.getElementById('all-search').value || '').toLowerCase();
   const list = document.getElementById('all-list');
   const empty = document.getElementById('all-empty');
-
   const filtered = records.filter(r => {
     if (!q) return true;
     return [r.address,r.itemName,r.friendlyName,r.make].join(' ').toLowerCase().includes(q);
-  }).sort((a,b)=>(a.address||'').localeCompare(b.address||''));
-
-  if (!filtered.length) {
-    list.innerHTML = '';
-    empty.style.display = 'block';
-    return;
-  }
-
+  }).sort((a,b) => (a.address||'').localeCompare(b.address||''));
+  if (!filtered.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
   empty.style.display = 'none';
-  list.innerHTML = filtered.map(r => `
-    <div class="list-item" onclick="searchAddr('${r.address}')">
-      <div class="list-addr">${r.address||'—'}</div>
-      <div class="list-name">
-        <div class="list-name-main">${r.friendlyName||r.itemName||'—'}</div>
-        <div class="list-name-sub">${r.itemName||''}</div>
-      </div>
-      <div class="list-arrow">›</div>
-    </div>
-  `).join('');
+  list.innerHTML = filtered.map(r => `<div class="list-item" onclick="searchAddr('${r.address}')">
+    <div class="list-addr">${r.address||'—'}</div>
+    <div class="list-name"><div class="list-name-main">${r.friendlyName||r.itemName||'—'}</div><div class="list-name-sub">${r.itemName||''}</div></div>
+    <div class="list-arrow">›</div>
+  </div>`).join('');
 }
 
 // ══════════════════════════════════════
@@ -1075,31 +795,24 @@ function useQuickAddr() {
 }
 
 // ══════════════════════════════════════
-// VOICE INPUT
+// VOICE
 // ══════════════════════════════════════
 let recognition = null;
 
 function startVoice() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) { showToast('Voice not supported on this browser'); return; }
-
   recognition = new SR();
-  recognition.lang = 'en-US';
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 1;
-
+  recognition.lang = 'en-US'; recognition.interimResults = false; recognition.maxAlternatives = 1;
   recognition.onresult = e => {
     let raw = e.results[0][0].transcript.toUpperCase();
-    // Clean up common speech artifacts
     raw = raw.replace(/\s+/g, '-').replace(/[^A-Z0-9\-]/g, '');
     document.getElementById('search-input').value = raw;
     stopVoice();
     setTimeout(() => searchAddr(raw), 300);
   };
-
   recognition.onerror = () => { stopVoice(); showToast('Voice error — try typing'); };
   recognition.onend = () => stopVoice();
-
   recognition.start();
   document.getElementById('listen-overlay').classList.add('open');
   document.getElementById('mic-btn').classList.add('listening');
@@ -1121,14 +834,16 @@ function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('screen-' + name).classList.add('active');
-  document.getElementById('nav-' + (name === 'result' ? 'search' : name))?.classList.add('active');
+  const navMap = { result: 'search', handoff: 'handoff' };
+  const navId = 'nav-' + (navMap[name] || name);
+  if (document.getElementById(navId)) document.getElementById(navId).classList.add('active');
   document.querySelector('.scroll-area').scrollTop = 0;
   if (name === 'all') renderAllList();
+  if (name === 'handoff') renderHandoffScreen();
   updateHeader();
 }
 
 function goBack() { showScreen('search'); }
-
 function openVault() { window.open('hl-vault.html', '_blank'); }
 
 // ══════════════════════════════════════
@@ -1146,6 +861,7 @@ function showToast(msg) {
 // ══════════════════════════════════════
 renderRecent();
 updateHeader();
+checkMapperHandoff();
 </script>
 </body>
 </html>
