@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HIL Organize — Kit System</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0c0a;
+  --surface: #111411;
+  --surface2: #161a15;
+  --surface3: #1c211b;
+  --border: #232820;
+  --green: #4cff91;
+  --green-dim: #2a8f52;
+  --green-glow: rgba(76,255,145,0.08);
+  --blue: #00c9ff;
+  --yellow: #ffd84c;
+  --red: #ff5c5c;
+  --orange: #ff8c00;
+  --muted: #5a6b5e;
+  --text: #cdd8cc;
+  --text-bright: #e8f0e6;
+  --mono: 'Share Tech Mono', monospace;
+  --head: 'Barlow Condensed', sans-serif;
+  --body: 'Barlow', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(76,255,145,0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(76,255,145,0.018) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* NAV */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(10,12,10,0.96);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+  padding: 0 32px;
+  display: flex; align-items: center; gap: 32px; height: 56px;
+}
+.nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.logo-box {
+  width: 32px; height: 32px; background: var(--green); color: #000;
+  font-family: var(--head); font-weight: 900; font-size: 14px;
+  display: flex; align-items: center; justify-content: center; letter-spacing: -1px;
+}
+.logo-name { font-family: var(--head); font-weight: 800; font-size: 16px; letter-spacing: 3px; color: var(--text-bright); text-transform: uppercase; }
+.nav-links { display: flex; gap: 24px; margin-left: auto; list-style: none; }
+.nav-links a { font-family: var(--head); font-weight: 600; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.15s; }
+.nav-links a:hover { color: var(--text-bright); }
+.nav-links a.active { color: var(--green); }
+.nav-cta { font-family: var(--head); font-weight: 700; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #000; background: var(--green); border: none; padding: 8px 18px; cursor: pointer; text-decoration: none; transition: background 0.15s; }
+.nav-cta:hover { background: #3ddd7a; }
+
+/* HERO */
+.hero { position: relative; z-index: 1; padding: 80px 32px 64px; max-width: 960px; margin: 0 auto; }
+.hero-eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 4px; color: var(--green); text-transform: uppercase; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+.hero-eyebrow::before { content: ''; width: 32px; height: 1px; background: var(--green); opacity: 0.5; }
+.hero h1 { font-family: var(--head); font-weight: 900; font-size: clamp(52px, 8vw, 88px); line-height: 0.92; color: var(--text-bright); letter-spacing: -1px; margin-bottom: 28px; }
+.hero h1 .accent { color: var(--green); }
+.hero-sub { font-size: 17px; line-height: 1.65; color: var(--muted); max-width: 560px; margin-bottom: 40px; }
+.hero-sub strong { color: var(--text); font-weight: 500; }
+.hero-stats { display: flex; gap: 40px; flex-wrap: wrap; }
+.stat { display: flex; flex-direction: column; gap: 4px; }
+.stat-num { font-family: var(--head); font-weight: 900; font-size: 36px; color: var(--green); line-height: 1; }
+.stat-label { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+
+/* DIVIDER */
+.divider { border: none; border-top: 1px solid var(--border); margin: 0; position: relative; z-index: 1; }
+
+/* SECTION */
+.section { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 64px 32px; }
+.section-label { font-family: var(--mono); font-size: 10px; letter-spacing: 4px; color: var(--green-dim); text-transform: uppercase; margin-bottom: 16px; }
+.section h2 { font-family: var(--head); font-weight: 800; font-size: 38px; color: var(--text-bright); letter-spacing: 0.5px; margin-bottom: 16px; }
+.section p { font-size: 15px; line-height: 1.7; color: var(--muted); max-width: 640px; margin-bottom: 16px; }
+.section p strong { color: var(--text); font-weight: 500; }
+
+/* PREFIX GRID */
+.prefix-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 32px; }
+.prefix-card { background: var(--surface); padding: 20px 18px; display: flex; flex-direction: column; gap: 8px; }
+.prefix-badge { font-family: var(--mono); font-size: 18px; font-weight: 700; color: var(--green); letter-spacing: 2px; }
+.prefix-name { font-family: var(--head); font-weight: 700; font-size: 15px; color: var(--text-bright); }
+.prefix-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.prefix-ex { font-family: var(--mono); font-size: 10px; color: var(--blue); margin-top: 4px; letter-spacing: 1px; }
+
+/* TIER TABLE */
+.tier-table { width: 100%; border-collapse: collapse; margin-top: 32px; }
+.tier-table th { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+.tier-table td { font-size: 13px; color: var(--text); padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.tier-table tr:hover td { background: var(--surface2); }
+.tier-badge { font-family: var(--mono); font-size: 10px; padding: 3px 8px; border-radius: 2px; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
+.tier-badge.t1 { background: #1a3a2a; color: var(--green); border: 1px solid var(--green-dim); }
+.tier-badge.t2 { background: #2a2a1a; color: var(--yellow); border: 1px solid #5a5a1a; }
+.tier-badge.t3 { background: #2a1a1a; color: var(--orange); border: 1px solid #5a3a1a; }
+.kit-id { font-family: var(--mono); font-size: 11px; color: var(--blue); letter-spacing: 1px; }
+
+/* KIT BROWSER */
+.tool-wrap { position: relative; z-index: 1; background: var(--surface); border-top: 2px solid var(--green); border-bottom: 1px solid var(--border); }
+.tool-header { max-width: 960px; margin: 0 auto; padding: 32px 32px 0; }
+.tool-header .eyebrow { font-family: var(--mono); font-size: 10px; color: var(--green); letter-spacing: 4px; margin-bottom: 8px; }
+.tool-header h2 { font-family: var(--head); font-weight: 900; font-size: 28px; color: var(--text-bright); letter-spacing: 1px; margin-bottom: 24px; }
+
+.kit-wrap { max-width: 960px; margin: 0 auto; padding: 0 32px 48px; }
+.kit-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+.filter-btn { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; padding: 6px 14px; border: 1px solid var(--border); background: none; color: var(--muted); cursor: pointer; transition: all 0.15s; border-radius: 2px; }
+.filter-btn:hover { border-color: var(--green-dim); color: var(--text); }
+.filter-btn.active { border-color: var(--green); color: var(--green); background: var(--green-glow); }
+
+.kit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.kit-card { background: var(--bg); border: 1px solid var(--border); padding: 18px 20px; cursor: pointer; transition: all 0.15s; position: relative; overflow: hidden; }
+.kit-card:hover { border-color: var(--green-dim); background: var(--surface2); }
+.kit-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--green); opacity: 0; transition: opacity 0.15s; }
+.kit-card:hover::before { opacity: 1; }
+.kit-card-id { font-family: var(--mono); font-size: 10px; color: var(--blue); letter-spacing: 2px; margin-bottom: 6px; }
+.kit-card-name { font-family: var(--head); font-weight: 800; font-size: 18px; color: var(--text-bright); margin-bottom: 6px; letter-spacing: 0.5px; }
+.kit-card-cat { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+.kit-card-contents { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.kit-card-source { font-family: var(--mono); font-size: 9px; color: var(--green-dim); margin-top: 10px; letter-spacing: 1px; }
+.kit-card-levels { display: flex; gap: 6px; margin-top: 10px; }
+.level-dot { width: 8px; height: 8px; border-radius: 50%; }
+.level-dot.filled.basic { background: var(--green); }
+.level-dot.filled.advanced { background: var(--yellow); }
+.level-dot.filled.expert { background: var(--orange); }
+.level-dot.empty { background: var(--border); }
+
+/* PROMPT SECTION */
+.prompt-wrap { position: relative; z-index: 1; background: var(--surface2); border-top: 1px solid var(--border); }
+.prompt-inner { max-width: 960px; margin: 0 auto; padding: 64px 32px; }
+.prompt-box { background: var(--bg); border: 1px solid var(--border); border-top: 2px solid var(--yellow); padding: 28px; position: relative; }
+.prompt-label { font-family: var(--mono); font-size: 10px; color: var(--yellow); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 16px; }
+.prompt-text { font-family: var(--mono); font-size: 12px; color: var(--text); line-height: 1.8; white-space: pre-wrap; word-break: break-word; }
+.copy-btn { position: absolute; top: 16px; right: 16px; font-family: var(--mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; padding: 6px 14px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; transition: all 0.15s; }
+.copy-btn:hover { border-color: var(--yellow); color: var(--yellow); }
+.copy-btn.copied { border-color: var(--green); color: var(--green); }
+
+/* FOOTER */
+.footer-stripe { position: relative; z-index: 1; border-top: 1px solid var(--border); padding: 20px 32px; display: flex; align-items: center; justify-content: space-between; }
+.footer-mono { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); }
+
+@media (max-width: 640px) {
+  nav { padding: 0 16px; }
+  .hero, .section, .kit-wrap, .prompt-inner { padding-left: 16px; padding-right: 16px; }
+  .hero h1 { font-size: 52px; }
+  .kit-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">
+    <div class="logo-box">HL</div>
+    <div class="logo-name">HIL System</div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#">How It Works</a></li>
+    <li><a href="#">Tools</a></li>
+    <li><a href="#" class="active">Library</a></li>
+    <li><a href="#">Community</a></li>
+    <li><a href="#">Open Source</a></li>
+  </ul>
+  <a class="nav-cta" href="#">Try It Free</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Library 02 — Kit System</div>
+  <h1>HIL<br><span class="accent">Organize.</span></h1>
+  <p class="hero-sub">
+    You don't need more stuff. You need to know what you can do with what you have.
+    <strong>Name your kits. Know your capabilities. Find the one thing that unlocks everything else.</strong>
+  </p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">28</div><div class="stat-label">Standard kits</div></div>
+    <div class="stat"><div class="stat-num">3</div><div class="stat-label">Skill tiers</div></div>
+    <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Capabilities</div></div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- KIT PREFIX DICTIONARY -->
+<div class="section">
+  <div class="section-label">Kit Prefix Dictionary</div>
+  <h2>Every kit has a type.</h2>
+  <p>
+    Kit IDs follow a noun-first naming standard. The prefix tells you what kind of kit it is.
+    <strong>The name implies the contents — you don't enumerate every item.</strong>
+    A hammer is assumed to be in a Wall Hanging Kit. You don't have to say it.
+  </p>
+
+  <div class="prefix-grid">
+    <div class="prefix-card">
+      <div class="prefix-badge">TK</div>
+      <div class="prefix-name">Tool Kit</div>
+      <div class="prefix-desc">Physical tools grouped by task. The workhorse prefix. Contains implements, not consumables.</div>
+      <div class="prefix-ex">TK-HANG-WALL · TK-REPAIR-DRAIN · TK-BUILD-BASE</div>
+    </div>
+    <div class="prefix-card">
+      <div class="prefix-badge">SK</div>
+      <div class="prefix-name">Supply Kit</div>
+      <div class="prefix-desc">Consumables and restockable supplies. Gets used up. Tracked at macro level: Full / Medium / Low / Empty.</div>
+      <div class="prefix-ex">SK-CLEAN-KITCHEN · SK-WASH-CAR · SK-PAINT-TOUCH</div>
+    </div>
+    <div class="prefix-card">
+      <div class="prefix-badge">MK</div>
+      <div class="prefix-name">Material Kit</div>
+      <div class="prefix-desc">Raw materials you cut, apply, or install. Things you buy by quantity and use down over time.</div>
+      <div class="prefix-ex">MK-TAPE-ALL · MK-FASTEN-HOME · MK-GLUE-ALL</div>
+    </div>
+    <div class="prefix-card">
+      <div class="prefix-badge">CK</div>
+      <div class="prefix-name">Care Kit</div>
+      <div class="prefix-desc">Maintenance and preservation supplies for specific surfaces, materials, or systems.</div>
+      <div class="prefix-ex">CK-DUST-HOME · CK-FLOOR-CARE · CK-WOOD-PRES</div>
+    </div>
+    <div class="prefix-card">
+      <div class="prefix-badge">FC</div>
+      <div class="prefix-name">Family Kit</div>
+      <div class="prefix-desc">Kits with provenance and identity. Inherited, gifted, or legacy collections with a named owner history.</div>
+      <div class="prefix-ex">FC-CHAR-001 · FC-SEWING-GRAN · FC-BAKING-MOM</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- TIER TABLE -->
+<div class="section">
+  <div class="section-label">Kit Tier System</div>
+  <h2>Three tiers. One framework.</h2>
+  <p>Every kit exists at one or more skill tiers. You don't need the Expert version to get started.
+  <strong>The Basic tier covers 80% of what most homeowners will ever do.</strong></p>
+
+  <table class="tier-table">
+    <thead>
+      <tr>
+        <th>Tier</th>
+        <th>Who It's For</th>
+        <th>Where Tools Live</th>
+        <th>Capability Level</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="tier-badge t1">Tier 1 — Basic</span></td>
+        <td>Any homeowner</td>
+        <td>Kitchen drawer, one shelf in garage</td>
+        <td>Hang, patch, fix, clean</td>
+      </tr>
+      <tr>
+        <td><span class="tier-badge t2">Tier 2 — Advanced</span></td>
+        <td>Serious DIYer</td>
+        <td>Dedicated toolbox, workbench area</td>
+        <td>Build, repair, maintain systems</td>
+      </tr>
+      <tr>
+        <td><span class="tier-badge t3">Tier 3 — Expert</span></td>
+        <td>Trade-grade operator</td>
+        <td>Dedicated shop or multiple zones</td>
+        <td>Manufacture, fabricate, full-trade tasks</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="margin-top:24px;font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:1px;">
+    PRO TIP: Where you keep your tools tells us your tier. Tools in the kitchen drawer = Tier 1.
+    Dedicated workspace with multiple zones = Tier 3. The system figures it out from one question.
+  </p>
+</div>
+
+<hr class="divider">
+
+<!-- KIT BROWSER -->
+<div class="tool-wrap">
+  <div class="tool-header">
+    <div class="eyebrow">HIL Organize — Standard Kit Library</div>
+    <h2>Browse Standard Kits</h2>
+  </div>
+  <div class="kit-wrap">
+    <div class="kit-filters">
+      <button class="filter-btn active" onclick="filterKits('all', this)">All Kits</button>
+      <button class="filter-btn" onclick="filterKits('Repair', this)">Repair</button>
+      <button class="filter-btn" onclick="filterKits('Cleaning', this)">Cleaning</button>
+      <button class="filter-btn" onclick="filterKits('Maintenance', this)">Maintenance</button>
+      <button class="filter-btn" onclick="filterKits('Garden', this)">Garden</button>
+      <button class="filter-btn" onclick="filterKits('Safety', this)">Safety</button>
+      <button class="filter-btn" onclick="filterKits('Project', this)">Project</button>
+    </div>
+    <div class="kit-grid" id="kit-grid"></div>
+  </div>
+</div>
+
+<!-- CAPABILITY PROMPT -->
+<div class="prompt-wrap">
+  <div class="prompt-inner">
+    <div class="section-label">HIL Capability Prompt — Free Tool</div>
+    <h2 style="font-family:var(--head);font-weight:800;font-size:38px;color:var(--text-bright);margin-bottom:16px;">Find out what you can do.</h2>
+    <p style="font-size:15px;line-height:1.7;color:var(--muted);max-width:640px;margin-bottom:32px;">
+      Copy this prompt. Paste it into ChatGPT, Claude, or any AI assistant.
+      It will interview you about what kits you have and tell you exactly what you're capable of —
+      <strong style="color:var(--text);">and what one addition unlocks the most new capability.</strong>
+      No account. No API. Free forever.
+    </p>
+
+    <div class="prompt-box">
+      <div class="prompt-label">▸ HIL Capability Analyzer Prompt — Copy &amp; Paste</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+      <div class="prompt-text" id="capability-prompt">You are the HIL System Capability Analyzer — a friendly, highly knowledgeable, and slightly witty old-school handyman. Your job is to interview me about my home inventory to see what tasks and projects I can accomplish with what I already own.
+
+Keep your tone casual, interactive, and completely unpretentious. Because you cover unbelievably basic tiers, never talk down to me; instead, weave in fascinating, joking, or historical "Tool Nuggets" about the tools we discuss to keep the chat fun. For example: explain why a torpedo level is shaped like a submarine torpedo so it doesn't snag on pockets, or note that the claw hammer claw is a 2,000-year-old Roman carpenter design meant to undo bad swings.
+
+Start by asking me ONE question at a time in this exact order:
+
+1. Where do you keep your tools right now? (e.g., kitchen drawer, a single garage shelf, a dedicated toolbox, or a full workshop?)
+2. Based on my answer, ask about specific tools I likely have — use simple yes/no questions, one tool at a time. As you ask about certain items, occasionally drop a fun Tool Nugget fact, trade tip, or minor joke about it.
+3. Once you have my baseline inventory, map it to the HIL Standard Kit Library and show me:
+   - Which standard kits I effectively own (e.g., TK-HANG-WALL)
+   - What real home tasks I can do RIGHT NOW without spending a single dime
+   - What surprising capabilities I have that I might not realize
+   - The ONE simple item or kit I should add next that will unlock the most new capability
+
+Rules:
+- Ask exactly one question at a time. Never dump multiple questions at once.
+- Speak in plain language. Call tools what normal everyday people call them.
+- Be completely honest about what I cannot do yet — no overselling.
+- Group my final capabilities into: Tasks I can do alone / Tasks I can do with one cheap addition / Tasks I should definitely hire out.
+- End with a clean summary Kit Card showing my active kit IDs in HIL format (e.g., TK-HANG-WALL, SK-WASH-CAR).
+
+Start the simulation now by asking me where my tools currently live.</div>
+    </div>
+
+    <div style="margin-top:32px;padding:20px 24px;border:1px solid var(--border);background:var(--bg);max-width:640px;">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--green);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;">Coming Soon — Premium Feature</div>
+      <div style="font-family:var(--head);font-weight:800;font-size:22px;color:var(--text-bright);margin-bottom:8px;">HIL Build — Capability Analyzer</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.65;">
+        The same capability analysis, built directly into the HIL platform. Register your kits once.
+        Ask what you can do anytime. Powered by the HIL AI backend.
+        <strong style="color:var(--text);">Coming as part of HIL Build.</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer-stripe">
+  <div class="footer-mono">HIL SYSTEM · MAXSPACE TOOL SOLUTIONS · ELKHORN WI</div>
+  <div class="footer-mono">NOTHING IS LOST. EVERYTHING IS LOGIC.</div>
+</div>
+
+<script>
+const KITS = [
+  { id:"TK-HANG-WALL", name:"Wall Hanging Kit", cat:"Repair", source:"Family Handyman", contents:"Claw hammer, stud finder, torpedo level, tape measure, assorted picture hangers (hooks, nails, wire), drywall toggle anchors, pencil", tiers:[1,0,0] },
+  { id:"TK-CLEAR-DRAIN", name:"Drain Clearing Kit", cat:"Repair", source:"Black & Decker", contents:"Sink plunger, toilet plunger, hand-crank drain auger, zip-it hair cleaning tool, adjustable wrench, tongue-and-groove pliers, utility bucket", tiers:[1,1,0] },
+  { id:"TK-ELEC-DIAG", name:"Electrical Diagnostic Kit", cat:"Repair", source:"Black & Decker", contents:"Non-contact voltage tester, digital multimeter, wire strippers/cutters, insulated screwdriver set, electrical tape, wire nuts (assorted sizes)", tiers:[0,1,1] },
+  { id:"SK-PAINT-WALL", name:"Wall Painting Kit", cat:"Project", source:"Family Handyman", contents:"Paint roller frame, roller covers, angled sash paintbrush (2.5-inch), paint tray and liners, painter's tape, canvas drop cloth, putty knife, spackling compound", tiers:[1,1,0] },
+  { id:"TK-MAINT-LAWN", name:"Lawn Maintenance Kit", cat:"Garden", source:"NAHB", contents:"String trimmer, bypass pruners, garden rake, leaf rake, heavy-duty work gloves, safety glasses, fuel canister or outdoor extension cord", tiers:[1,1,0] },
+  { id:"TK-PREP-EMERG", name:"Emergency Preparedness Kit", cat:"Safety", source:"FEMA / Red Cross", contents:"LED flashlight, extra batteries, hand-crank emergency radio, first aid kit, multi-tool, emergency blankets, water storage containers", tiers:[1,0,0] },
+  { id:"TK-SEAL-WEATHER", name:"Weatherization Kit", cat:"Maintenance", source:"U.S. Department of Energy", contents:"Caulk gun, exterior silicone caulk, foam weatherstripping tape, window insulation shrink film, door sweep, utility knife, tape measure", tiers:[1,1,0] },
+  { id:"TK-CTRL-PEST", name:"Pest Control Kit", cat:"Maintenance", source:"NCHH / EPA", contents:"Caulk gun, expanding foam sealant, copper mesh for gap blocking, snap rodent traps, heavy-duty work gloves, flashlight, utility shears", tiers:[1,1,0] },
+  { id:"SK-CLEAN-APPL", name:"Appliance Deep Cleaning Kit", cat:"Cleaning", source:"HUD", contents:"Refrigerator coil brush, vacuum crevice attachment, microfiber cloths, white vinegar, baking soda, spray bottle", tiers:[1,0,0] },
+  { id:"TK-ASSEM-FURN", name:"Furniture Assembly Kit", cat:"Project", source:"Family Handyman", contents:"Hex key/Allen wrench set (metric and SAE), multi-bit screwdriver, rubber mallet, magnetic hardware tray, small torpedo level, utility knife", tiers:[1,0,0] },
+  { id:"TK-REPAIR-WIN", name:"Window & Door Repair Kit", cat:"Repair", source:"Black & Decker", contents:"Wood chisel, utility knife, multi-bit screwdriver, graphite lubricant spray, replacement screen mesh, screen rolling tool, spline cord", tiers:[1,1,0] },
+  { id:"TK-CLEAN-GUTT", name:"Gutter Cleaning Kit", cat:"Maintenance", source:"Fannie Mae", contents:"Extension ladder stabilizers, gutter scoop, heavy-duty work gloves, garden hose high-pressure spray nozzle, gutter seal caulk, safety glasses", tiers:[1,1,0] },
+  { id:"TK-CARE-DECK", name:"Deck & Wood Care Kit", cat:"Maintenance", source:"Family Handyman", contents:"Stiff-bristle scrubbing brush, wood deck cleaner concentrate, pump sprayer, paint roller with long extension pole, exterior wood stain or sealer, medium-grit sanding block", tiers:[1,1,0] },
+  { id:"TK-REPAIR-TILE", name:"Tile & Grout Repair Kit", cat:"Repair", source:"Black & Decker", contents:"Grout saw/removal tool, rubber grout float, pre-mixed grout, grout sponge, tile spacer assortment, grout sealer, margin trowel", tiers:[0,1,1] },
+  { id:"TK-REPAIR-TOIL", name:"Toilet Repair Kit", cat:"Repair", source:"Black & Decker", contents:"Adjustable wrench (10-inch), channel-lock pliers, universal toilet flapper, replacement toilet fill valve, sponge, utility bucket, mini hacksaw", tiers:[1,1,0] },
+  { id:"SK-DISINFECT", name:"Surface Disinfection Kit", cat:"Cleaning", source:"CDC", contents:"EPA-registered disinfectant spray, nitrile gloves, microfiber cleaning cloths, scrub sponge, paper towel roll", tiers:[1,0,0] },
+  { id:"TK-SAFE-FIRE", name:"Fire Safety Kit", cat:"Safety", source:"NFPA", contents:"ABC-rated fire extinguisher, smoke detector replacement batteries (9V or AA), carbon monoxide detector, fire escape ladder, fire blanket", tiers:[1,0,0] },
+  { id:"TK-PATCH-DRY", name:"Drywall Patching Kit", cat:"Repair", source:"Family Handyman", contents:"Joint compound (Spackle), putty knife (4-inch), mesh drywall patch, fine-grit drywall sanding block, utility knife, dust mask", tiers:[1,1,0] },
+  { id:"TK-ADJUST-CAB", name:"Cabinet & Hinge Kit", cat:"Maintenance", source:"Black & Decker", contents:"Phillips screwdriver (#2), flathead screwdriver, wood glue, round wooden toothpicks for stripped holes, torpedo level, clear cabinet door bumpers", tiers:[1,0,0] },
+  { id:"TK-REPAIR-FAUCET", name:"Faucet Repair Kit", cat:"Repair", source:"Black & Decker", contents:"Hex key set, basin wrench, adjustable wrench, assorted rubber O-rings and washers, silicone-based plumber's joint grease, thread seal tape (Teflon tape)", tiers:[0,1,1] },
+  { id:"CK-FLOOR-CARE", name:"Floor Care Kit", cat:"Cleaning", source:"NWFA", contents:"Microfiber dust mop, wet mop and bucket assembly, hardwood floor cleaner solution, broom and dustpan, knee pads", tiers:[1,0,0] },
+  { id:"TK-PRUNE-TREE", name:"Tree & Shrub Pruning Kit", cat:"Garden", source:"NALP", contents:"Loppers (anvil or bypass), pruning hand saw, bypass hand pruners, heavy leather work gloves, safety glasses, rubbing alcohol for tool sanitization", tiers:[1,1,0] },
+  { id:"TK-SERV-HVAC", name:"HVAC Filter Service Kit", cat:"Maintenance", source:"HUD / ENERGY STAR", contents:"Correctly sized pleated air filters (MERV 8 or 11), permanent marker for dating filter, heavy-duty garbage bag, flashlight, microfiber cloth", tiers:[1,0,0] },
+  { id:"TK-RENEW-CAULK", name:"Caulk Renewal Kit", cat:"Repair", source:"Family Handyman", contents:"Caulk removal tool/scraper, caulk gun, kitchen/bath silicone caulk (mold-resistant), rubbing alcohol for surface prep, painter's tape, caulk smoothing tool", tiers:[1,0,0] },
+  { id:"TK-INSTALL-LOCK", name:"Lockset Installation Kit", cat:"Project", source:"Black & Decker", contents:"Deadbolt and entry lockset hardware, wood chisel (1-inch), power drill with hole saw attachment, spade drill bit (1-inch), combination screwdriver, hammer", tiers:[0,1,1] },
+  { id:"TK-MAINT-SUMP", name:"Sump Pump Maintenance Kit", cat:"Maintenance", source:"FEMA", contents:"Submersible utility pump (backup), check valve assembly, flashlight, five-gallon bucket, channel-lock pliers, screwdriver for hose clamps", tiers:[0,1,1] },
+  { id:"SK-WASH-WIN", name:"Window Washing Kit", cat:"Cleaning", source:"Family Handyman", contents:"Professional window squeegee, microfiber window scrubber sleeve, extension pole, window cleaning concentrate solution, lint-free huck towels, large utility bucket", tiers:[1,0,0] },
+  { id:"TK-PLANT-GARD", name:"Garden Planting Kit", cat:"Garden", source:"NAHB / NGA", contents:"Hand trowel, cultivator hand rake, garden kneeling pad, plant labels/markers, gardening gloves, pruning shears", tiers:[1,0,0] },
+  { id:"TK-INSPECT-ROOF", name:"Roof Inspection Kit", cat:"Maintenance", source:"Standard Best Practices", contents:"Binoculars for ground checking, high-lumen flashlight, safety glasses, split-leather work gloves, smartphone camera, tape measure, notepad", tiers:[1,0,0] },
+  { id:"SK-WASH-CAR", name:"Car Wash Kit", cat:"Cleaning", source:"Auto Care Association", contents:"Large wash bucket, grit guard insert, car wash soap, microfiber wash mitt, waffle-weave drying towel, wheel brush, adjustable hose spray nozzle", tiers:[1,0,0] },
+  { id:"TK-PREP-STORM", name:"Storm Preparedness Kit", cat:"Safety", source:"FEMA", contents:"Battery-powered or hand-crank radio, high-lumen flashlight, heavy-duty extension cord, reinforced weather tarp, heavy-duty duct tape, work gloves, portable power bank", tiers:[1,0,0] },
+  { id:"TK-REPAIR-FENCE", name:"Fence Repair Kit", cat:"Repair", source:"Family Handyman", contents:"Claw hammer, cordless drill/driver, exterior-grade wood screws, post level, tape measure, heavy-duty pry bar, work gloves", tiers:[1,1,0] },
+  { id:"MK-FASTEN-HOME", name:"Household Fastener Kit", cat:"Project", source:"Family Handyman", contents:"Assorted wood screws, drywall wall anchors, finish nails, machine screws, metal washers, small picture hangers, multi-compartment storage organizer case", tiers:[1,0,0] },
+  { id:"TK-ADJUST-DOOR", name:"Door Adjustment Kit", cat:"Repair", source:"Family Handyman", contents:"Screwdriver set (Phillips and flat), tapered wood shims, hammer, cordless drill/driver, long hinge replacement screws (3-inch), utility knife, tape measure", tiers:[1,1,0] },
+];
+
+let currentFilter = 'all';
+
+function renderKits() {
+  const grid = document.getElementById('kit-grid');
+  const filtered = currentFilter === 'all' ? KITS : KITS.filter(k => k.cat === currentFilter);
+  grid.innerHTML = filtered.map(k => {
+    const tierLabels = ['Basic','Advanced','Expert'];
+    const tierColors = ['basic','advanced','expert'];
+    const dots = [0,1,2].map(i => `<div class="level-dot ${k.tiers[i] ? 'filled ' + tierColors[i] : 'empty'}" title="${tierLabels[i]}"></div>`).join('');
+    return `
+    <div class="kit-card">
+      <div class="kit-card-id">${k.id}</div>
+      <div class="kit-card-name">${k.name}</div>
+      <div class="kit-card-cat">${k.cat}</div>
+      <div class="kit-card-contents">${k.contents}</div>
+      <div class="kit-card-levels">${dots}<span style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-left:8px;letter-spacing:1px;">TIER AVAILABILITY</span></div>
+      <div class="kit-card-source">Source: ${k.source}</div>
+    </div>`;
+  }).join('');
+}
+
+function filterKits(cat, btn) {
+  currentFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderKits();
+}
+
+function copyPrompt(btn) {
+  const text = document.getElementById('capability-prompt').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied ✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+renderKits();
+</script>
+</body>
+</html>
