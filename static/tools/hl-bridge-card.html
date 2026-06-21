@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HL Bridge — Tool Card Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0c0a;
+  --surface: #111411;
+  --surface2: #161a15;
+  --border: #232820;
+  --green: #4cff91;
+  --green-dim: #2a8f52;
+  --blue: #00c9ff;
+  --muted: #5a6b5e;
+  --text: #cdd8cc;
+  --text-bright: #e8f0e6;
+  --mono: 'Share Tech Mono', monospace;
+  --head: 'Barlow Condensed', sans-serif;
+  --body: 'Barlow', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  min-height: 100vh;
+  padding: 48px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 48px;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(76,255,145,0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(76,255,145,0.018) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+
+.label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+/* ═══════════════════════════
+   THE TOOL CARD
+═══════════════════════════ */
+.tool-card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  width: 100%;
+  max-width: 400px;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.tool-card:hover {
+  border-color: var(--blue);
+  box-shadow: 0 0 24px rgba(0,201,255,0.06);
+}
+
+/* top accent line — blue for Bridge (differentiates from green library cards) */
+.tool-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--blue), var(--green));
+}
+
+/* background watermark address */
+.tool-card::after {
+  content: 'HL-BR-CSV-001';
+  position: absolute;
+  bottom: 14px;
+  right: 16px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--border);
+  letter-spacing: 2px;
+  pointer-events: none;
+}
+
+.tool-card-inner {
+  padding: 28px 28px 24px;
+}
+
+.tool-card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--blue);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.tool-card-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--blue);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.tool-card h3 {
+  font-family: var(--head);
+  font-weight: 900;
+  font-size: 32px;
+  color: var(--text-bright);
+  letter-spacing: 1px;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.tool-card-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.tool-card p {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--muted);
+  margin-bottom: 22px;
+}
+
+.tool-card p strong { color: var(--text); font-weight: 500; }
+
+/* direction indicators */
+.bridge-flow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 22px;
+  padding: 12px 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.bridge-node {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.bridge-node.hl { border-color: var(--green-dim); color: var(--green); }
+
+.bridge-arrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  flex: 1;
+  text-align: center;
+}
+
+.tool-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 28px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.tool-card-link {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--blue);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: gap 0.15s;
+}
+
+.tool-card-link:hover { gap: 14px; }
+
+.tool-card-tags {
+  display: flex;
+  gap: 6px;
+}
+
+.tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  padding: 2px 7px;
+  letter-spacing: 1px;
+}
+
+/* ═══════════════════════════
+   HTML SNIPPET
+═══════════════════════════ */
+.snippet-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 20px 24px;
+  max-width: 680px;
+  width: 100%;
+}
+
+.snippet-header {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--green);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.snippet-code {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.9;
+  overflow-x: auto;
+}
+
+.snippet-code .c { color: var(--muted); opacity: 0.5; }
+.snippet-code .t { color: var(--text); }
+.snippet-code .v { color: var(--blue); }
+.snippet-code .a { color: var(--green); }
+</style>
+</head>
+<body>
+
+<div>
+  <div class="label">hilsystem.com · Tools Page · Card Component</div>
+
+  <!-- THE TOOL CARD -->
+  <div class="tool-card">
+    <div class="tool-card-inner">
+
+      <div class="tool-card-badge">Importer · Two-Way</div>
+
+      <h3>HL Bridge</h3>
+      <div class="tool-card-sub">HomeBox ↔ HL System · CSV Translator</div>
+
+      <p>
+        Already using HomeBox? <strong>Export your inventory, drop it in the Bridge,
+        and every item gets an HL address instantly.</strong>
+        Works both directions — bring your HL vault into HomeBox too.
+        No account. No installation. One file in, one file out.
+      </p>
+
+      <div class="bridge-flow">
+        <div class="bridge-node">HomeBox CSV</div>
+        <div class="bridge-arrow">⇄</div>
+        <div class="bridge-node hl">HL System</div>
+      </div>
+
+    </div>
+
+    <div class="tool-card-footer">
+      <a class="tool-card-link" href="hl-bridge.html">Open Tool →</a>
+      <div class="tool-card-tags">
+        <div class="tag">CSV</div>
+        <div class="tag">Import</div>
+        <div class="tag">Free</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HTML SNIPPET -->
+<div>
+  <div class="label">Paste into hilsystem.com Tools grid</div>
+  <div class="snippet-box">
+    <div class="snippet-header">&lt;!-- HL BRIDGE — TOOL CARD --&gt;</div>
+    <div class="snippet-code">
+      <span class="c">&lt;div class="</span><span class="a">tool-card</span><span class="c">"&gt;</span><br>
+      &nbsp;&nbsp;<span class="c">&lt;div class="</span><span class="a">tool-card-inner</span><span class="c">"&gt;</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="c">&lt;div class="</span><span class="a">tool-card-badge</span><span class="c">"&gt;</span><span class="t">Importer · Two-Way</span><span class="c">&lt;/div&gt;</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="c">&lt;h3&gt;</span><span class="t">HL Bridge</span><span class="c">&lt;/h3&gt;</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="c">&lt;div class="</span><span class="a">tool-card-sub</span><span class="c">"&gt;</span><span class="t">HomeBox ↔ HL System · CSV Translator</span><span class="c">&lt;/div&gt;</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="c">&lt;p&gt;</span><span class="t">Already using HomeBox? Export your inventory, drop it in the Bridge, and every item gets an HL address instantly. Works both directions. No account. No install.</span><span class="c">&lt;/p&gt;</span><br>
+      &nbsp;&nbsp;<span class="c">&lt;/div&gt;</span><br>
+      &nbsp;&nbsp;<span class="c">&lt;div class="</span><span class="a">tool-card-footer</span><span class="c">"&gt;</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="c">&lt;a class="</span><span class="a">tool-card-link</span><span class="c">" href="</span><span class="v">hl-bridge.html</span><span class="c">"&gt;</span><span class="t">Open Tool →</span><span class="c">&lt;/a&gt;</span><br>
+      &nbsp;&nbsp;<span class="c">&lt;/div&gt;</span><br>
+      <span class="c">&lt;/div&gt;</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
