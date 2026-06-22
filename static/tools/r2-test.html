@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>R2 Upload Test</title>
+<style>
+  body { background: #0d0f0e; color: #dde8e2; font-family: monospace; padding: 40px; }
+  h1 { color: #4cff91; }
+  .box { background: #141816; border: 1px solid #2a302c; padding: 24px; max-width: 500px; }
+  input[type=file] { color: #dde8e2; margin: 16px 0; display: block; }
+  button { background: #4cff91; color: #000; border: none; padding: 10px 24px; font-family: monospace; font-size: 14px; cursor: pointer; font-weight: bold; }
+  button:hover { background: #6fffaa; }
+  #status { margin-top: 20px; font-size: 13px; line-height: 1.8; }
+  .ok { color: #4cff91; }
+  .err { color: #ff5c5c; }
+  .url { color: #ffd84c; word-break: break-all; }
+</style>
+</head>
+<body>
+<h1>R2 Upload Test</h1>
+<div class="box">
+  <div style="font-size:12px;color:#6b7d72;margin-bottom:16px;">
+    Worker: hilsystem-r2-signer.dvo77.workers.dev<br>
+    Bucket: hilsystem-assets
+  </div>
+  <input type="file" id="file-input" accept="image/*">
+  <button onclick="testUpload()">Test Upload to R2</button>
+  <div id="status"></div>
+</div>
+
+<script>
+const WORKER_URL = "https://hilsystem-r2-signer.dvo77.workers.dev";
+
+async function testUpload() {
+  const file = document.getElementById('file-input').files[0];
+  const status = document.getElementById('status');
+
+  if (!file) { status.innerHTML = '<span class="err">Pick a file first</span>'; return; }
+
+  status.innerHTML = '⏳ Requesting signed URL from Worker...';
+
+  try {
+    // Step 1: get presigned URL
+    const res = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename: file.name, contentType: file.type })
+    });
+
+    if (!res.ok) {
+      const txt = await res.text();
+      status.innerHTML = `<span class="err">Worker error ${res.status}: ${txt}</span>`;
+      return;
+    }
+
+    const { uploadUrl, key, publicUrl } = await res.json();
+    status.innerHTML += '<br><span class="ok">✓ Got signed URL</span><br>⏳ Uploading to R2...';
+
+    // Step 2: upload direct to R2
+    const upload = await fetch(uploadUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': file.type },
+      body: file
+    });
+
+    if (upload.ok) {
+      status.innerHTML = `
+        <span class="ok">✓ Worker responded</span><br>
+        <span class="ok">✓ Uploaded to R2 successfully!</span><br><br>
+        <strong>Key:</strong> <span class="url">${key}</span><br><br>
+        <strong>Public URL:</strong><br>
+        <a href="${publicUrl}" target="_blank" class="url">${publicUrl}</a><br><br>
+        <span style="color:#6b7d72">Click the URL to verify the photo is live in R2</span>
+      `;
+    } else {
+      status.innerHTML += `<br><span class="err">R2 upload failed: ${upload.status} ${upload.statusText}</span>`;
+    }
+
+  } catch (err) {
+    status.innerHTML = `<span class="err">Error: ${err.message}</span>`;
+  }
+}
+</script>
+</body>
+</html>
