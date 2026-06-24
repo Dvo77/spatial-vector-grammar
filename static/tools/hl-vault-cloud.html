@@ -690,7 +690,7 @@ onAuthStateChanged(auth, async user => {
 
     // Subscribe to their vault collection — real-time updates
     setSyncDot('syncing');
-    const vaultRef = collection(db, 'users', user.uid, 'vault_items');
+    const vaultRef = collection(db, 'users', user.uid, 'item_records');
     const q = query(vaultRef, orderBy('created', 'desc'));
 
     unsubscribeSnapshot = onSnapshot(q, snapshot => {
@@ -724,7 +724,7 @@ window._saveToFirestore = async (record) => {
   if (!currentUser) return;
   setSyncDot('syncing');
   try {
-    const vaultRef = collection(db, 'users', currentUser.uid, 'vault_items');
+    const vaultRef = collection(db, 'users', currentUser.uid, 'item_records');
     const docRef = doc(vaultRef, record.id);
     await setDoc(docRef, {
       ...record,
@@ -744,7 +744,7 @@ window._deleteFromFirestore = async (recordId) => {
   if (!currentUser) return;
   setSyncDot('syncing');
   try {
-    const docRef = doc(db, 'users', currentUser.uid, 'vault_items', recordId);
+    const docRef = doc(db, 'users', currentUser.uid, 'item_records', recordId);
     await deleteDoc(docRef);
     setSyncDot('ok');
   } catch (err) {
@@ -758,7 +758,7 @@ window._deleteFromFirestore = async (recordId) => {
 window._bulkSaveToFirestore = async (records) => {
   if (!currentUser) return;
   setSyncDot('syncing');
-  const vaultRef = collection(db, 'users', currentUser.uid, 'vault_items');
+  const vaultRef = collection(db, 'users', currentUser.uid, 'item_records');
   let saved = 0;
   for (const r of records) {
     try {
@@ -774,7 +774,7 @@ window._bulkSaveToFirestore = async (records) => {
 window._clearFirestore = async () => {
   if (!currentUser) return;
   setSyncDot('syncing');
-  const vaultRef = collection(db, 'users', currentUser.uid, 'vault_items');
+  const vaultRef = collection(db, 'users', currentUser.uid, 'item_records');
   const snap = await getDocs(vaultRef);
   for (const d of snap.docs) await deleteDoc(d.ref);
   setSyncDot('ok');
@@ -1256,7 +1256,7 @@ function openCapabilityDrill(kitId, capability) {
   document.getElementById('cap-drill-title').textContent = capLabel + ' — items';
 
   // Filter item records by kit_memberships containing this kitId
-  // Also show ALL records for now since kit_memberships may not be set yet on vault_items
+  // Also show ALL records for now since kit_memberships may not be set yet on item_records
   const kitItems = (window.records || []).filter(r => {
     const memberships = r.kit_memberships || [];
     return memberships.includes(kitId);
