@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HIL Museum — Wunderkammer & History Wall</title>
+
+<script>
+const _noop = () => {};
+window.doSignIn=_noop;window.cancelSignIn=_noop;window.signOutUser=_noop;
+window.setMode=_noop;window.filterGrid=_noop;window.react=_noop;
+window.openDetail=_noop;window.closeDetail=_noop;window.openForm=_noop;
+window.closeForm=_noop;window.saveRecord=_noop;window.removeItem=_noop;
+window.openCollectionModal=_noop;window.closeCollectionModal=_noop;window.saveCollection=_noop;
+</script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc,
+  getDocs, getDoc, query, orderBy, serverTimestamp, where, increment }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+// ── CONFIG ───────────────────────────────────────────────────────────────────
+// Get appId from Firebase console → Project Settings → Your apps → App ID
+const firebaseConfig = {
+  apiKey:            "AIzaSyARjQ3kD8iz9rD-2Fl1zNASnlVDmvDeVb4",
+  authDomain:        "project-97444efa-3b6f-493b-b96.firebaseapp.com",
+  projectId:         "project-97444efa-3b6f-493b-b96",
+  storageBucket:     "project-97444efa-3b6f-493b-b96.firebasestorage.app",
+  messagingSenderId: "937314472168",
+  appId:             "1:937314472168:web:5ad7b916ac01a9e649b95d"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let currentUser     = null;
+let activeMode      = 'wunderkammer';
+let items           = [];
+let collections     = [];
+let editingId       = null;
+let editingIsHWDoc  = false;
+let pendingAction   = null;   // fn to run after sign-in completes
+
+// ── AUTH — observe, don't gate ───────────────────────────────────────────────
+onAuthStateChanged(auth, async user => {
+  currentUser = user;
+  renderUserChip();
+  // If we were waiting on sign-in to do something, do it now
+  if (pendingAction) {
+    const fn = pendingAction;
+    pendingAction = null;
+    await fn();
+  }
+});
+
+// requireAuth: returns true if signed in; otherwise opens mini sign-in modal
+// and queues the action to retry after login
+function requireAuth(actionFn) {
+  if (currentUser) return true;
+  pendingAction = actionFn;
+  document.getElementById('signin-modal').style.display = 'flex';
+  return false;
+}
+
+window.doSignIn = async () => {
+  try {
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+    document.getElementById('signin-modal').style.display = 'none';
+    // pendingAction fires via onAuthStateChanged
+  } catch (e) { showToast('Sign-in failed: ' + e.message, 'error'); }
+};
+
+window.cancelSignIn = () => {
+  pendingAction = null;
+  document.getElementById('signin-modal').style.display = 'none';
+};
+
+window.signOutUser = async () => {
+  await signOut(auth);
+  renderUserChip();
+};
+
+function renderUserChip() {
+  const chip = document.getElementById('user-chip');
+  if (currentUser) {
+    chip.innerHTML = `
+      <img src="${currentUser.photoURL || ''}" alt="">
+      <span>${currentUser.displayName || currentUser.email}</span>
+      <button class="btn-sign-out" onclick="signOutUser()">SIGN OUT</button>`;
+  } else {
+    chip.innerHTML = `
+      <button class="btn-signin-top" onclick="requireAuth(()=>{})">SIGN IN</button>`;
+  }
+}
+
+// ── LOAD ─────────────────────────────────────────────────────────────────────
+async function loadData() {
+  showLoading(true);
+  await loadCollections();
+  await loadItems();
+  renderSidebar();
+  renderGrid();
+  showLoading(false);
+}
+
+async function loadCollections() {
+  collections = [];
+  try {
+    // Collections are per-user; for public view we won't show sidebar collections
+    if (!currentUser) return;
+    const snap = await getDocs(
+      query(collection(db, 'users', currentUser.uid, 'collections'), orderBy('display_order'))
+    );
+    snap.forEach(d => collections.push({ id: d.id, ...d.data() }));
+  } catch(e) {}
+  renderCollectionSelect();
+}
+
+async function loadItems() {
+  items = [];
+  try {
+    if (activeMode === 'wunderkammer') {
+      if (!currentUser) {
+        // Public: load all public wunderkammer items across users
+        // (Requires a top-level denormalized collection or query on public flag)
+        // For now: load from currentUser only; expand to global with a top-level
+        // 'public_items' fanout when backend is ready.
+        // Placeholder: show empty with a note.
+        return;
+      }
+      const snap = await getDocs(
+        query(collection(db, 'users', currentUser.uid, 'item_records'),
+          orderBy('updated_at', 'desc'))
+      );
+      snap.forEach(d => {
+        const data = { id: d.id, ...d.data() };
+        if (data.display?.wunderkammer) items.push(data);
+      });
+    } else {
+      // History Wall is a global public collection — always readable
+      const snap = await getDocs(
+        query(collection(db, 'history_wall'), orderBy('created_at', 'desc'))
+      );
+      snap.forEach(d => items.push({ id: d.id, _hwDoc: true, ...d.data() }));
+    }
+  } catch(e) { console.error('loadItems:', e); }
+}
+
+// ── MODE SWITCH ───────────────────────────────────────────────────────────────
+window.setMode = async mode => {
+  activeMode = mode;
+  document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+  document.getElementById('panel-wk').style.display = mode === 'wunderkammer' ? 'block' : 'none';
+  document.getElementById('panel-hw').style.display = mode === 'history_wall'  ? 'block' : 'none';
+  document.getElementById('grid-heading').textContent =
+    mode === 'wunderkammer' ? 'Wunderkammer' : 'History Wall';
+  const saveBtn = document.getElementById('save-btn');
+  if (saveBtn) saveBtn.className = 'btn-primary' + (mode === 'history_wall' ? ' hw' : '');
+  closeForm();
+  await loadData();
+};
+
+// ── SIDEBAR ───────────────────────────────────────────────────────────────────
+function renderSidebar() {
+  const el = document.getElementById('collection-list');
+  if (activeMode === 'history_wall') {
+    el.innerHTML = `
+      <div class="sidebar-section-label">FILTER</div>
+      <div class="sidebar-item active" onclick="filterGrid(null, this)">All Records
+        <span class="pill">${items.length}</span></div>
+      <div class="sidebar-item" onclick="filterGrid('public', this)">Public Only
+        <span class="pill">${items.filter(i=>i.public).length}</span></div>
+      <div class="sidebar-item" onclick="filterGrid('mine', this)">My Records
+        <span class="pill">${items.filter(i=>i.owner_uid===currentUser?.uid).length}</span></div>
+      <div class="sidebar-divider"></div>
+      <button class="sidebar-add-btn" onclick="openForm()">+ Add Heritage Record</button>`;
+    return;
+  }
+  // Wunderkammer
+  let html = `
+    <div class="sidebar-section-label">COLLECTIONS</div>
+    <div class="sidebar-item active" onclick="filterGrid(null, this)">All Items
+      <span class="pill">${items.length}</span></div>`;
+  collections.forEach(c => {
+    const count = items.filter(i => i.wunderkammer?.collection_id === c.id).length;
+    html += `<div class="sidebar-item" onclick="filterGrid('coll:${c.id}', this)">
+      ${c.name}<span class="pill">${count}</span></div>`;
+  });
+  html += `
+    <div class="sidebar-divider"></div>
+    <button class="sidebar-add-btn" onclick="openCollectionModal()">+ New Collection</button>
+    <button class="sidebar-add-btn" onclick="openForm()">+ Add Item</button>`;
+  el.innerHTML = html;
+}
+
+window.filterGrid = (filter, el) => {
+  document.querySelectorAll('.sidebar-item').forEach(e => e.classList.remove('active'));
+  el?.classList.add('active');
+  let filtered = items;
+  if (filter === 'public')     filtered = items.filter(i => i.public);
+  else if (filter === 'mine')  filtered = items.filter(i => i.owner_uid === currentUser?.uid);
+  else if (filter?.startsWith('coll:')) {
+    const id = filter.slice(5);
+    filtered = items.filter(i => i.wunderkammer?.collection_id === id);
+  }
+  renderGrid(filtered);
+};
+
+// ── GRID ─────────────────────────────────────────────────────────────────────
+function renderGrid(filtered = items) {
+  const grid = document.getElementById('item-grid');
+  document.getElementById('item-count-label').textContent =
+    `${filtered.length} record${filtered.length !== 1 ? 's' : ''}`;
+
+  if (filtered.length === 0) {
+    const isLoggedIn = !!currentUser;
+    const wkNote = isLoggedIn
+      ? 'Add items to your Vault and flag them for the Wunderkammer, or create a record below.'
+      : 'Sign in to add your collection to the Wunderkammer.';
+    grid.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">${activeMode === 'wunderkammer' ? '🏛️' : '📜'}</div>
+      <div class="empty-title">Nothing here yet</div>
+      <div class="empty-sub">${activeMode === 'wunderkammer' ? wkNote : 'Be the first to add a heritage record to the History Wall.'}</div>
+      <button class="btn-primary" onclick="openForm()">
+        + ${activeMode === 'wunderkammer' ? 'Add Item' : 'Add Heritage Record'}</button>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(item => renderCard(item)).join('');
+}
+
+function renderCard(item) {
+  const isHW     = item._hwDoc || activeMode === 'history_wall';
+  const isMine   = currentUser && item.owner_uid === currentUser.uid;
+  const photo    = item.hero_photo || '';
+  const name     = item.display_name || item.name || 'Untitled';
+  const sub      = isHW
+    ? [item.person, item.dates].filter(Boolean).join(' · ')
+    : [item.manufacturer, item.year_made].filter(Boolean).join(' · ');
+  const reaction = isHW
+    ? `<button class="react-btn hw" onclick="event.stopPropagation();react('${item.id}','heart',${item._hwDoc||false})">♡ ${item.heart_count||0}</button>`
+    : `<button class="react-btn wk" onclick="event.stopPropagation();react('${item.id}','star',${item._hwDoc||false})">★ ${item.wunderkammer?.star_count||0}</button>`;
+  const crown = item.wunderkammer?.is_crown_piece ? '<span class="crown-badge">👑</span>' : '';
+  const statusBadge = (item.status && item.status !== 'active')
+    ? `<span class="status-badge ${item.status}">${item.status.replace('_',' ')}</span>` : '';
+  const editBtns = isMine ? `
+    <button class="icon-btn" title="Edit" onclick="event.stopPropagation();openForm('${item.id}',${!!item._hwDoc})">✎</button>
+    <button class="icon-btn danger" title="Remove" onclick="event.stopPropagation();removeItem('${item.id}',${!!item._hwDoc})">✕</button>` : '';
+
+  return `<div class="item-card" onclick="openDetail('${item.id}',${!!item._hwDoc})">
+    <div class="card-photo ${photo ? '' : 'no-photo'}">
+      ${photo ? `<img src="${photo}" alt="${name}" loading="lazy">` : '<div class="photo-placeholder">📷</div>'}
+      ${crown}${statusBadge}
+    </div>
+    <div class="card-body">
+      <div class="card-name">${name}</div>
+      ${sub ? `<div class="card-sub">${sub}</div>` : ''}
+      <div class="card-footer">
+        ${reaction}
+        <div class="card-actions">${editBtns}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── REACTIONS (star / heart) — requires auth ──────────────────────────────────
+window.react = (itemId, type, isHWDoc) => {
+  requireAuth(async () => {
+    try {
+      if (isHWDoc || type === 'heart') {
+        await updateDoc(doc(db, 'history_wall', itemId),
+          { heart_count: increment(1), updated_at: serverTimestamp() });
+      } else {
+        // Update star on item_record wunderkammer block
+        await updateDoc(doc(db, 'users', currentUser.uid, 'item_records', itemId),
+          { 'wunderkammer.star_count': increment(1), updated_at: serverTimestamp() });
+      }
+      await loadData();
+      showToast(type === 'heart' ? '♡ +1' : '★ +1');
+    } catch(e) { showToast('Error: ' + e.message, 'error'); }
+  });
+};
+
+// ── DETAIL VIEW (read-only overlay) ──────────────────────────────────────────
+window.openDetail = async (itemId, isHWDoc) => {
+  let data;
+  try {
+    if (isHWDoc) {
+      const snap = await getDoc(doc(db, 'history_wall', itemId));
+      data = { id: snap.id, _hwDoc: true, ...snap.data() };
+    } else {
+      // Find from loaded items (avoid extra read if possible)
+      data = items.find(i => i.id === itemId);
+    }
+  } catch(e) { return; }
+  if (!data) return;
+
+  const isMine = currentUser && data.owner_uid === currentUser.uid;
+  const isHW   = data._hwDoc || activeMode === 'history_wall';
+
+  const overlay = document.getElementById('detail-overlay');
+  overlay.style.display = 'flex';
+
+  const body = isHW ? `
+    ${data.person ? `<div class="detail-person">${data.person}${data.relationship ? ` <span class="detail-rel">· ${data.relationship}</span>` : ''}</div>` : ''}
+    ${data.dates  ? `<div class="detail-meta">${data.dates}${data.location ? ` · ${data.location}` : ''}</div>` : ''}
+    ${data.narrative   ? `<div class="detail-section-label">THE STORY</div><div class="detail-text">${data.narrative}</div>` : ''}
+    ${data.significance ? `<div class="detail-section-label">SIGNIFICANCE</div><div class="detail-text">${data.significance}</div>` : ''}
+    ${data.transfer_story ? `<div class="detail-section-label">HOW IT PASSED HANDS</div><div class="detail-text">${data.transfer_story}</div>` : ''}
+    <div class="detail-react">
+      <button class="react-btn hw large" onclick="react('${data.id}','heart',${!!data._hwDoc})">♡ ${data.heart_count||0} hearts</button>
+    </div>`
+  : `
+    ${data.manufacturer || data.year_made ? `<div class="detail-meta">${[data.manufacturer, data.year_made].filter(Boolean).join(' · ')}</div>` : ''}
+    ${data.description  ? `<div class="detail-text" style="margin-top:0.75rem">${data.description}</div>` : ''}
+    ${data.narrative    ? `<div class="detail-section-label">STORY</div><div class="detail-text">${data.narrative}</div>` : ''}
+    ${data.provenance   ? `<div class="detail-section-label">PROVENANCE</div><div class="detail-text">${data.provenance}</div>` : ''}
+    ${data.condition    ? `<div class="detail-section-label">CONDITION</div><div class="detail-text">${data.condition}${data.condition_notes ? ' — ' + data.condition_notes : ''}</div>` : ''}
+    <div class="detail-react">
+      <button class="react-btn wk large" onclick="react('${data.id}','star',false)">★ ${data.wunderkammer?.star_count||0} stars</button>
+    </div>`;
+
+  document.getElementById('detail-inner').innerHTML = `
+    ${data.hero_photo ? `<div class="detail-photo"><img src="${data.hero_photo}" alt="${data.display_name||''}"></div>` : ''}
+    <div class="detail-content">
+      <div class="detail-name">${data.display_name || data.name || 'Untitled'}</div>
+      ${body}
+      ${isMine ? `<div class="detail-owner-actions">
+        <button class="btn-secondary" onclick="closeDetail();openForm('${data.id}',${!!data._hwDoc})">Edit Record</button>
+        <button class="btn-secondary danger" onclick="closeDetail();removeItem('${data.id}',${!!data._hwDoc})">Remove from Wall</button>
+      </div>` : ''}
+    </div>`;
+};
+
+window.closeDetail = () => {
+  document.getElementById('detail-overlay').style.display = 'none';
+};
+
+// ── FORM (write — requires auth) ──────────────────────────────────────────────
+window.openForm = (itemId = null, isHWDoc = false) => {
+  requireAuth(async () => {
+    editingId      = itemId;
+    editingIsHWDoc = isHWDoc;
+    document.getElementById('form-panel').classList.add('open');
+    document.getElementById('form-title').textContent =
+      itemId ? 'Edit Record' : (activeMode === 'wunderkammer' ? 'New Item' : 'New Heritage Record');
+
+    if (itemId) {
+      try {
+        if (isHWDoc) {
+          const snap = await getDoc(doc(db, 'history_wall', itemId));
+          if (snap.exists()) populateHWForm(snap.data());
+        } else {
+          const snap = await getDoc(doc(db, 'users', currentUser.uid, 'item_records', itemId));
+          if (snap.exists()) {
+            activeMode === 'wunderkammer' ? populateWKForm(snap.data()) : populateHWForm(snap.data());
+          }
+        }
+      } catch(e) {}
+    }
+  });
+};
+
+window.closeForm = () => {
+  editingId = null;
+  document.getElementById('form-panel').classList.remove('open');
+  document.getElementById('wk-form')?.reset();
+  document.getElementById('hw-form')?.reset();
+};
+
+function populateWKForm(d) {
+  sv('wk-display-name', d.display_name); sv('wk-name', d.name);
+  sv('wk-manufacturer', d.manufacturer); sv('wk-year', d.year_made);
+  sv('wk-description', d.description);   sv('wk-narrative', d.narrative);
+  sv('wk-provenance', d.provenance);     sv('wk-condition', d.condition);
+  sv('wk-category', d.category);         sv('wk-tags', (d.tags||[]).join(', '));
+  sv('wk-status', d.status||'active');   sv('wk-hero-photo', d.hero_photo);
+  sv('wk-collection-id', d.wunderkammer?.collection_id||'');
+  sc('wk-crown', d.wunderkammer?.is_crown_piece);
+  sc('wk-public', d.public);
+}
+
+function populateHWForm(d) {
+  sv('hw-display-name', d.display_name); sv('hw-person', d.person);
+  sv('hw-relationship', d.relationship); sv('hw-dates', d.dates);
+  sv('hw-location', d.location);         sv('hw-narrative', d.narrative);
+  sv('hw-significance', d.significance); sv('hw-transfer-story', d.transfer_story);
+  sv('hw-hero-photo', d.hero_photo);     sc('hw-public', d.public);
+}
+
+function sv(id, v) { const e=document.getElementById(id); if(e&&v!=null) e.value=v; }
+function sc(id, v) { const e=document.getElementById(id); if(e) e.checked=!!v; }
+function gv(id)    { return document.getElementById(id)?.value?.trim()||''; }
+
+window.saveRecord = async () => {
+  if (!currentUser) { requireAuth(window.saveRecord); return; }
+  try {
+    activeMode === 'wunderkammer' ? await saveWK() : await saveHW();
+    showToast('Saved ✓');
+    closeForm();
+    await loadData();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+};
+
+async function saveWK() {
+  const data = {
+    owner_uid: currentUser.uid,
+    display_name: gv('wk-display-name'),
+    name:         gv('wk-name') || gv('wk-display-name'),
+    manufacturer: gv('wk-manufacturer'),    year_made:  gv('wk-year'),
+    description:  gv('wk-description'),     narrative:  gv('wk-narrative'),
+    provenance:   gv('wk-provenance'),      condition:  gv('wk-condition'),
+    category:     gv('wk-category'),
+    tags:         gv('wk-tags').split(',').map(t=>t.trim()).filter(Boolean),
+    status:       gv('wk-status') || 'active',
+    hero_photo:   gv('wk-hero-photo'),
+    public:       document.getElementById('wk-public')?.checked||false,
+    display: { vault:true, wunderkammer:true, history_wall:false,
+      brag_shelf:false, exchange:false, sign_studio:false, family_ledger:false },
+    wunderkammer: {
+      collection_id:  gv('wk-collection-id') || null,
+      is_crown_piece: document.getElementById('wk-crown')?.checked||false,
+      display_order:  editingId ? undefined : items.length,
+      star_count:     editingId ? undefined : 0,
+    },
+    updated_at: serverTimestamp(),
+  };
+  // Remove undefined fields
+  Object.keys(data.wunderkammer).forEach(k => data.wunderkammer[k]===undefined && delete data.wunderkammer[k]);
+
+  if (editingId) {
+    await updateDoc(doc(db,'users',currentUser.uid,'item_records',editingId), data);
+  } else {
+    data.created_at = serverTimestamp(); data.source = 'manual';
+    await addDoc(collection(db,'users',currentUser.uid,'item_records'), data);
+  }
+}
+
+async function saveHW() {
+  const data = {
+    owner_uid:      currentUser.uid,
+    display_name:   gv('hw-display-name'),
+    person:         gv('hw-person'),       relationship:  gv('hw-relationship'),
+    dates:          gv('hw-dates'),        location:      gv('hw-location'),
+    narrative:      gv('hw-narrative'),    significance:  gv('hw-significance'),
+    transfer_story: gv('hw-transfer-story'),
+    hero_photo:     gv('hw-hero-photo'),
+    public:         document.getElementById('hw-public')?.checked||false,
+    updated_at:     serverTimestamp(),
+  };
+
+  if (editingId && editingIsHWDoc) {
+    await updateDoc(doc(db,'history_wall',editingId), data);
+  } else if (editingId) {
+    // item_record: set display flag + write heritage block
+    await updateDoc(doc(db,'users',currentUser.uid,'item_records',editingId), {
+      'display.history_wall': true,
+      heritage: { person:data.person, relationship:data.relationship,
+        date_range:data.dates, location:data.location,
+        significance:data.significance, transfer_story:data.transfer_story,
+        heart_count:0 },
+      updated_at: serverTimestamp()
+    });
+  } else {
+    data.heart_count = 0; data.featured = false;
+    data.created_at  = serverTimestamp();
+    await addDoc(collection(db,'history_wall'), data);
+  }
+}
+
+window.removeItem = (itemId, isHWDoc) => {
+  requireAuth(async () => {
+    if (!confirm('Remove this record from the wall? Item stays in your Vault.')) return;
+    try {
+      if (isHWDoc) {
+        await deleteDoc(doc(db,'history_wall',itemId));
+      } else if (activeMode === 'wunderkammer') {
+        await updateDoc(doc(db,'users',currentUser.uid,'item_records',itemId),
+          {'display.wunderkammer':false, updated_at:serverTimestamp()});
+      } else {
+        await updateDoc(doc(db,'users',currentUser.uid,'item_records',itemId),
+          {'display.history_wall':false, updated_at:serverTimestamp()});
+      }
+      showToast('Removed');
+      await loadData();
+    } catch(e) { showToast('Error: '+e.message,'error'); }
+  });
+};
+
+// ── COLLECTION MODAL ──────────────────────────────────────────────────────────
+window.openCollectionModal = () => {
+  requireAuth(() => {
+    document.getElementById('collection-modal').style.display = 'flex';
+  });
+};
+window.closeCollectionModal = () => {
+  document.getElementById('collection-modal').style.display='none';
+  document.getElementById('coll-form')?.reset();
+};
+window.saveCollection = async () => {
+  if (!currentUser) return;
+  const name = document.getElementById('coll-name')?.value?.trim();
+  if (!name) { showToast('Name required','error'); return; }
+  try {
+    await addDoc(collection(db,'users',currentUser.uid,'collections'), {
+      owner_uid: currentUser.uid,
+      name, slug: name.toLowerCase().replace(/\s+/g,'-'),
+      subtitle:    document.getElementById('coll-subtitle')?.value?.trim()||'',
+      narrative:   document.getElementById('coll-narrative')?.value?.trim()||'',
+      depth_tier:  document.getElementById('coll-tier')?.value||'snapshot',
+      public:      document.getElementById('coll-public')?.checked||false,
+      display_order: collections.length,
+      item_count_total:0, item_count_active:0, star_count:0,
+      created_at: serverTimestamp(), updated_at: serverTimestamp(),
+    });
+    showToast('Collection created');
+    await loadCollections(); renderSidebar();
+    closeCollectionModal();
+  } catch(e) { showToast('Error: '+e.message,'error'); }
+};
+
+function renderCollectionSelect() {
+  const sel = document.getElementById('wk-collection-id');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">— No collection —</option>' +
+    collections.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function showLoading(on) {
+  document.getElementById('loading-bar').style.width = on ? '60%' : '100%';
+  setTimeout(()=>{ document.getElementById('loading-bar').style.width='0'; }, on ? 0 : 300);
+}
+
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show ' + type;
+  setTimeout(()=>{ t.className='toast'; }, 2800);
+}
+
+// ── INIT — load immediately, no auth required ─────────────────────────────────
+loadData();
+</script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700&display=swap');
+
+:root {
+  --ink:      #0b0c0e; --surface: #12141a; --card: #191c24;
+  --border:   #252830; --border-hi: #353a48;
+  --brass:    #c49a28; --brass-dim: #7a5f14;
+  --heart:    #c0392b; --star: #c49a28;
+  --green:    #2aaa6c; --red: #c0392b;
+  --text:     #d8dce8; --text-dim: #7a8099; --text-xs: #4a5068;
+  --sidebar-w: 210px;  --form-w: 440px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+html,body { height:100%; overflow:hidden; }
+body { background:var(--ink); color:var(--text); font-family:'Barlow Condensed',sans-serif; font-size:15px; }
+
+/* LOADING BAR */
+#loading-bar {
+  position:fixed; top:0; left:0; height:2px;
+  background:var(--brass); width:0; z-index:999;
+  transition:width 0.3s ease, opacity 0.3s ease;
+}
+
+/* TOPBAR */
+.topbar {
+  background:var(--surface); border-bottom:1px solid var(--border);
+  height:52px; display:flex; align-items:center; padding:0 1.25rem; gap:1rem;
+  flex-shrink:0;
+}
+.topbar-logo {
+  font-family:'Share Tech Mono',monospace; font-size:0.75rem;
+  letter-spacing:.15em; color:var(--brass); white-space:nowrap;
+}
+.topbar-logo span { color:var(--text-xs); }
+.mode-tabs { display:flex; gap:2px; background:var(--card); border-radius:6px; padding:3px; }
+.mode-tab {
+  padding:.35rem 1rem; border:none; border-radius:4px;
+  font-family:'Share Tech Mono',monospace; font-size:.62rem; letter-spacing:.1em;
+  cursor:pointer; color:var(--text-dim); background:transparent; transition:all .15s;
+}
+.mode-tab.active { background:var(--brass); color:var(--ink); }
+.mode-tab[data-mode="history_wall"].active { background:var(--heart); color:#fff; }
+.mode-tab:hover:not(.active) { color:var(--text); }
+.topbar-spacer { flex:1; }
+#user-chip { display:flex; align-items:center; gap:.6rem; font-size:.8rem; color:var(--text-dim); }
+#user-chip img { width:28px; height:28px; border-radius:50%; object-fit:cover; border:1px solid var(--border); }
+.btn-sign-out, .btn-signin-top {
+  background:none; border:1px solid var(--border); color:var(--text-xs);
+  padding:.25rem .6rem; border-radius:4px; cursor:pointer;
+  font-family:'Share Tech Mono',monospace; font-size:.6rem; letter-spacing:.1em; transition:all .15s;
+}
+.btn-sign-out:hover, .btn-signin-top:hover { border-color:var(--brass); color:var(--brass); }
+
+/* LAYOUT */
+.body-layout { display:flex; height:calc(100vh - 52px); overflow:hidden; }
+.sidebar {
+  width:var(--sidebar-w); flex-shrink:0; background:var(--surface);
+  border-right:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden;
+}
+.sidebar-header { padding:1rem 1rem .75rem; border-bottom:1px solid var(--border); }
+.sidebar-header-title { font-family:'Share Tech Mono',monospace; font-size:.6rem; letter-spacing:.15em; color:var(--text-xs); margin-bottom:.6rem; }
+#collection-list { flex:1; overflow-y:auto; padding:.5rem 0; }
+.sidebar-section-label { font-family:'Share Tech Mono',monospace; font-size:.56rem; letter-spacing:.15em; color:var(--text-xs); padding:.75rem 1rem .35rem; }
+.sidebar-item {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:.5rem 1rem; cursor:pointer; font-size:.88rem; color:var(--text-dim);
+  border-left:2px solid transparent; transition:all .1s;
+}
+.sidebar-item:hover { color:var(--text); background:var(--card); }
+.sidebar-item.active { color:var(--text); background:var(--card); border-left-color:var(--brass); }
+.pill { font-family:'Share Tech Mono',monospace; font-size:.58rem; color:var(--text-xs); background:var(--border); padding:1px 6px; border-radius:10px; }
+.sidebar-divider { border-top:1px solid var(--border); margin:.5rem 0; }
+.sidebar-add-btn {
+  display:block; width:calc(100% - 2rem); margin:.35rem 1rem;
+  padding:.4rem; background:none; border:1px dashed var(--border);
+  border-radius:4px; color:var(--text-xs); font-size:.8rem; cursor:pointer; transition:all .15s;
+}
+.sidebar-add-btn:hover { border-color:var(--brass); color:var(--brass); }
+
+/* MAIN */
+.main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+.main-header {
+  padding:1rem 1.5rem .75rem; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:1rem; flex-shrink:0;
+}
+#grid-heading { font-family:'Playfair Display',serif; font-size:1.35rem; flex:1; }
+#item-count-label { font-family:'Share Tech Mono',monospace; font-size:.62rem; letter-spacing:.1em; color:var(--text-xs); }
+.grid-scroll { flex:1; overflow-y:auto; padding:1.25rem; }
+.item-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:1rem; }
+
+/* CARDS */
+.item-card { background:var(--card); border:1px solid var(--border); border-radius:6px; overflow:hidden; cursor:pointer; transition:border-color .15s, transform .1s; }
+.item-card:hover { border-color:var(--border-hi); transform:translateY(-1px); }
+.card-photo { height:155px; background:var(--border); position:relative; overflow:hidden; }
+.card-photo img { width:100%; height:100%; object-fit:cover; }
+.card-photo.no-photo { display:flex; align-items:center; justify-content:center; }
+.photo-placeholder { font-size:2rem; opacity:.25; }
+.crown-badge { position:absolute; top:6px; left:6px; font-size:.85rem; filter:drop-shadow(0 1px 2px rgba(0,0,0,.6)); }
+.status-badge { position:absolute; bottom:6px; right:6px; font-family:'Share Tech Mono',monospace; font-size:.52rem; letter-spacing:.08em; padding:2px 6px; border-radius:3px; background:rgba(0,0,0,.7); }
+.status-badge.transferred { color:var(--brass); }
+.status-badge.donated     { color:var(--green); }
+.status-badge.passed_on   { color:#888; }
+.card-body { padding:.7rem; }
+.card-name { font-family:'Playfair Display',serif; font-size:.92rem; line-height:1.3; margin-bottom:.2rem; }
+.card-sub { font-size:.78rem; color:var(--text-dim); margin-bottom:.55rem; }
+.card-footer { display:flex; align-items:center; justify-content:space-between; }
+.react-btn {
+  border:none; border-radius:4px; cursor:pointer; padding:3px 8px;
+  font-family:'Share Tech Mono',monospace; font-size:.68rem; transition:all .15s;
+}
+.react-btn.wk { background:rgba(196,154,40,.12); color:var(--star); }
+.react-btn.wk:hover { background:rgba(196,154,40,.25); }
+.react-btn.hw { background:rgba(192,57,43,.12); color:var(--heart); }
+.react-btn.hw:hover { background:rgba(192,57,43,.25); }
+.react-btn.large { padding:.4rem 1rem; font-size:.8rem; margin-top:.5rem; }
+.card-actions { display:flex; gap:4px; }
+.icon-btn { background:none; border:1px solid var(--border); color:var(--text-dim); width:26px; height:26px; border-radius:4px; cursor:pointer; font-size:.72rem; display:flex; align-items:center; justify-content:center; transition:all .1s; }
+.icon-btn:hover { border-color:var(--border-hi); color:var(--text); }
+.icon-btn.danger:hover { border-color:var(--red); color:var(--red); }
+
+.empty-state { grid-column:1/-1; text-align:center; padding:4rem 2rem; }
+.empty-icon { font-size:3rem; margin-bottom:1rem; opacity:.35; }
+.empty-title { font-family:'Playfair Display',serif; font-size:1.25rem; color:var(--text-dim); margin-bottom:.5rem; }
+.empty-sub { color:var(--text-xs); font-size:.85rem; max-width:360px; margin:0 auto 1.5rem; }
+
+/* DETAIL OVERLAY */
+#detail-overlay {
+  position:fixed; inset:0; z-index:150; background:rgba(0,0,0,.75);
+  display:none; align-items:center; justify-content:center; padding:2rem;
+}
+.detail-box {
+  background:var(--surface); border:1px solid var(--border); border-radius:8px;
+  max-width:680px; width:100%; max-height:85vh; overflow-y:auto;
+  display:flex; flex-direction:column;
+}
+.detail-close-bar {
+  display:flex; justify-content:flex-end; padding:.75rem 1rem .25rem; flex-shrink:0;
+}
+.btn-close-detail {
+  background:none; border:none; color:var(--text-dim); font-size:1.1rem; cursor:pointer; padding:.25rem;
+}
+#detail-inner { padding:0 1.5rem 1.5rem; }
+.detail-photo { margin-bottom:1.25rem; border-radius:6px; overflow:hidden; max-height:300px; }
+.detail-photo img { width:100%; object-fit:cover; max-height:300px; }
+.detail-name { font-family:'Playfair Display',serif; font-size:1.5rem; line-height:1.2; margin-bottom:.5rem; }
+.detail-person { font-family:'Playfair Display',serif; font-size:1.05rem; color:var(--text-dim); margin-bottom:.2rem; }
+.detail-rel { font-style:italic; }
+.detail-meta { font-size:.82rem; color:var(--text-xs); letter-spacing:.04em; margin-bottom:.75rem; }
+.detail-section-label { font-family:'Share Tech Mono',monospace; font-size:.58rem; letter-spacing:.15em; color:var(--text-xs); margin:.9rem 0 .35rem; }
+.detail-text { font-size:.92rem; color:var(--text-dim); line-height:1.7; }
+.detail-react { margin-top:1rem; }
+.detail-owner-actions { display:flex; gap:.75rem; margin-top:1.25rem; padding-top:1.25rem; border-top:1px solid var(--border); }
+
+/* FORM PANEL */
+.form-panel {
+  position:fixed; top:0; right:0; bottom:0; width:var(--form-w); max-width:100vw;
+  background:var(--surface); border-left:1px solid var(--border);
+  transform:translateX(100%); transition:transform .25s ease;
+  display:flex; flex-direction:column; z-index:120;
+}
+.form-panel.open { transform:translateX(0); }
+.form-topbar { padding:1rem 1.25rem; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:.75rem; flex-shrink:0; }
+#form-title { font-family:'Playfair Display',serif; font-size:1.1rem; flex:1; }
+.btn-close { background:none; border:none; color:var(--text-dim); font-size:1.2rem; cursor:pointer; }
+.btn-close:hover { color:var(--text); }
+.form-scroll { flex:1; overflow-y:auto; padding:1.25rem; }
+.form-section { margin-bottom:1.25rem; }
+.form-section-label { font-family:'Share Tech Mono',monospace; font-size:.58rem; letter-spacing:.15em; color:var(--text-xs); margin-bottom:.6rem; padding-bottom:.35rem; border-bottom:1px solid var(--border); }
+.field { margin-bottom:.7rem; }
+.field label { display:block; font-size:.73rem; color:var(--text-dim); margin-bottom:.25rem; }
+.field input, .field select, .field textarea {
+  width:100%; background:var(--card); border:1px solid var(--border); border-radius:4px;
+  color:var(--text); font-family:'Barlow Condensed',sans-serif; font-size:.9rem; padding:.42rem .6rem; transition:border-color .15s;
+}
+.field input:focus, .field textarea:focus { outline:none; border-color:var(--brass); }
+.field select { appearance:none; }
+.field textarea { resize:vertical; min-height:76px; }
+.field-row { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
+.checkbox-field { display:flex; align-items:center; gap:.5rem; margin-bottom:.5rem; }
+.checkbox-field input[type=checkbox] { width:auto; accent-color:var(--brass); }
+.checkbox-field label { margin:0; cursor:pointer; }
+.form-footer { padding:1rem 1.25rem; border-top:1px solid var(--border); display:flex; gap:.75rem; flex-shrink:0; }
+
+/* BUTTONS */
+.btn-primary {
+  flex:1; padding:.62rem; background:var(--brass); border:none; color:var(--ink);
+  border-radius:4px; font-family:'Barlow Condensed',sans-serif; font-size:.95rem; font-weight:700;
+  letter-spacing:.05em; cursor:pointer; transition:opacity .15s;
+}
+.btn-primary:hover { opacity:.85; }
+.btn-primary.hw { background:var(--heart); color:#fff; }
+.btn-secondary {
+  padding:.62rem 1rem; background:none; border:1px solid var(--border); color:var(--text-dim);
+  border-radius:4px; font-family:'Barlow Condensed',sans-serif; font-size:.95rem; cursor:pointer; transition:all .15s;
+}
+.btn-secondary:hover { border-color:var(--border-hi); color:var(--text); }
+.btn-secondary.danger:hover { border-color:var(--red); color:var(--red); }
+
+/* SIGN-IN MODAL (inline, non-blocking) */
+#signin-modal {
+  position:fixed; inset:0; z-index:200; background:rgba(0,0,0,.65);
+  display:none; align-items:center; justify-content:center;
+}
+.signin-box {
+  background:var(--surface); border:1px solid var(--border); border-radius:8px;
+  padding:2rem 2.5rem; text-align:center; max-width:340px; width:100%;
+}
+.signin-box h2 { font-family:'Playfair Display',serif; font-size:1.2rem; margin-bottom:.4rem; }
+.signin-box p { color:var(--text-dim); font-size:.85rem; margin-bottom:1.5rem; }
+.btn-google {
+  display:flex; align-items:center; gap:.75rem; justify-content:center;
+  background:#fff; color:#1a1a1a; border:none; border-radius:4px;
+  padding:.7rem 1.5rem; width:100%; font-family:'Barlow Condensed',sans-serif;
+  font-size:1rem; font-weight:600; cursor:pointer; transition:opacity .15s; margin-bottom:.75rem;
+}
+.btn-google:hover { opacity:.9; }
+.btn-cancel { background:none; border:none; color:var(--text-xs); font-size:.8rem; cursor:pointer; }
+.btn-cancel:hover { color:var(--text-dim); }
+
+/* COLLECTION MODAL */
+#collection-modal { position:fixed; inset:0; z-index:200; background:rgba(0,0,0,.65); display:none; align-items:center; justify-content:center; }
+.modal-box { background:var(--surface); border:1px solid var(--border); border-radius:8px; width:420px; max-width:95vw; padding:1.5rem; }
+.modal-title { font-family:'Playfair Display',serif; font-size:1.2rem; margin-bottom:1.25rem; }
+.modal-actions { display:flex; gap:.75rem; margin-top:1.25rem; }
+
+/* TOAST */
+.toast {
+  position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%) translateY(80px);
+  background:var(--card); border:1px solid var(--border); color:var(--text);
+  padding:.55rem 1.25rem; border-radius:6px; font-size:.82rem;
+  font-family:'Share Tech Mono',monospace; letter-spacing:.05em; z-index:500;
+  transition:transform .25s ease, opacity .25s ease; opacity:0; white-space:nowrap;
+}
+.toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+.toast.error   { border-color:var(--red);   color:var(--red);   }
+.toast.success { border-color:var(--green); color:var(--green); }
+
+::-webkit-scrollbar { width:4px; } ::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border-hi); border-radius:3px; }
+</style>
+</head>
+<body>
+
+<div id="loading-bar"></div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-logo">HIL<span>/</span>MUSEUM</div>
+  <div class="mode-tabs">
+    <button class="mode-tab active" data-mode="wunderkammer" onclick="setMode('wunderkammer')">🏛 WUNDERKAMMER</button>
+    <button class="mode-tab" data-mode="history_wall" onclick="setMode('history_wall')">📜 HISTORY WALL</button>
+  </div>
+  <div class="topbar-spacer"></div>
+  <div id="user-chip">
+    <button class="btn-signin-top" onclick="requireAuth(()=>{})">SIGN IN</button>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="body-layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-header-title">ORGANIZE</div>
+    </div>
+    <div id="collection-list"></div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="main-header">
+      <div id="grid-heading">Wunderkammer</div>
+      <div id="item-count-label"></div>
+    </div>
+    <div class="grid-scroll">
+      <div class="item-grid" id="item-grid"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- DETAIL OVERLAY -->
+<div id="detail-overlay" onclick="if(event.target===this)closeDetail()">
+  <div class="detail-box">
+    <div class="detail-close-bar">
+      <button class="btn-close-detail" onclick="closeDetail()">✕ close</button>
+    </div>
+    <div id="detail-inner"></div>
+  </div>
+</div>
+
+<!-- FORM PANEL -->
+<div class="form-panel" id="form-panel">
+  <div class="form-topbar">
+    <div id="form-title">New Record</div>
+    <button class="btn-close" onclick="closeForm()">✕</button>
+  </div>
+  <div class="form-scroll">
+
+    <!-- WK FORM -->
+    <div id="panel-wk">
+    <form id="wk-form" onsubmit="return false">
+      <div class="form-section">
+        <div class="form-section-label">IDENTITY</div>
+        <div class="field"><label>Display Name *</label><input id="wk-display-name" type="text" placeholder="Champion Hand Crank Grinder"></div>
+        <div class="field"><label>System Name (noun-first)</label><input id="wk-name" type="text" placeholder="TOOL-GRINDER-HAND-CRANK"></div>
+        <div class="field-row">
+          <div class="field"><label>Manufacturer</label><input id="wk-manufacturer" type="text" placeholder="Champion Blower"></div>
+          <div class="field"><label>Year / Era</label><input id="wk-year" type="text" placeholder="c.1910s"></div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-label">STORY</div>
+        <div class="field"><label>Short Description</label><input id="wk-description" type="text" placeholder="One or two sentences"></div>
+        <div class="field"><label>Full Narrative</label><textarea id="wk-narrative" rows="4" placeholder="The full story — no limit"></textarea></div>
+        <div class="field"><label>Provenance</label><textarea id="wk-provenance" rows="3" placeholder="Origin, previous owners, how it arrived"></textarea></div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-label">CLASSIFICATION</div>
+        <div class="field-row">
+          <div class="field"><label>Category</label><select id="wk-category"><option value="">—</option><option>tool</option><option>collectible</option><option>heirloom</option><option>ephemera</option><option>media</option><option>artwork</option><option>document</option><option>specimen</option><option>other</option></select></div>
+          <div class="field"><label>Condition</label><select id="wk-condition"><option value="">—</option><option>mint</option><option>excellent</option><option>good</option><option>fair</option><option>poor</option><option>unknown</option></select></div>
+        </div>
+        <div class="field"><label>Tags (comma-separated)</label><input id="wk-tags" type="text" placeholder="signed, sealed, rare, family"></div>
+        <div class="field"><label>Status</label><select id="wk-status"><option value="active">Active — I still have it</option><option value="transferred">Transferred</option><option value="donated">Donated</option><option value="passed_on">Passed on</option><option value="lost">Lost</option></select></div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-label">MEDIA</div>
+        <div class="field"><label>Hero Photo URL</label><input id="wk-hero-photo" type="url" placeholder="https://pub-…r2.dev/photo.jpg"></div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-label">PLACEMENT</div>
+        <div class="field"><label>Collection</label><select id="wk-collection-id"><option value="">— No collection —</option></select></div>
+        <div class="checkbox-field"><input type="checkbox" id="wk-crown"><label for="wk-crown">👑 Crown Piece of this collection</label></div>
+        <div class="checkbox-field"><input type="checkbox" id="wk-public"><label for="wk-public">Public — visible without login</label></div>
+      </div>
+    </form>
+    </div>
+
+    <!-- HW FORM -->
+    <div id="panel-hw" style="display:none">
+    <form id="hw-form" onsubmit="return false">
+      <div class="form-section">
+        <div class="form-section-label">RECORD TITLE</div>
+        <div class="field"><label>Display Name *</label><input id="hw-display-name" type="text" placeholder="Army-Green Cabinet of Dr. Harry Piper"></div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-label">THE PERSON</div>
+        <div class="field"><label>Full Name</label><input id="hw-person" type="text" placeholder="Dr. Harry Benjamin Piper, DVM"></div>
+        <div class="field-row">
+          <div class="field"><label>Relationship</label><input id="hw-relationship" type="text" placeholder="Great-great-grandfather"></div>
+          <div class="field"><label>Dates</label><input id="hw-dates" type="text" placeholder="1888–1972"></div>
+        </div>
+        <div class="field"><label>Location</label><input id="hw-location" type="text" placeholder="Sharon, Wisconsin"></div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-label">THE STORY</div>
+        <div class="field"><label>Full Narrative</label><textarea id="hw-narrative" rows="5" placeholder="The full story — who this person was, what this object meant"></textarea></div>
+        <div class="field"><label>Historical Significance</label><textarea id="hw-significance" rows="3" placeholder="Why this record matters beyond the family"></textarea></div>
+        <div class="field"><label>Transfer Story</label><textarea id="hw-transfer-story" rows="3" placeholder="How it passed hands — the moment of inheritance"></textarea></div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-label">MEDIA</div>
+        <div class="field"><label>Hero Photo URL</label><input id="hw-hero-photo" type="url" placeholder="https://pub-…r2.dev/photo.jpg"></div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-label">VISIBILITY</div>
+        <div class="checkbox-field"><input type="checkbox" id="hw-public"><label for="hw-public">Public — on the shared History Wall</label></div>
+      </div>
+    </form>
+    </div>
+
+  </div>
+  <div class="form-footer">
+    <button class="btn-secondary" onclick="closeForm()">Cancel</button>
+    <button class="btn-primary" id="save-btn" onclick="saveRecord()">Save Record</button>
+  </div>
+</div>
+
+<!-- SIGN-IN MODAL (non-blocking — triggered on first write) -->
+<div id="signin-modal">
+  <div class="signin-box">
+    <h2>Sign in to continue</h2>
+    <p>The wall is public to browse. Sign in to add, edit, or react to records.</p>
+    <button class="btn-google" onclick="doSignIn()">
+      <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 002.38-5.88c0-.57-.05-.66-.15-1.18z"/>
+        <path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 01-7.18-2.54H1.83v2.07A8 8 0 008.98 17z"/>
+        <path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 010-3.04V5.41H1.83a8 8 0 000 7.18l2.67-2.07z"/>
+        <path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 001.83 5.4L4.5 7.49a4.77 4.77 0 014.48-3.31z"/>
+      </svg>
+      Sign in with Google
+    </button>
+    <button class="btn-cancel" onclick="cancelSignIn()">Cancel — keep browsing</button>
+  </div>
+</div>
+
+<!-- COLLECTION MODAL -->
+<div id="collection-modal">
+  <div class="modal-box">
+    <div class="modal-title">New Collection</div>
+    <form id="coll-form" onsubmit="return false">
+      <div class="field"><label>Collection Name *</label><input id="coll-name" type="text" placeholder="Dead Man's Party"></div>
+      <div class="field"><label>Subtitle</label><input id="coll-subtitle" type="text" placeholder="The Oingo Boingo · Danny Elfman Collection"></div>
+      <div class="field"><label>Narrative</label><textarea id="coll-narrative" rows="3" placeholder="Who assembled it, when it started, what holds it together"></textarea></div>
+      <div class="field"><label>Depth Tier</label><select id="coll-tier">
+        <option value="snapshot">Snapshot — one photo + one sentence</option>
+        <option value="documented">Documented — items being added over time</option>
+        <option value="full_record">Full Record — every item individually documented</option>
+      </select></div>
+      <div class="checkbox-field" style="margin-top:.5rem">
+        <input type="checkbox" id="coll-public"><label for="coll-public">Public museum</label>
+      </div>
+    </form>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeCollectionModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveCollection()">Create Collection</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+</body>
+</html>
