@@ -692,9 +692,7 @@ onAuthStateChanged(auth, async user => {
     setSyncDot('syncing');
     const vaultRef = collection(db, 'users', user.uid, 'item_records');
     const q = query(vaultRef, orderBy('created', 'desc'));
-
-    unsubscribeSnapshot = onSnapshot(q, snapshot => {
-      window.records = snapshot.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
+  
       renderRecords();
       setSyncDot('ok');
     }, err => {
