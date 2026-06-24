@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>R2 Direct Test</title>
+<style>
+  body { background: #0d0f0e; color: #dde8e2; font-family: monospace; padding: 40px; }
+  h1 { color: #4cff91; }
+  .box { background: #141816; border: 1px solid #2a302c; padding: 24px; max-width: 500px; }
+  input[type=file] { color: #dde8e2; margin: 16px 0; display: block; }
+  button { background: #4cff91; color: #000; border: none; padding: 10px 24px; font-family: monospace; font-size: 14px; cursor: pointer; font-weight: bold; margin: 4px 0; display: block; }
+  #status { margin-top: 20px; font-size: 13px; line-height: 1.8; }
+  .ok { color: #4cff91; }
+  .err { color: #ff5c5c; }
+  .url { color: #ffd84c; word-break: break-all; }
+</style>
+</head>
+<body>
+<h1>R2 Connection Tests</h1>
+<div class="box">
+
+  <div style="font-size:12px;color:#6b7d72;margin-bottom:16px;">
+    Bucket public URL: pub-1a3ad1ec5a8042dc9cadf659089fe52c.r2.dev<br>
+    Worker: hilsystem-r2-signer.dvo77.workers.dev
+  </div>
+
+  <div style="font-family:monospace;font-size:10px;color:#4cff91;letter-spacing:2px;margin-bottom:8px;">TEST 1 — PING WORKER</div>
+  <button onclick="pingWorker()">Ping Worker (OPTIONS)</button>
+
+  <div style="font-family:monospace;font-size:10px;color:#4cff91;letter-spacing:2px;margin:16px 0 8px;">TEST 2 — WORKER UPLOAD</div>
+  <input type="file" id="file-input" accept="image/*">
+  <button onclick="workerUpload()">Upload via Worker</button>
+
+  <div style="font-family:monospace;font-size:10px;color:#4cff91;letter-spacing:2px;margin:16px 0 8px;">TEST 3 — READ PUBLIC BUCKET</div>
+  <button onclick="testPublicRead()">Read Public Bucket URL</button>
+
+  <div id="status"></div>
+</div>
+
+<script>
+const WORKER = "https://hilsystem-r2-signer.dvo77.workers.dev";
+const PUBLIC = "https://pub-1a3ad1ec5a8042dc9cadf659089fe52c.r2.dev";
+
+function log(msg) {
+  document.getElementById('status').innerHTML += msg + '<br>';
+}
+function clear() {
+  document.getElementById('status').innerHTML = '';
+}
+
+async function pingWorker() {
+  clear();
+  log('⏳ Sending OPTIONS to Worker...');
+  try {
+    const res = await fetch(WORKER, { method: 'OPTIONS' });
+    log(`<span class="ok">✓ OPTIONS response: ${res.status}</span>`);
+    log('CORS headers:');
+    res.headers.forEach((v,k) => {
+      if (k.toLowerCase().includes('access-control')) log(`&nbsp;&nbsp;${k}: ${v}`);
+    });
+  } catch(e) {
+    log(`<span class="err">✕ Failed: ${e.message}</span>`);
+  }
+}
+
+async function workerUpload() {
+  clear();
+  const file = document.getElementById('file-input').files[0];
+  if (!file) { log('<span class="err">Pick a file first</span>'); return; }
+
+  log('⏳ Reading file as base64...');
+  const base64 = await toBase64(file);
+  const data = base64.split(',')[1];
+
+  log('⏳ POSTing to Worker...');
+  try {
+    const res = await fetch(WORKER, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename: file.name, contentType: file.type, data })
+    });
+    const text = await res.text();
+    if (res.ok) {
+      const json = JSON.parse(text);
+      log(`<span class="ok">✓ Upload success!</span>`);
+      log(`Key: <span class="url">${json.key}</span>`);
+      log(`<a href="${json.publicUrl}" target="_blank" class="url">View in R2 →</a>`);
+    } else {
+      log(`<span class="err">✕ Worker error ${res.status}: ${text}</span>`);
+    }
+  } catch(e) {
+    log(`<span class="err">✕ Fetch failed: ${e.message}</span>`);
+  }
+}
+
+async function testPublicRead() {
+  clear();
+  log('⏳ Testing public bucket read...');
+  try {
+    const res = await fetch(PUBLIC + '/test-read-' + Date.now(), { method: 'GET' });
+    log(`Response: ${res.status} ${res.statusText}`);
+    if (res.status === 404) {
+      log('<span class="ok">✓ Bucket is reachable (404 = file not found, bucket accessible)</span>');
+    } else {
+      log(`<span class="ok">✓ Bucket responded: ${res.status}</span>`);
+    }
+  } catch(e) {
+    log(`<span class="err">✕ Bucket unreachable: ${e.message}</span>`);
+  }
+}
+
+function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+</script>
+</body>
+</html>
