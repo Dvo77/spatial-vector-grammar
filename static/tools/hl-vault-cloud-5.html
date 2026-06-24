@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HL Vault</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f0e;
+  --surface: #141816;
+  --surface2: #1c201e;
+  --surface3: #222824;
+  --border: #2a302c;
+  --accent: #4cff91;
+  --accent2: #00c9ff;
+  --accent3: #ffd84c;
+  --danger: #ff5c5c;
+  --text: #dde8e2;
+  --muted: #6b7d72;
+  --mono: 'Share Tech Mono', monospace;
+  --head: 'Barlow Condensed', sans-serif;
+  --body: 'Barlow', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--body); min-height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ── AUTH GATE ── */
+#auth-gate {
+  position: fixed; inset: 0; background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9000; flex-direction: column; gap: 0;
+}
+.auth-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  width: 380px;
+  overflow: hidden;
+}
+.auth-card-header {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  padding: 24px;
+  display: flex; align-items: center; gap: 16px;
+}
+.auth-logo-box {
+  width: 44px; height: 44px;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--head); font-weight: 900; font-size: 20px; color: #000;
+  flex-shrink: 0;
+}
+.auth-title {
+  font-family: var(--head); font-weight: 900;
+  font-size: 26px; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--accent);
+  line-height: 1;
+}
+.auth-sub {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--muted); letter-spacing: 2px;
+  margin-top: 3px;
+}
+.auth-body { padding: 28px; display: flex; flex-direction: column; gap: 16px; }
+.auth-desc {
+  font-family: var(--mono); font-size: 11px;
+  color: var(--muted); line-height: 1.7; letter-spacing: 0.5px;
+}
+.btn-google {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  width: 100%; padding: 13px;
+  background: #fff; border: none; cursor: pointer;
+  font-family: var(--head); font-weight: 700;
+  font-size: 15px; letter-spacing: 1px;
+  text-transform: uppercase; color: #1a1a1a;
+  transition: background 0.15s;
+}
+.btn-google:hover { background: #f0f0f0; }
+.btn-google svg { flex-shrink: 0; }
+.auth-footer {
+  padding: 14px 28px;
+  border-top: 1px solid var(--border);
+  font-family: var(--mono); font-size: 10px;
+  color: var(--muted); text-align: center; line-height: 1.6;
+}
+.auth-error {
+  font-family: var(--mono); font-size: 11px;
+  color: var(--danger); text-align: center;
+  min-height: 16px;
+}
+.auth-loading {
+  font-family: var(--mono); font-size: 12px;
+  color: var(--accent); text-align: center;
+  letter-spacing: 2px; animation: blink 1.2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* ── HEADER ── */
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex; align-items: center; gap: 0;
+  height: 56px; flex-shrink: 0;
+}
+.logo { display: flex; align-items: center; gap: 12px; margin-right: 32px; }
+.logo-box { width: 34px; height: 34px; background: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--head); font-weight: 900; font-size: 16px; color: #000; letter-spacing: -1px; }
+.logo h1 { font-family: var(--head); font-weight: 900; font-size: 20px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); }
+.logo span { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; }
+.nav-tabs { display: flex; height: 100%; }
+.nav-tab { padding: 0 20px; font-family: var(--mono); font-size: 11px; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; transition: all 0.15s; background: none; border-top: none; border-left: none; border-right: none; }
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.header-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.hbtn { background: none; border: 1px solid var(--border); color: var(--muted); font-family: var(--mono); font-size: 10px; padding: 5px 14px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: all 0.15s; }
+.hbtn:hover { border-color: var(--accent); color: var(--accent); }
+.hbtn.primary { background: var(--accent); border-color: var(--accent); color: #000; font-weight: bold; }
+.hbtn.primary:hover { background: #6fffaa; }
+.user-chip {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--mono); font-size: 10px; color: var(--muted);
+  border: 1px solid var(--border); padding: 4px 10px;
+}
+.user-chip img { width: 20px; height: 20px; border-radius: 50%; }
+.sync-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--accent); display: inline-block;
+  box-shadow: 0 0 6px var(--accent);
+}
+.sync-dot.syncing { animation: blink 0.8s infinite; background: var(--accent3); }
+.sync-dot.error { background: var(--danger); }
+
+/* ── LAYOUT ── */
+.app { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 56px); }
+
+/* ── SIDEBAR ── */
+.sidebar { width: 220px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
+.sidebar-section { padding: 16px 16px 8px; }
+.sidebar-label { font-family: var(--mono); font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 8px; }
+.filter-btn { display: block; width: 100%; text-align: left; padding: 7px 12px; font-family: var(--mono); font-size: 11px; color: var(--muted); background: none; border: none; cursor: pointer; letter-spacing: 1px; border-left: 2px solid transparent; transition: all 0.12s; }
+.filter-btn:hover { color: var(--text); background: var(--surface2); }
+.filter-btn.active { color: var(--accent); border-left-color: var(--accent); background: var(--surface2); }
+.filter-btn .count { float: right; color: var(--muted); font-size: 10px; }
+.filter-btn.active .count { color: var(--accent); }
+.sidebar-divider { border: none; border-top: 1px solid var(--border); margin: 8px 16px; }
+
+/* ── MAIN ── */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.toolbar { padding: 12px 20px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.search-wrap { flex: 1; position: relative; max-width: 400px; }
+.search-wrap input { width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 13px; padding: 8px 12px 8px 34px; outline: none; transition: border-color 0.15s; }
+.search-wrap input:focus { border-color: var(--accent); }
+.search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; pointer-events: none; }
+.sort-select { background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 11px; padding: 8px 12px; outline: none; cursor: pointer; }
+.sort-select option { background: var(--surface2); }
+.toolbar-right { margin-left: auto; display: flex; gap: 8px; }
+.stats-bar { display: flex; gap: 0; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.stat { flex: 1; padding: 12px 20px; border-right: 1px solid var(--border); }
+.stat:last-child { border-right: none; }
+.stat-val { font-family: var(--head); font-weight: 900; font-size: 28px; color: var(--accent); line-height: 1; }
+.stat-label { font-family: var(--mono); font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-top: 2px; }
+.records-area { flex: 1; overflow-y: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead { position: sticky; top: 0; z-index: 10; }
+th { background: var(--surface2); padding: 10px 16px; font-family: var(--mono); font-size: 9px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; cursor: pointer; user-select: none; }
+th:hover { color: #fff; }
+td { padding: 11px 16px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text); vertical-align: middle; }
+tr:hover td { background: var(--surface2); }
+.addr-cell { font-family: var(--mono); font-size: 12px; color: var(--accent3); white-space: nowrap; }
+.item-cell { font-family: var(--mono); font-size: 11px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cat-pill { display: inline-block; padding: 2px 8px; font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1px; border: 1px solid; }
+.cat-TOOL { color: var(--accent2); border-color: var(--accent2); }
+.cat-FASTENER { color: #a0c4a0; border-color: #a0c4a0; }
+.cat-APPLIANCE { color: var(--accent3); border-color: var(--accent3); }
+.cat-HEIRLOOM { color: #ff9ecd; border-color: #ff9ecd; }
+.cat-ZONE { color: var(--accent); border-color: var(--accent); }
+.cat-CONTAINER { color: #c4a0ff; border-color: #c4a0ff; }
+.cat-ELECTRICAL { color: #ffb347; border-color: #ffb347; }
+.cat-SUPPLY { color: #87ceeb; border-color: #87ceeb; }
+.cat-OTHER { color: var(--muted); border-color: var(--muted); }
+.cond-cell { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+.val-cell { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+.row-actions { display: flex; gap: 6px; opacity: 0; transition: opacity 0.15s; }
+tr:hover .row-actions { opacity: 1; }
+.row-btn { background: none; border: 1px solid var(--border); color: var(--muted); font-family: var(--mono); font-size: 9px; padding: 3px 8px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: all 0.12s; white-space: nowrap; }
+.row-btn:hover { border-color: var(--accent); color: var(--accent); }
+.row-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+.empty-state { text-align: center; padding: 80px 20px; color: var(--muted); }
+.empty-state .big { font-size: 48px; margin-bottom: 16px; }
+.empty-state h3 { font-family: var(--head); font-weight: 900; font-size: 24px; letter-spacing: 2px; text-transform: uppercase; color: var(--text); margin-bottom: 8px; }
+.empty-state p { font-family: var(--mono); font-size: 12px; }
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--surface); border: 1px solid var(--border); width: 640px; max-width: 95vw; max-height: 90vh; display: flex; flex-direction: column; }
+.modal-header { padding: 16px 20px; background: var(--surface2); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.modal-title { font-family: var(--head); font-weight: 900; font-size: 20px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
+.modal-close { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; padding: 0 4px; transition: color 0.15s; }
+.modal-close:hover { color: var(--danger); }
+.modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+.modal-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; flex-shrink: 0; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-group label { font-family: var(--mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.form-group input, .form-group select, .form-group textarea { background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 13px; padding: 9px 12px; outline: none; width: 100%; transition: border-color 0.15s; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); }
+.form-group textarea { resize: vertical; min-height: 80px; }
+.form-group select option { background: var(--surface2); }
+.addr-preview-form { background: var(--bg); border: 1px solid var(--accent); padding: 8px 12px; font-family: var(--mono); font-size: 16px; color: var(--accent); text-align: center; letter-spacing: 3px; margin-top: 6px; }
+.form-section-label { font-family: var(--mono); font-size: 9px; color: var(--accent); text-transform: uppercase; letter-spacing: 3px; margin: 16px 0 10px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+.addr-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.detail-field label { font-family: var(--mono); font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 3px; }
+.detail-field .val { font-family: var(--mono); font-size: 13px; color: var(--text); }
+.detail-field .val.accent { color: var(--accent3); font-size: 16px; }
+.notes-block { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent); padding: 14px 16px; font-size: 14px; color: var(--text); line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
+.export-option { background: var(--surface2); border: 1px solid var(--border); padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+.export-option h4 { font-family: var(--head); font-weight: 700; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; color: #fff; }
+.export-option p { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 3px; }
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--accent); color: var(--accent); font-family: var(--mono); font-size: 12px; padding: 10px 20px; letter-spacing: 1px; z-index: 9999; transform: translateY(60px); opacity: 0; transition: all 0.3s; }
+.toast.show { transform: translateY(0); opacity: 1; }
+.page { display: none; }
+.page.active { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+.status { padding: 5px 20px; background: var(--surface2); border-top: 1px solid var(--border); font-family: var(--mono); font-size: 10px; color: var(--muted); display: flex; gap: 24px; flex-shrink: 0; }
+.status span { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- ── AUTH GATE ── -->
+<div id="auth-gate">
+  <div class="auth-card">
+    <div class="auth-card-header">
+      <div class="auth-logo-box">HL</div>
+      <div>
+        <div class="auth-title">Vault</div>
+        <div class="auth-sub">Human Layer System · hilsystem.com</div>
+      </div>
+    </div>
+    <div class="auth-body">
+      <div class="auth-desc" id="auth-desc">
+        Your inventory. Your records. Synced to your Google account —
+        accessible from any device, private to you.
+      </div>
+      <div class="auth-error" id="auth-error"></div>
+      <button class="btn-google" id="btn-google-signin" onclick="signInWithGoogle()">
+        <svg width="20" height="20" viewBox="0 0 48 48">
+          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+          <path fill="none" d="M0 0h48v48H0z"/>
+        </svg>
+        Sign in with Google
+      </button>
+      <div class="auth-loading" id="auth-loading" style="display:none">Authenticating…</div>
+    </div>
+    <div class="auth-footer">
+      Records are stored in your private Firestore collection.<br>
+      Only you can access your data. No sharing without your action.
+    </div>
+  </div>
+</div>
+
+<!-- ── MAIN APP (hidden until auth) ── -->
+<div id="app-shell" style="display:none;flex-direction:column;height:100vh">
+
+<header>
+  <div class="logo">
+    <div class="logo-box">HL</div>
+    <div>
+      <h1>Vault</h1>
+      <span>Human Layer System</span>
+    </div>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('records')">Records</button>
+    <button class="nav-tab" onclick="showPage('dashboard')">Dashboard</button>
+    <button class="nav-tab" onclick="showPage('export')">Export / Import</button>
+    <button class="nav-tab" onclick="showPage('kits')">Kits</button>
+  </div>
+  <div class="header-right">
+    <span class="sync-dot" id="sync-dot" title="Firestore sync status"></span>
+    <div class="user-chip" id="user-chip">
+      <span id="user-email" style="font-size:10px;">—</span>
+    </div>
+    <button class="hbtn" onclick="signOut()">Sign Out</button>
+    <button class="hbtn" onclick="openImportDialog()">Import JSON</button>
+    <button class="hbtn primary" onclick="openAddModal()">+ Add Record</button>
+  </div>
+</header>
+
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Filter by Category</div>
+      <button class="filter-btn active" onclick="setFilter('all')" id="f-all">All Records <span class="count" id="fc-all">0</span></button>
+      <button class="filter-btn" onclick="setFilter('TOOL')" id="f-TOOL">Tools <span class="count" id="fc-TOOL">0</span></button>
+      <button class="filter-btn" onclick="setFilter('FASTENER')" id="f-FASTENER">Fasteners <span class="count" id="fc-FASTENER">0</span></button>
+      <button class="filter-btn" onclick="setFilter('APPLIANCE')" id="f-APPLIANCE">Appliances <span class="count" id="fc-APPLIANCE">0</span></button>
+      <button class="filter-btn" onclick="setFilter('HEIRLOOM')" id="f-HEIRLOOM">Heirlooms <span class="count" id="fc-HEIRLOOM">0</span></button>
+      <button class="filter-btn" onclick="setFilter('ZONE')" id="f-ZONE">Zones <span class="count" id="fc-ZONE">0</span></button>
+      <button class="filter-btn" onclick="setFilter('CONTAINER')" id="f-CONTAINER">Containers <span class="count" id="fc-CONTAINER">0</span></button>
+      <button class="filter-btn" onclick="setFilter('ELECTRICAL')" id="f-ELECTRICAL">Electrical <span class="count" id="fc-ELECTRICAL">0</span></button>
+      <button class="filter-btn" onclick="setFilter('SUPPLY')" id="f-SUPPLY">Supplies <span class="count" id="fc-SUPPLY">0</span></button>
+      <button class="filter-btn" onclick="setFilter('OTHER')" id="f-OTHER">Other <span class="count" id="fc-OTHER">0</span></button>
+    </div>
+    <hr class="sidebar-divider">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Filter by Structure</div>
+      <div id="struct-filters"></div>
+    </div>
+    <hr class="sidebar-divider">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Flagged</div>
+      <button class="filter-btn" onclick="setFilter('flagged')" id="f-flagged">High Value / Estate <span class="count" id="fc-flagged">0</span></button>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- RECORDS PAGE -->
+    <div class="page active" id="page-records">
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input type="text" id="search-input" placeholder="Search address, item, name, notes…" oninput="renderRecords()">
+        </div>
+        <select class="sort-select" id="sort-select" onchange="renderRecords()">
+          <option value="date-desc">Newest First</option>
+          <option value="date-asc">Oldest First</option>
+          <option value="addr-asc">Address A→Z</option>
+          <option value="item-asc">Item Name A→Z</option>
+          <option value="value-desc">Highest Value</option>
+        </select>
+        <div class="toolbar-right">
+          <button class="hbtn" onclick="exportCSV()">↓ CSV</button>
+          <button class="hbtn" onclick="exportJSON()">↓ JSON</button>
+          <button class="hbtn" onclick="exportMarkdown()">↓ Markdown</button>
+        </div>
+      </div>
+      <div class="stats-bar">
+        <div class="stat"><div class="stat-val" id="stat-total">0</div><div class="stat-label">Total Records</div></div>
+        <div class="stat"><div class="stat-val" id="stat-value">$0</div><div class="stat-label">Total Est. Value</div></div>
+        <div class="stat"><div class="stat-val" id="stat-heirlooms">0</div><div class="stat-label">Heirlooms</div></div>
+        <div class="stat"><div class="stat-val" id="stat-zones">0</div><div class="stat-label">Zones Mapped</div></div>
+        <div class="stat"><div class="stat-val" id="stat-shown">0</div><div class="stat-label">Showing</div></div>
+      </div>
+      <div class="records-area">
+        <table>
+          <thead>
+            <tr>
+              <th onclick="setSortCol('address')">Address ↕</th>
+              <th onclick="setSortCol('itemName')">Item Name ↕</th>
+              <th onclick="setSortCol('friendlyName')">Human Name ↕</th>
+              <th onclick="setSortCol('category')">Category ↕</th>
+              <th onclick="setSortCol('condition')">Condition</th>
+              <th onclick="setSortCol('value')">Value ↕</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="records-tbody"></tbody>
+        </table>
+        <div class="empty-state" id="empty-state" style="display:none">
+          <div class="big">📦</div>
+          <h3>Vault is Empty</h3>
+          <p>Click "+ Add Record" to create your first HL record,<br>or import a JSON backup to restore your vault.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD PAGE -->
+    <div class="page" id="page-dashboard">
+      <div style="padding:32px;overflow-y:auto;flex:1">
+        <h2 style="font-family:var(--head);font-weight:900;font-size:36px;letter-spacing:3px;text-transform:uppercase;color:#fff;margin-bottom:24px">Vault Dashboard</h2>
+        <div id="dashboard-content"></div>
+      </div>
+    </div>
+
+    <!-- EXPORT / IMPORT PAGE -->
+    <div class="page" id="page-export">
+      <div style="padding:32px;overflow-y:auto;flex:1;max-width:700px">
+        <h2 style="font-family:var(--head);font-weight:900;font-size:36px;letter-spacing:3px;text-transform:uppercase;color:#fff;margin-bottom:6px">Export & Import</h2>
+        <p style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:28px">Your data lives in Firestore — synced to your account. Export for local backups.</p>
+
+        <div style="font-family:var(--mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:3px;margin-bottom:12px">Export</div>
+        <div class="export-option">
+          <div><h4>JSON Backup</h4><p>Complete vault backup. Restore or migrate to another device.</p></div>
+          <button class="hbtn primary" onclick="exportJSON()">↓ Download JSON</button>
+        </div>
+        <div class="export-option">
+          <div><h4>CSV Spreadsheet</h4><p>Open in Excel, Google Sheets, or Numbers.</p></div>
+          <button class="hbtn" onclick="exportCSV()">↓ Download CSV</button>
+        </div>
+        <div class="export-option">
+          <div><h4>Markdown Wiki</h4><p>All records as Markdown. Paste into Obsidian, Wiki.js, or GitHub.</p></div>
+          <button class="hbtn" onclick="exportMarkdown()">↓ Download .md</button>
+        </div>
+        <div class="export-option">
+          <div><h4>Estate Package</h4><p>All records formatted for estate handling. Print and file.</p></div>
+          <button class="hbtn" onclick="exportEstate()">↓ Download Estate .txt</button>
+        </div>
+
+        <div style="font-family:var(--mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:3px;margin:28px 0 12px">Import</div>
+        <div class="export-option" style="flex-direction:column;align-items:stretch;gap:12px">
+          <div><h4>Import JSON Backup</h4><p>Restore from a previous export. Merge keeps existing records; Replace overwrites all.</p></div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <input type="file" id="import-file" accept=".json" style="font-family:var(--mono);font-size:12px;color:var(--muted);background:var(--surface2);border:1px solid var(--border);padding:6px 10px;flex:1">
+            <button class="hbtn" onclick="importJSON('merge')">Merge</button>
+            <button class="hbtn" onclick="importJSON('replace')" style="border-color:var(--danger);color:var(--danger)">Replace All</button>
+          </div>
+        </div>
+
+        <div style="font-family:var(--mono);font-size:9px;color:var(--danger);text-transform:uppercase;letter-spacing:3px;margin:28px 0 12px">Danger Zone</div>
+        <div class="export-option" style="border-color:var(--danger)">
+          <div><h4 style="color:var(--danger)">Clear All Records</h4><p>Permanently deletes everything from Firestore. Export first.</p></div>
+          <button class="hbtn" onclick="clearAll()" style="border-color:var(--danger);color:var(--danger)">Clear Vault</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- KITS PAGE -->
+    <div class="page" id="page-kits">
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input type="text" id="kits-search" placeholder="Search kits, capabilities, addresses…" oninput="renderKits()">
+        </div>
+        <select class="sort-select" id="kits-domain-filter" onchange="renderKits()">
+          <option value="">All Domains</option>
+          <option value="machining_metalwork">Machining &amp; Metalwork</option>
+          <option value="woodcraft_restoration">Woodcraft &amp; Restoration</option>
+          <option value="fine_arts_musical">Fine Arts &amp; Musical</option>
+          <option value="materia_medica_lab">Materia Medica / Lab</option>
+          <option value="domestic_culinary">Domestic &amp; Culinary</option>
+          <option value="outdoor_homestead">Outdoor &amp; Homestead</option>
+        </select>
+        <div class="toolbar-right">
+          <span id="kits-count" style="font-family:var(--mono);font-size:11px;color:var(--muted)">-- kits</span>
+        </div>
+      </div>
+      <div class="stats-bar">
+        <div class="stat"><div class="stat-val" id="kstat-total">0</div><div class="stat-label">Total Kits</div></div>
+        <div class="stat"><div class="stat-val" id="kstat-t3">0</div><div class="stat-label">Tier 3 / Pro</div></div>
+        <div class="stat"><div class="stat-val" id="kstat-prov">0</div><div class="stat-label">Provenance Flagged</div></div>
+        <div class="stat"><div class="stat-val" id="kstat-caps">0</div><div class="stat-label">Capabilities</div></div>
+      </div>
+      <div class="records-area">
+        <div id="kits-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1px;background:var(--border)">
+        </div>
+        <div class="empty-state" id="kits-empty" style="display:none">
+          <div class="big">&#x1F9F0;</div>
+          <h3>No Kits Found</h3>
+          <p>Run the HIL Kit Importer to push kits to Firestore,<br>or adjust your search filter.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="status">
+  <span>HL VAULT <span>v2.0</span></span>
+  <span>RECORDS: <span id="s-total">0</span></span>
+  <span>VALUE: <span id="s-value">$0</span></span>
+  <span id="sync-status-text" style="margin-left:auto;color:var(--accent)">● Firestore connected</span>
+</div>
+
+</div><!-- end app-shell -->
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-overlay" id="modal-edit">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-edit-title">Add Record</span>
+      <button class="modal-close" onclick="closeModal('modal-edit')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-id">
+      <div class="form-section-label">HL Address</div>
+      <div class="addr-row">
+        <div class="form-group"><label>Structure</label><input type="text" id="e-struct" placeholder="HM" maxlength="4" oninput="this.value=this.value.toUpperCase();updateEditAddr()"></div>
+        <div class="form-group"><label>Zone</label><input type="text" id="e-zone" placeholder="WS" maxlength="4" oninput="this.value=this.value.toUpperCase();updateEditAddr()"></div>
+        <div class="form-group"><label>Section</label><input type="text" id="e-section" placeholder="S2" maxlength="4" oninput="this.value=this.value.toUpperCase();updateEditAddr()"></div>
+        <div class="form-group"><label>Shelf</label><input type="text" id="e-shelf" placeholder="A1" maxlength="4" oninput="this.value=this.value.toUpperCase();updateEditAddr()"></div>
+      </div>
+      <div class="addr-preview-form" id="edit-addr-preview">—</div>
+      <div class="form-section-label">Identity</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Item Name (HL format)</label><input type="text" id="e-item" placeholder="TOOL-DRILL-CORDLESS-18V" oninput="this.value=this.value.toUpperCase()"></div>
+        <div class="form-group"><label>Human-Readable Name</label><input type="text" id="e-friendly" placeholder="Workshop South Drill"></div>
+        <div class="form-group"><label>Category</label>
+          <select id="e-category">
+            <option value="">— Select —</option>
+            <option>TOOL</option><option>FASTENER</option><option>APPLIANCE</option>
+            <option>CONTAINER</option><option>ZONE</option><option>ELECTRICAL</option>
+            <option>SUPPLY</option><option>HEIRLOOM</option><option>OTHER</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Condition</label>
+          <select id="e-condition">
+            <option value="">— Select —</option>
+            <option>New</option><option>Excellent</option><option>Good</option>
+            <option>Fair</option><option>Restored</option><option>For Parts</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Make / Manufacturer</label><input type="text" id="e-make" placeholder="Milwaukee, Ford…"></div>
+        <div class="form-group"><label>Model / Variant</label><input type="text" id="e-model" placeholder="M18 FUEL, Model 9N…"></div>
+        <div class="form-group"><label>Est. Value ($)</label><input type="text" id="e-value" placeholder="0.00"></div>
+        <div class="form-group"><label>HA Device Type</label>
+          <select id="e-hatype">
+            <option value="">None / N/A</option>
+            <option>light</option><option>switch</option><option>sensor</option>
+            <option>binary_sensor</option><option>lock</option><option>climate</option>
+            <option>media_player</option><option>camera</option><option>cover</option>
+          </select>
+        </div>
+        <div class="form-group full"><label>Notes / Provenance</label><textarea id="e-notes" placeholder="Story, history, purchase date, anything worth remembering…"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="hbtn" onclick="closeModal('modal-edit')">Cancel</button>
+      <button class="hbtn primary" onclick="saveRecord()">Save Record</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="modal-detail">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="detail-title">Record</span>
+      <button class="modal-close" onclick="closeModal('modal-detail')">✕</button>
+    </div>
+    <div class="modal-body" id="detail-body"></div>
+    <div class="modal-footer">
+      <button class="hbtn" onclick="closeModal('modal-detail')">Close</button>
+      <button class="hbtn" onclick="detailEdit()" id="detail-edit-btn">Edit</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- KIT DETAIL MODAL -->
+<div class="modal-overlay" id="modal-kit">
+  <div class="modal" style="width:700px">
+    <div class="modal-header">
+      <span class="modal-title" id="kit-modal-title">Kit</span>
+      <button class="modal-close" onclick="closeModal('modal-kit')">✕</button>
+    </div>
+    <div class="modal-body" id="kit-modal-body"></div>
+    <div class="modal-footer">
+      <button class="hbtn" onclick="closeModal('modal-kit')">Close</button>
+      <button class="hbtn" id="kit-edit-btn" onclick="openKitEdit()">Edit Kit</button>
+    </div>
+  </div>
+</div>
+
+<!-- KIT EDIT MODAL -->
+<div class="modal-overlay" id="modal-kit-edit">
+  <div class="modal" style="width:680px">
+    <div class="modal-header">
+      <span class="modal-title" id="kit-edit-title">Edit Kit</span>
+      <button class="modal-close" onclick="closeModal('modal-kit-edit')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="ke-id">
+      <div class="form-grid">
+        <div class="form-group"><label>Kit Name</label><input type="text" id="ke-name"></div>
+        <div class="form-group"><label>HL Address</label><input type="text" id="ke-hl" style="font-family:var(--mono)"></div>
+        <div class="form-group full"><label>Description</label><textarea id="ke-description" style="min-height:60px"></textarea></div>
+        <div class="form-group full"><label>Contents Notes</label><textarea id="ke-contents" style="min-height:80px" placeholder="What's physically in this kit..."></textarea></div>
+        <div class="form-group full"><label>Provenance Note</label><textarea id="ke-provenance" style="min-height:80px" placeholder="Who did these tools come from? What's the story?"></textarea></div>
+        <div class="form-group full"><label>Capabilities (comma-separated)</label><textarea id="ke-capabilities" style="min-height:60px" placeholder="linear_measurement, angular_measurement, weight_measurement"></textarea></div>
+        <div class="form-group full"><label>Linked Kits (comma-separated kit IDs)</label><input type="text" id="ke-linked" placeholder="TK-MILL-01, TK-TAP-DIE-01"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="hbtn" onclick="closeModal('modal-kit-edit')">Cancel</button>
+      <button class="hbtn primary" onclick="saveKitEdit()">Save Kit</button>
+    </div>
+  </div>
+</div>
+
+<!-- CAPABILITY DRILL-DOWN MODAL -->
+<div class="modal-overlay" id="modal-cap-drill">
+  <div class="modal" style="width:680px">
+    <div class="modal-header">
+      <span class="modal-title" id="cap-drill-title">Items</span>
+      <button class="modal-close" onclick="closeModal('modal-cap-drill')">✕</button>
+    </div>
+    <div class="modal-body" id="cap-drill-body" style="padding:0">
+      <div id="cap-drill-items"></div>
+      <div id="cap-drill-empty" style="text-align:center;padding:48px 20px;color:var(--muted);font-family:var(--mono);font-size:12px;display:none">
+        No item records found with this kit membership yet.<br><br>
+        Add items via "+ Add Record" in the Records tab,<br>
+        then set kit_memberships to include this kit ID.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="hbtn" onclick="closeModal('modal-cap-drill')">Close</button>
+      <button class="hbtn primary" onclick="closeModal('modal-cap-drill');showPage('records');openAddModal()">+ Add Item to Records</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════════
+     FIREBASE SDK (modular compat build)
+══════════════════════════════════════ -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  onAuthStateChanged,
+  signOut as fbSignOut
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import {
+  getFirestore,
+  collection,
+  doc,
+  setDoc,
+  getDoc,
+  getDocs,
+  deleteDoc,
+  onSnapshot,
+  serverTimestamp,
+  query,
+  orderBy
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+// ── YOUR FIREBASE CONFIG ──
+const firebaseConfig = {
+  apiKey: "AIzaSyARjQ3kD8iz9rD-2Fl1zNASnlVDmvDeVb4",
+  authDomain: "project-97444efa-3b6f-493b-b96.firebaseapp.com",
+  projectId: "project-97444efa-3b6f-493b-b96",
+  storageBucket: "project-97444efa-3b6f-493b-b96.firebasestorage.app",
+  messagingSenderId: "937314472168",
+  appId: "1:937314472168:web:5ad7b916ac01a9e649b95d"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser = null;
+let unsubscribeSnapshot = null;
+
+// ── EXPOSE TO WINDOW so non-module script can call ──
+window._fbSignIn = async () => {
+  document.getElementById('auth-error').textContent = '';
+  document.getElementById('auth-loading').style.display = 'block';
+  document.getElementById('btn-google-signin').style.display = 'none';
+  try {
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+  } catch (err) {
+    document.getElementById('auth-error').textContent = 'Sign-in failed: ' + err.message;
+    document.getElementById('auth-loading').style.display = 'none';
+    document.getElementById('btn-google-signin').style.display = 'flex';
+  }
+};
+
+window._fbSignOut = async () => {
+  if (unsubscribeSnapshot) unsubscribeSnapshot();
+  if (window._kitsUnsub) window._kitsUnsub();
+  await fbSignOut(auth);
+  window.records = [];
+  document.getElementById('app-shell').style.display = 'none';
+  document.getElementById('auth-gate').style.display = 'flex';
+  showToast('Signed out');
+};
+
+// ── AUTH STATE ──
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    currentUser = user;
+    document.getElementById('auth-gate').style.display = 'none';
+    const shell = document.getElementById('app-shell');
+    shell.style.display = 'flex';
+    shell.style.flexDirection = 'column';
+
+    // Show user info
+    document.getElementById('user-email').textContent = user.displayName || user.email;
+
+    // Subscribe to their vault collection — real-time updates
+    setSyncDot('syncing');
+    const vaultRef = collection(db, 'users', user.uid, 'vault_items');
+    const q = query(vaultRef, orderBy('created', 'desc'));
+
+    unsubscribeSnapshot = onSnapshot(q, snapshot => {
+      window.records = snapshot.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
+      renderRecords();
+      setSyncDot('ok');
+    }, err => {
+      console.error('Firestore snapshot error:', err);
+      setSyncDot('error');
+      showToast('Firestore connection error — check console');
+    });
+  // ── KITS COLLECTION LISTENER ──
+  const kitsRef = collection(db, 'users', user.uid, 'kits');
+  const kitsQ = query(kitsRef, orderBy('kit_id'));
+  window._kitsUnsub = onSnapshot(kitsQ, snapshot => {
+    window.kitRecords = snapshot.docs.map(d => ({ ...d.data() }));
+    renderKits();
+  }, err => {
+    console.error('Kits snapshot error:', err);
+  });
+
+  } else {
+    currentUser = null;
+    document.getElementById('auth-gate').style.display = 'flex';
+    document.getElementById('app-shell').style.display = 'none';
+  }
+});
+
+// ── FIRESTORE WRITE ──
+window._saveToFirestore = async (record) => {
+  if (!currentUser) return;
+  setSyncDot('syncing');
+  try {
+    const vaultRef = collection(db, 'users', currentUser.uid, 'vault_items');
+    const docRef = doc(vaultRef, record.id);
+    await setDoc(docRef, {
+      ...record,
+      firestoreId: record.id,
+      updatedServer: serverTimestamp()
+    });
+    setSyncDot('ok');
+  } catch (err) {
+    setSyncDot('error');
+    showToast('Save failed: ' + err.message);
+    console.error(err);
+  }
+};
+
+// ── FIRESTORE DELETE ──
+window._deleteFromFirestore = async (recordId) => {
+  if (!currentUser) return;
+  setSyncDot('syncing');
+  try {
+    const docRef = doc(db, 'users', currentUser.uid, 'vault_items', recordId);
+    await deleteDoc(docRef);
+    setSyncDot('ok');
+  } catch (err) {
+    setSyncDot('error');
+    showToast('Delete failed: ' + err.message);
+    console.error(err);
+  }
+};
+
+// ── BULK WRITE (import) ──
+window._bulkSaveToFirestore = async (records) => {
+  if (!currentUser) return;
+  setSyncDot('syncing');
+  const vaultRef = collection(db, 'users', currentUser.uid, 'vault_items');
+  let saved = 0;
+  for (const r of records) {
+    try {
+      await setDoc(doc(vaultRef, r.id), { ...r, updatedServer: serverTimestamp() });
+      saved++;
+    } catch (err) { console.error('Bulk save error on', r.id, err); }
+  }
+  setSyncDot('ok');
+  showToast(`☁ ${saved} records saved to Firestore`);
+};
+
+// ── BULK DELETE (clear all) ──
+window._clearFirestore = async () => {
+  if (!currentUser) return;
+  setSyncDot('syncing');
+  const vaultRef = collection(db, 'users', currentUser.uid, 'vault_items');
+  const snap = await getDocs(vaultRef);
+  for (const d of snap.docs) await deleteDoc(d.ref);
+  setSyncDot('ok');
+};
+
+// ── KIT WRITE BRIDGE ──
+window._saveKitToFirestore = async (kitId, updates) => {
+  if (!currentUser) return;
+  setSyncDot('syncing');
+  try {
+    const { doc, updateDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    const kitRef = doc(db, 'users', currentUser.uid, 'kits', kitId);
+    const { serverTimestamp: st } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js').then(({setDoc, serverTimestamp}) => {
+      return setDoc(kitRef, { ...updates, updated_at: serverTimestamp() }, { merge: true });
+    });
+    setSyncDot('ok');
+  } catch(err) {
+    setSyncDot('error');
+    showToast('Kit save failed: ' + err.message);
+    console.error(err);
+  }
+};
+
+function setSyncDot(state) {
+  const dot = document.getElementById('sync-dot');
+  const txt = document.getElementById('sync-status-text');
+  dot.className = 'sync-dot';
+  if (state === 'syncing') {
+    dot.classList.add('syncing');
+    if (txt) txt.textContent = '● Syncing…';
+  } else if (state === 'error') {
+    dot.classList.add('error');
+    if (txt) txt.textContent = '● Firestore error';
+  } else {
+    if (txt) txt.textContent = '● Firestore connected';
+  }
+}
+
+</script>
+
+<!-- ── APP LOGIC (non-module, uses window._fb* bridges) ── -->
+<script>
+// ── STATE ──
+window.records = [];
+let activeFilter = 'all';
+let activeStructFilter = null;
+let currentDetailId = null;
+
+function genId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+// ── AUTH BRIDGE ──
+function signInWithGoogle() { window._fbSignIn && window._fbSignIn(); }
+function signOut() { window._fbSignOut && window._fbSignOut(); }
+
+// ── SAVE RECORD ──
+function saveRecord() {
+  const id = document.getElementById('edit-id').value;
+  const addr = getEditAddr();
+  if (!addr) { showToast('Address is required'); return; }
+
+  const existing = id ? records.find(r => r.id === id) : null;
+  const data = {
+    id: id || genId(),
+    address: addr,
+    itemName: document.getElementById('e-item').value,
+    friendlyName: document.getElementById('e-friendly').value,
+    category: document.getElementById('e-category').value || 'OTHER',
+    condition: document.getElementById('e-condition').value,
+    make: document.getElementById('e-make').value,
+    model: document.getElementById('e-model').value,
+    value: document.getElementById('e-value').value,
+    haType: document.getElementById('e-hatype').value,
+    notes: document.getElementById('e-notes').value,
+    created: existing ? existing.created : Date.now(),
+    updated: Date.now()
+  };
+
+  // Write to Firestore — snapshot listener updates local records[] automatically
+  window._saveToFirestore && window._saveToFirestore(data);
+  closeModal('modal-edit');
+  showToast(id ? 'Record updated' : 'Record saved to Firestore');
+}
+
+function deleteRecord(id) {
+  if (!confirm('Delete this record from Firestore? This cannot be undone.')) return;
+  window._deleteFromFirestore && window._deleteFromFirestore(id);
+  showToast('Record deleted');
+}
+
+// ── RENDER ──
+function getFiltered() {
+  const q = (document.getElementById('search-input')?.value || '').toLowerCase();
+  return records.filter(r => {
+    if (activeFilter === 'flagged') {
+      if (r.category !== 'HEIRLOOM' && (parseFloat(r.value)||0) < 100) return false;
+    } else if (activeFilter !== 'all') {
+      if (r.category !== activeFilter) return false;
+    }
+    if (activeStructFilter && !(r.address||'').toUpperCase().startsWith(activeStructFilter)) return false;
+    if (q) {
+      const hay = [r.address, r.itemName, r.friendlyName, r.make, r.model, r.notes, r.category].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function getSorted(list) {
+  const s = document.getElementById('sort-select')?.value || 'date-desc';
+  return [...list].sort((a,b) => {
+    if (s === 'date-desc') return b.created - a.created;
+    if (s === 'date-asc') return a.created - b.created;
+    if (s === 'addr-asc') return (a.address||'').localeCompare(b.address||'');
+    if (s === 'item-asc') return (a.itemName||'').localeCompare(b.itemName||'');
+    if (s === 'value-desc') return (parseFloat(b.value)||0) - (parseFloat(a.value)||0);
+    return 0;
+  });
+}
+
+function renderRecords() {
+  const filtered = getSorted(getFiltered());
+  const tbody = document.getElementById('records-tbody');
+  const empty = document.getElementById('empty-state');
+  if (!tbody) return;
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    if (empty) empty.style.display = 'block';
+  } else {
+    if (empty) empty.style.display = 'none';
+    tbody.innerHTML = filtered.map(r => `
+      <tr onclick="openDetail('${r.id}')" style="cursor:pointer">
+        <td class="addr-cell">${r.address||'—'}</td>
+        <td class="item-cell" title="${r.itemName||''}">${r.itemName||'—'}</td>
+        <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.friendlyName||'—'}</td>
+        <td><span class="cat-pill cat-${r.category||'OTHER'}">${r.category||'OTHER'}</span></td>
+        <td class="cond-cell">${r.condition||'—'}</td>
+        <td class="val-cell">${r.value?'$'+parseFloat(r.value).toLocaleString():'—'}</td>
+        <td onclick="event.stopPropagation()">
+          <div class="row-actions">
+            <button class="row-btn" onclick="openEditModal('${r.id}')">Edit</button>
+            <button class="row-btn danger" onclick="deleteRecord('${r.id}')">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  const total = records.length;
+  const totalVal = records.reduce((s,r)=>s+(parseFloat(r.value)||0),0);
+  const heirlooms = records.filter(r=>r.category==='HEIRLOOM').length;
+  const zones = [...new Set(records.map(r=>(r.address||'').split('-').slice(0,2).join('-')).filter(Boolean))].length;
+
+  ['stat-total','stat-value','stat-heirlooms','stat-zones','stat-shown','s-total','s-value'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (id === 'stat-total' || id === 's-total') el.textContent = total;
+    else if (id === 'stat-value' || id === 's-value') el.textContent = '$' + totalVal.toLocaleString();
+    else if (id === 'stat-heirlooms') el.textContent = heirlooms;
+    else if (id === 'stat-zones') el.textContent = zones;
+    else if (id === 'stat-shown') el.textContent = filtered.length;
+  });
+
+  updateSidebarCounts();
+}
+
+function updateSidebarCounts() {
+  const cats = ['TOOL','FASTENER','APPLIANCE','HEIRLOOM','ZONE','CONTAINER','ELECTRICAL','SUPPLY','OTHER'];
+  const el = id => document.getElementById(id);
+  if (el('fc-all')) el('fc-all').textContent = records.length;
+  cats.forEach(c => { const e = el('fc-'+c); if (e) e.textContent = records.filter(r=>r.category===c).length; });
+  const flagged = records.filter(r=>r.category==='HEIRLOOM'||(parseFloat(r.value)||0)>=100).length;
+  if (el('fc-flagged')) el('fc-flagged').textContent = flagged;
+  const structs = [...new Set(records.map(r=>(r.address||'').split('-')[0]).filter(Boolean))];
+  const sf = el('struct-filters');
+  if (sf) sf.innerHTML = structs.map(s=>`
+    <button class="filter-btn ${activeStructFilter===s?'active':''}" onclick="setStructFilter('${s}')">
+      ${s} <span class="count">${records.filter(r=>(r.address||'').startsWith(s)).length}</span>
+    </button>`).join('');
+}
+
+// ── FILTERS ──
+function setFilter(f) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('f-'+f);
+  if (btn) btn.classList.add('active');
+  renderRecords();
+}
+
+function setStructFilter(s) {
+  activeStructFilter = activeStructFilter === s ? null : s;
+  renderRecords(); updateSidebarCounts();
+}
+
+function setSortCol(col) {
+  const sel = document.getElementById('sort-select');
+  if (!sel) return;
+  if (col === 'value') sel.value = 'value-desc';
+  else if (col === 'address') sel.value = 'addr-asc';
+  else if (col === 'itemName') sel.value = 'item-asc';
+  renderRecords();
+}
+
+// ── ADD / EDIT MODAL ──
+function openAddModal() {
+  document.getElementById('modal-edit-title').textContent = 'Add Record';
+  document.getElementById('edit-id').value = '';
+  ['e-struct','e-zone','e-section','e-shelf','e-item','e-friendly','e-make','e-model','e-value','e-notes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('e-category').value = '';
+  document.getElementById('e-condition').value = '';
+  document.getElementById('e-hatype').value = '';
+  document.getElementById('edit-addr-preview').textContent = '—';
+  document.getElementById('modal-edit').classList.add('open');
+}
+
+function openEditModal(id) {
+  const r = records.find(x => x.id === id);
+  if (!r) return;
+  document.getElementById('modal-edit-title').textContent = 'Edit Record';
+  document.getElementById('edit-id').value = id;
+  const parts = (r.address||'').split('-');
+  document.getElementById('e-struct').value = parts[0]||'';
+  document.getElementById('e-zone').value = parts[1]||'';
+  document.getElementById('e-section').value = parts[2]||'';
+  document.getElementById('e-shelf').value = parts[3]||'';
+  document.getElementById('e-item').value = r.itemName||'';
+  document.getElementById('e-friendly').value = r.friendlyName||'';
+  document.getElementById('e-category').value = r.category||'';
+  document.getElementById('e-condition').value = r.condition||'';
+  document.getElementById('e-make').value = r.make||'';
+  document.getElementById('e-model').value = r.model||'';
+  document.getElementById('e-value').value = r.value||'';
+  document.getElementById('e-hatype').value = r.haType||'';
+  document.getElementById('e-notes').value = r.notes||'';
+  updateEditAddr();
+  document.getElementById('modal-edit').classList.add('open');
+}
+
+function updateEditAddr() {
+  const parts = ['e-struct','e-zone','e-section','e-shelf'].map(id => document.getElementById(id).value).filter(Boolean);
+  document.getElementById('edit-addr-preview').textContent = parts.join('-') || '—';
+}
+
+function getEditAddr() {
+  return ['e-struct','e-zone','e-section','e-shelf'].map(id => document.getElementById(id).value).filter(Boolean).join('-');
+}
+
+// ── DETAIL VIEW ──
+function openDetail(id) {
+  const r = records.find(x => x.id === id);
+  if (!r) return;
+  currentDetailId = id;
+  document.getElementById('detail-title').textContent = r.address || 'Record';
+  document.getElementById('detail-body').innerHTML = `
+    <div class="detail-grid">
+      <div class="detail-field"><label>HL Address</label><div class="val accent">${r.address||'—'}</div></div>
+      <div class="detail-field"><label>Item Name</label><div class="val" style="font-family:var(--mono);font-size:12px">${r.itemName||'—'}</div></div>
+      <div class="detail-field"><label>Human Name</label><div class="val">${r.friendlyName||'—'}</div></div>
+      <div class="detail-field"><label>Category</label><div class="val"><span class="cat-pill cat-${r.category||'OTHER'}">${r.category||'OTHER'}</span></div></div>
+      <div class="detail-field"><label>Make</label><div class="val">${r.make||'—'}</div></div>
+      <div class="detail-field"><label>Model</label><div class="val">${r.model||'—'}</div></div>
+      <div class="detail-field"><label>Condition</label><div class="val">${r.condition||'—'}</div></div>
+      <div class="detail-field"><label>Est. Value</label><div class="val" style="color:var(--accent)">${r.value?'$'+parseFloat(r.value).toLocaleString():'—'}</div></div>
+      <div class="detail-field"><label>HA Type</label><div class="val" style="font-family:var(--mono);font-size:12px">${r.haType||'None'}</div></div>
+      <div class="detail-field"><label>Recorded</label><div class="val" style="font-family:var(--mono);font-size:11px">${new Date(r.created).toLocaleDateString()}</div></div>
+    </div>
+    ${r.notes?`<div style="font-family:var(--mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:3px;margin-bottom:8px">Notes / Provenance</div><div class="notes-block">${r.notes}</div>`:''}
+  `;
+  document.getElementById('modal-detail').classList.add('open');
+}
+
+function detailEdit() {
+  closeModal('modal-detail');
+  if (currentDetailId) openEditModal(currentDetailId);
+}
+
+// ── EXPORT ──
+function downloadFile(content, filename, mime) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], {type: mime}));
+  a.download = filename; a.click();
+}
+
+function exportJSON() {
+  downloadFile(JSON.stringify({ version:'2.0', exported: new Date().toISOString(), records }, null, 2), 'hl-vault-backup.json', 'application/json');
+  showToast('JSON exported');
+}
+
+function exportCSV() {
+  const headers = ['Address','Item Name','Human Name','Category','Make','Model','Condition','Value','HA Type','Notes','Created'];
+  const rows = records.map(r => [r.address, r.itemName, r.friendlyName, r.category, r.make, r.model, r.condition, r.value, r.haType, (r.notes||'').replace(/\n/g,' '), new Date(r.created).toLocaleDateString()].map(v=>`"${(v||'').replace(/"/g,'""')}"`));
+  downloadFile([headers.join(','), ...rows.map(r=>r.join(','))].join('\n'), 'hl-vault-export.csv', 'text/csv');
+  showToast('CSV exported');
+}
+
+function exportMarkdown() {
+  const md = records.map(r=>`# ${r.itemName||r.address}\n> **HL Address:** \`${r.address||'—'}\`\n\n| Field | Value |\n|---|---|\n| **Address** | \`${r.address||'—'}\` |\n| **Make** | ${r.make||'—'} |\n| **Model** | ${r.model||'—'} |\n| **Condition** | ${r.condition||'—'} |\n| **Est. Value** | ${r.value?'$'+r.value:'—'} |\n\n## Notes\n${r.notes||'_No notes recorded._'}\n\n---\n`).join('\n');
+  downloadFile(md, 'hl-vault-wiki.md', 'text/markdown');
+  showToast('Markdown exported');
+}
+
+function exportEstate() {
+  const sorted = [...records].sort((a,b)=>(parseFloat(b.value)||0)-(parseFloat(a.value)||0));
+  const totalVal = records.reduce((s,r)=>s+(parseFloat(r.value)||0),0);
+  let txt = `HL VAULT — ESTATE PACKAGE\nGenerated: ${new Date().toLocaleDateString()}\nTotal Records: ${records.length}\nTotal Est. Value: $${totalVal.toLocaleString()}\n${'═'.repeat(60)}\n\n`;
+  sorted.forEach((r,i)=>{ txt += `RECORD ${String(i+1).padStart(3,'0')}\n${'─'.repeat(40)}\nADDRESS:   ${r.address||'—'}\nITEM:      ${r.itemName||'—'}\nNAME:      ${r.friendlyName||'—'}\nMAKE:      ${[r.make,r.model].filter(Boolean).join(' ')||'—'}\nCONDITION: ${r.condition||'—'}\nVALUE:     ${r.value?'$'+parseFloat(r.value).toLocaleString():'Unknown'}\nNOTES:\n${r.notes||'(none)'}\n\n`; });
+  downloadFile(txt, 'hl-estate-package.txt', 'text/plain');
+  showToast('Estate package exported');
+}
+
+// ── IMPORT ──
+function openImportDialog() { showPage('export'); }
+
+function importJSON(mode) {
+  const file = document.getElementById('import-file').files[0];
+  if (!file) { showToast('Choose a JSON file first'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      const imported = data.records || (Array.isArray(data) ? data : []);
+      if (!imported.length) { showToast('No records found in file'); return; }
+      if (mode === 'replace') {
+        if (!confirm(`Replace all ${records.length} existing records with ${imported.length} imported?`)) return;
+        window._clearFirestore && window._clearFirestore().then(() => {
+          window._bulkSaveToFirestore && window._bulkSaveToFirestore(imported);
+        });
+      } else {
+        const existingIds = new Set(records.map(r=>r.id));
+        const newOnes = imported.filter(r=>!existingIds.has(r.id));
+        window._bulkSaveToFirestore && window._bulkSaveToFirestore(newOnes);
+        showToast(`Merging ${newOnes.length} new records…`);
+      }
+    } catch { showToast('Invalid JSON file'); }
+  };
+  reader.readAsText(file);
+}
+
+function clearAll() {
+  if (!confirm(`Delete all ${records.length} records from Firestore? Export first!`)) return;
+  window._clearFirestore && window._clearFirestore();
+  showToast('Vault cleared');
+}
+
+// ── DASHBOARD ──
+function renderDashboard() {
+  const cats = {}; const structs = {};
+  records.forEach(r => {
+    cats[r.category||'OTHER'] = (cats[r.category||'OTHER']||0)+1;
+    const s = (r.address||'').split('-')[0];
+    if (s) structs[s] = (structs[s]||0)+1;
+  });
+  const topVal = [...records].sort((a,b)=>(parseFloat(b.value)||0)-(parseFloat(a.value)||0)).slice(0,5);
+  const recent = [...records].sort((a,b)=>b.created-a.created).slice(0,5);
+  document.getElementById('dashboard-content').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:3px;margin-bottom:12px">By Category</div>
+        ${Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <span class="cat-pill cat-${k}" style="min-width:100px;text-align:center">${k}</span>
+            <div style="flex:1;background:var(--surface2);height:8px;border:1px solid var(--border)">
+              <div style="width:${records.length?Math.round(v/records.length*100):0}%;height:100%;background:var(--accent);opacity:0.7"></div>
+            </div>
+            <span style="font-family:var(--mono);font-size:11px;color:var(--muted);min-width:24px;text-align:right">${v}</span>
+          </div>`).join('')}
+      </div>
+      <div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:3px;margin-bottom:12px">Top 5 by Value</div>
+        ${topVal.length?topVal.map(r=>`
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);margin-bottom:4px;cursor:pointer" onclick="openDetail('${r.id}')">
+            <div>
+              <div style="font-family:var(--mono);font-size:11px;color:var(--accent3)">${r.address||'—'}</div>
+              <div style="font-size:12px;color:var(--muted)">${r.friendlyName||r.itemName||'—'}</div>
+            </div>
+            <div style="font-family:var(--mono);font-size:14px;color:var(--accent)">$${parseFloat(r.value||0).toLocaleString()}</div>
+          </div>`).join(''):'<p style="font-family:var(--mono);font-size:12px;color:var(--muted)">No values recorded yet</p>'}
+      </div>
+    </div>`;
+}
+
+// ── UI HELPERS ──
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+name)?.classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t=>{
+    const txt = t.textContent.toLowerCase();
+    if (name === 'export' && txt.includes('export')) t.classList.add('active');
+    else if (name === 'dashboard' && txt.includes('dashboard')) t.classList.add('active');
+    else if (name === 'records' && txt.includes('records')) t.classList.add('active');
+    else if (name === 'kits' && txt.includes('kits')) t.classList.add('active');
+  });
+  if (name==='dashboard') renderDashboard();
+  if (name==='kits') renderKits();
+}
+
+function closeModal(id) { document.getElementById(id)?.classList.remove('open'); }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+
+
+// ── KIT EDIT ──
+let _currentKitId = null;
+
+function openKitEdit() {
+  const k = window.kitRecords.find(x => x.kit_id === _currentKitId);
+  if (!k) return;
+  document.getElementById('kit-edit-title').textContent = 'Edit — ' + k.kit_id;
+  document.getElementById('ke-id').value = k.kit_id;
+  document.getElementById('ke-name').value = k.name || '';
+  document.getElementById('ke-hl').value = k.hl_address || '';
+  document.getElementById('ke-description').value = k.description || '';
+  document.getElementById('ke-contents').value = k.contents_notes || '';
+  document.getElementById('ke-provenance').value = k.provenance_note || '';
+  document.getElementById('ke-capabilities').value = (k.capabilities||[]).join(', ');
+  document.getElementById('ke-linked').value = (k.linked_kits||[]).join(', ');
+  closeModal('modal-kit');
+  document.getElementById('modal-kit-edit').classList.add('open');
+}
+
+function saveKitEdit() {
+  const kitId = document.getElementById('ke-id').value;
+  if (!kitId) return;
+  const caps = document.getElementById('ke-capabilities').value
+    .split(',').map(s=>s.trim()).filter(Boolean);
+  const linked = document.getElementById('ke-linked').value
+    .split(',').map(s=>s.trim()).filter(Boolean);
+  const updates = {
+    name:           document.getElementById('ke-name').value,
+    hl_address:     document.getElementById('ke-hl').value,
+    description:    document.getElementById('ke-description').value,
+    contents_notes: document.getElementById('ke-contents').value,
+    provenance_note:document.getElementById('ke-provenance').value,
+    provenance_flag:document.getElementById('ke-provenance').value.length > 0,
+    capabilities:   caps,
+    linked_kits:    linked,
+  };
+  // Write to Firestore via the module bridge
+  window._saveKitToFirestore && window._saveKitToFirestore(kitId, updates);
+  closeModal('modal-kit-edit');
+  showToast('Kit saved to Firestore');
+}
+
+// ── CAPABILITY DRILL-DOWN ──
+function openCapabilityDrill(kitId, capability) {
+  _currentKitId = kitId;
+  const capLabel = capability.replace(/_/g, ' ');
+  document.getElementById('cap-drill-title').textContent = capLabel + ' — items';
+
+  // Filter item records by kit_memberships containing this kitId
+  // Also show ALL records for now since kit_memberships may not be set yet on vault_items
+  const kitItems = (window.records || []).filter(r => {
+    const memberships = r.kit_memberships || [];
+    return memberships.includes(kitId);
+  });
+
+  const container = document.getElementById('cap-drill-items');
+  const empty = document.getElementById('cap-drill-empty');
+
+  if (kitItems.length === 0) {
+    container.innerHTML = '';
+    // Show helpful info about what SHOULD be here
+    const k = window.kitRecords.find(x => x.kit_id === kitId);
+    const hints = k ? (k.contents_notes || '') : '';
+    empty.style.display = 'block';
+    empty.innerHTML = `
+      <div style="font-family:var(--mono);font-size:11px;color:var(--accent);margin-bottom:12px">KIT: ${kitId}</div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:16px">CAPABILITY: ${capLabel}</div>
+      ${hints ? `<div style="background:var(--surface2);border:1px solid var(--border);padding:12px;text-align:left;margin-bottom:16px;font-size:12px;color:var(--text);line-height:1.7"><strong style="color:var(--accent3);font-family:var(--mono);font-size:10px">EXPECTED CONTENTS</strong><br>${hints}</div>` : ''}
+      <div style="color:var(--muted);font-size:11px">No item records linked yet.<br>Add records in the Records tab and set their kit_memberships field to include <strong style="color:var(--accent)">${kitId}</strong>.</div>
+      `;
+  } else {
+    empty.style.display = 'none';
+    container.innerHTML = kitItems.map(r => `
+      <div style="display:flex;align-items:center;gap:16px;padding:14px 20px;border-bottom:1px solid var(--border);cursor:pointer"
+           onmouseover="this.style.background='var(--surface2)'"
+           onmouseout="this.style.background=''"
+           onclick="closeModal('modal-cap-drill');openDetail('${r.id}')">
+        <div style="flex:1">
+          <div style="font-family:var(--mono);font-size:10px;color:var(--accent3)">${r.address||'—'}</div>
+          <div style="font-family:var(--mono);font-size:13px;color:var(--text);margin:2px 0">${r.itemName||'—'}</div>
+          <div style="font-size:12px;color:var(--muted)">${r.friendlyName||''}</div>
+        </div>
+        <div style="text-align:right">
+          <span class="cat-pill cat-${r.category||'OTHER'}">${r.category||'OTHER'}</span>
+          ${r.value ? `<div style="font-family:var(--mono);font-size:12px;color:var(--accent);margin-top:4px">$${parseFloat(r.value).toLocaleString()}</div>` : ''}
+        </div>
+      </div>`).join('');
+  }
+
+  document.getElementById('modal-cap-drill').classList.add('open');
+}
+
+// ── KITS ──
+window.kitRecords = [];
+
+function renderKits() {
+  const q = (document.getElementById('kits-search')?.value || '').toLowerCase();
+  const domainFilter = document.getElementById('kits-domain-filter')?.value || '';
+  
+  let kits = window.kitRecords.filter(k => {
+    if (domainFilter && k.domain !== domainFilter) return false;
+    if (q) {
+      const hay = [k.kit_id, k.name, k.description, (k.capabilities||[]).join(' '), k.hl_address].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  const grid = document.getElementById('kits-grid');
+  const empty = document.getElementById('kits-empty');
+  if (!grid) return;
+
+  // Stats
+  const allKits = window.kitRecords;
+  const el = id => document.getElementById(id);
+  if (el('kstat-total')) el('kstat-total').textContent = allKits.length;
+  if (el('kstat-t3')) el('kstat-t3').textContent = allKits.filter(k=>k.tier===3).length;
+  if (el('kstat-prov')) el('kstat-prov').textContent = allKits.filter(k=>k.provenance_flag).length;
+  const totalCaps = allKits.reduce((s,k)=>s+((k.capabilities||[]).length),0);
+  if (el('kstat-caps')) el('kstat-caps').textContent = totalCaps;
+  if (el('kits-count')) el('kits-count').textContent = kits.length + ' kit' + (kits.length!==1?'s':'');
+
+  if (kits.length === 0) {
+    grid.innerHTML = '';
+    if (empty) empty.style.display = 'block';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+
+  const domainColor = {
+    machining_metalwork: 'var(--accent2)',
+    woodcraft_restoration: '#c4a060',
+    fine_arts_musical: '#ff9ecd',
+    materia_medica_lab: '#a0c4ff',
+    domestic_culinary: '#a0ffc4',
+    outdoor_homestead: '#c4ffa0',
+  };
+
+  grid.innerHTML = kits.map(k => {
+    const dc = domainColor[k.domain] || 'var(--muted)';
+    const caps = (k.capabilities || []);
+    const visibleCaps = caps.slice(0,5);
+    const moreCaps = caps.length > 5 ? caps.length - 5 : 0;
+    return `<div style="background:var(--surface);padding:16px;cursor:pointer;transition:background 0.15s"
+        onmouseover="this.style.background='var(--surface2)'"
+        onmouseout="this.style.background='var(--surface)'"
+        onclick="openKitDetail('${k.kit_id}')">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px">
+        <div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:3px">${k.kit_id}</div>
+          <div style="font-family:var(--head);font-weight:900;font-size:17px;letter-spacing:1px;color:#fff">${k.name}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+          <span style="font-family:var(--mono);font-size:9px;padding:2px 7px;border:1px solid ${dc};color:${dc}">T${k.tier||'?'}</span>
+          <span style="font-family:var(--mono);font-size:9px;padding:2px 7px;border:1px solid var(--border);color:var(--muted)">${k.prefix||'TK'}</span>
+        </div>
+      </div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--accent3);margin-bottom:8px">▸ ${k.hl_address||'—'}</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${k.description||''}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px">
+        ${visibleCaps.map(c=>`<span style="font-family:var(--mono);font-size:9px;padding:2px 6px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);cursor:pointer" onclick="event.stopPropagation();openCapabilityDrill('${k.kit_id}','${c.replace(/'/g,"\\'")}'" title="View items with this capability">${c.replace(/_/g,' ')}</span>`).join('')}
+        ${moreCaps?`<span style="font-family:var(--mono);font-size:9px;padding:2px 6px;color:var(--muted)">+${moreCaps} more</span>`:''}
+      </div>
+      ${k.provenance_flag?`<div style="margin-top:8px;padding:5px 8px;background:#1a1200;border:1px solid #3a2800;font-family:var(--mono);font-size:9px;color:#ffcc00">⚑ PROVENANCE — Item records needed</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function openKitDetail(kitId) {
+  _currentKitId = kitId;
+  const k = window.kitRecords.find(x => x.kit_id === kitId);
+  if (!k) return;
+  document.getElementById('kit-modal-title').textContent = k.kit_id;
+  const caps = (k.capabilities||[]);
+  const linked = (k.linked_kits||[]);
+  document.getElementById('kit-modal-body').innerHTML = `
+    <div class="detail-grid">
+      <div class="detail-field"><label>Kit ID</label><div class="val" style="font-family:var(--mono)">${k.kit_id}</div></div>
+      <div class="detail-field"><label>HL Address</label><div class="val accent">${k.hl_address||'—'}</div></div>
+      <div class="detail-field"><label>Domain</label><div class="val" style="font-family:var(--mono);font-size:11px">${(k.domain||'').replace(/_/g,' ')}</div></div>
+      <div class="detail-field"><label>Tier</label><div class="val">Tier ${k.tier||'—'}</div></div>
+      <div class="detail-field"><label>Prefix</label><div class="val" style="font-family:var(--mono)">${k.prefix||'—'}</div></div>
+      <div class="detail-field"><label>Status</label><div class="val" style="color:var(--accent)">${k.status||'—'}</div></div>
+    </div>
+    <div style="font-family:var(--mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:3px;margin:16px 0 8px">Description</div>
+    <div class="notes-block" style="font-size:13px">${k.description||'—'}</div>
+    <div style="font-family:var(--mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:3px;margin:16px 0 8px">Capabilities (${caps.length})</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">
+      ${caps.map(c=>`<span style="font-family:var(--mono);font-size:10px;padding:3px 8px;background:var(--surface2);border:1px solid var(--border);color:var(--accent2);cursor:pointer" onclick="openCapabilityDrill('${k.kit_id}','${c.replace(/'/g,"\\'")}')" title="View items">${c.replace(/_/g,' ')} ↗</span>`).join('')}
+    </div>
+    ${k.contents_notes?`<div style="font-family:var(--mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:3px;margin:16px 0 8px">Contents Notes</div><div class="notes-block">${k.contents_notes}</div>`:''}
+    ${linked.length?`<div style="font-family:var(--mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:3px;margin:16px 0 8px">Linked Kits</div><div style="display:flex;flex-wrap:wrap;gap:6px">${linked.map(l=>`<span style="font-family:var(--mono);font-size:10px;padding:3px 8px;background:var(--surface2);border:1px solid var(--border);color:var(--accent3);cursor:pointer" onclick="closeModal('modal-kit');openKitDetail('${l}')">${l}</span>`).join('')}</div>`:''}
+    ${k.provenance_flag?`<div style="margin-top:16px;padding:10px 14px;background:#1a1200;border:1px solid #3a2800;font-family:var(--mono);font-size:11px;color:#ffcc00">⚑ PROVENANCE FLAG<br><span style="color:var(--muted);font-size:10px">${k.provenance_note||'Individual item records needed for provenance items in this kit.'}</span></div>`:''}
+    ${k.wiki_ref?`<div style="margin-top:12px;font-family:var(--mono);font-size:10px;color:var(--muted)">Wiki ref: ${k.wiki_ref}</div>`:''}
+  `;
+  document.getElementById('modal-kit').classList.add('open');
+}
+
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target===o) o.classList.remove('open'); });
+});
+</script>
+</body>
+</html>
