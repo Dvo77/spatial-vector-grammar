@@ -1,8 +1,15 @@
-# HL — Human Layer System Grammar v1.0
+## HL System Grammar (Core Doctrine — Not a Tool Page)
 
-*A spatial grammar for making any physical environment machine-readable and human-navigable.*
+**File:** N/A — this is the platform's core addressing spec, not a live tool. No URL to send a user to.
+**Status:** Canonical, locked
+
+**Purpose:** This is the actual rulebook for how every physical location and item in the HIL System gets its address. PATCH should treat this as ground truth whenever a user asks "how do addresses work," "what does this code mean," or asks for help building/reading an HL address.
 
 ---
+
+# HL — Human Layer System Grammar v1.2
+
+*A spatial grammar for making any physical environment machine-readable and human-navigable.*
 
 ## Purpose
 
@@ -13,8 +20,6 @@ That's it. That's the whole problem this solves.
 HL is not an app. It is not a platform. It is a grammar — a set of rules for assigning addresses to physical spaces and the things inside them. Once you speak the grammar, any human, any AI, any scanner, any automation system can understand your space without a manual, without onboarding, and without a proprietary database.
 
 If you know a street address, you already understand HL.
-
----
 
 ## Core Philosophy
 
@@ -27,8 +32,6 @@ Three principles that never bend:
 1. **The physical label is the source of truth.** If the database disagrees with the label on the wall, the label wins until a human decides otherwise.
 2. **Friction is the enemy.** Any rule that makes the system harder to use than no system is a bad rule.
 3. **You can only drop from the left.** Shortening is allowed. Skipping the middle is not.
-
----
 
 ## The Address Format
 
@@ -48,8 +51,8 @@ That's it. Six segments. Read left to right, broad to specific.
 | **ZONE** | The room or sub-area | `MM` = MaxOMess, `OF` = Office, `KTC` = Kitchen Closet | 2–3 letters |
 | **ANCHOR** | Which wall or reference point | `N` `S` `E` `W` `M` `F` `C` | 1 letter |
 | **COL** | Column number, left to right | `1` = far left, counts right | 1–9 |
-| **LEVEL** | Vertical shelf tier | `A` = bottom, counts up | A–T |
-| **DEPTH** | How deep inside | `0` = visible surface, `1–9` = nested deeper | 0–9 |
+| **LEVEL** | Which tier/row — see LEVEL + DEPTH below | `A` = bottom or front, counts up/back | A–T |
+| **DEPTH** | Position across that tier — see LEVEL + DEPTH below | `0` = lone item, `1–9` = position left→right | 0–9 |
 
 ### Anchor Key
 
@@ -64,28 +67,46 @@ That's it. Six segments. Read left to right, broad to specific.
 
 `SH-MM-S3-A1`
 
-Decoded: Shop → MaxOMess zone → South wall → Column 3 → Bottom shelf → Surface level (visible)
+Decoded: Shop → MaxOMess zone → South wall → Column 3 → Bottom tier → Position 1 (leftmost item on that tier)
 
-### Regex Validator (v5.3)
+### Regex Validator
 
 ```
 ^([A-Z]{2})-([A-Z]{2,3})-([NSEWMFC][1-9])-([A-T])([0-9])$
 ```
 
----
+## LEVEL + DEPTH (v1.2, locked Aug 24 2026)
+
+`[LEVEL][DEPTH]` are always **two independent segments, both always present.** They are never collapsed into one overloaded character.
+
+| Segment | Meaning | Counting |
+|---|---|---|
+| **LEVEL** (letter) | Which tier/row/drawer. On a vertical stack (shelves, drawers): bottom-up, `A` = first/bottom. On a flat surface with a front/back distinction (workbench top, cabinet top): `A` = front row, `B` = back row, continuing back. | Bottom→top, or front→back |
+| **DEPTH** (digit) | Position **across** that tier, left to right. | Left→right: `1`, `2`, `3`... |
+| **`0`** | Reserved. Means "no real array to place this in" — a single item sitting alone on its tier, not part of a left-to-right lineup. | — |
+
+**Drawer stacks:** first (bottom) drawer = LEVEL `A`, second = `B`, third = `C`, fourth = `D`, etc. Once a drawer is opened, DEPTH addresses position across the front of that drawer (left-to-right), or `0` if there's just one thing in there. Dense drawers with lots of small parts graduate to a real slot/grid system (WOS-style) instead of guessing at DEPTH.
+
+**Flat tops (workbench, cabinet top, no vertical shelf structure):** LEVEL becomes front-to-back row (`A` = front, `B` = back), DEPTH is left-to-right position within that row, `0` for a lone item with nothing beside it.
+
+### Worked example
+
+Workbench top at `BM-OF-E2`, cabinet-top surface:
+- Cricut machine — sits toward the back, alone in that row → `BM-OF-E2-B0`
+- Money/stapler — front row, one of a couple items → `BM-OF-E2-A1`
+
+**Nesting (informal "behind something"):** not encoded in the address at all. If you need to track "it's behind the blue tote" as real, queryable data, that's the signal to promote the container to a real vessel with a containment/slot relationship instead of trying to squeeze it into an address character.
 
 ## Counting Rules (Immutable)
 
 These never change regardless of how the space is oriented or what's in it.
 
 - **Horizontal:** Left → Right. Column 1 is always the far left of the unit or wall.
-- **Vertical:** Bottom → Top. Level A is always the lowest shelf or position.
-- **Depth:** Front → Back. Depth 0 is always the surface you can see.
+- **Vertical:** Bottom → Top. Level A is always the lowest tier or, on flat surfaces, the frontmost row.
+- **Depth:** Left → Right across a tier. See LEVEL + DEPTH above.
 - **Mobile carts:** Position 1 is always the Northwest corner. Count clockwise.
 
 **Why bottom-up?** Because you can always add a shelf on top and continue the alphabet. You cannot add a shelf at the bottom without renumbering everything above it.
-
----
 
 ## The Sub-Zone Rule
 
@@ -100,7 +121,7 @@ When a smaller space shares walls and access with a parent zone — a closet ins
 
 Use only for physically connected spaces. Independent rooms get their own 2-letter code.
 
----
+**Fixed grid units are sub-zones, not vessels.** Not every row/column grid in the house is a vessel. Permanently sited units (built into a wall, or heavy furniture that isn't a routine-movement item) are addressed through the spatial grammar using this Sub-Zone Rule, not through the Vessel Registry. Test for fixed vs. mobile: not "can this physically be moved," but "is relocation a normal operational event that needs a live current-location system, or would it be a rare re-zoning event if it ever happened." Fixed units get sub-zone codes (e.g. `MM` + `W` → `MMW` for a Wall O' Sort unit inside Max O' Mess). Mobile grid containers (tool chests, portable cases, totes) are vessels.
 
 ## Code Shortening Rules
 
@@ -118,8 +139,6 @@ The full canonical address always lives in the database and the QR code payload.
 
 The address format itself is the identifier. You do not need a prefix or logo mark to signal that an address is an HL address. The structure is unmistakable.
 
----
-
 ## The Three Identity Layers
 
 Every physical item in the system has three pieces of identity that work together:
@@ -131,8 +150,6 @@ Every physical item in the system has three pieces of identity that work togethe
 | **NAME** | Item identity | Noun-First tag | `FASTENER-SCREW-WOOD-PHILLIPS` |
 
 All three together = full traceability. Any one alone = partial traceability. The system works at whatever level of completeness you have — you don't need all three to start.
-
----
 
 ## Item Naming: The Noun-First Rule
 
@@ -158,8 +175,6 @@ These are the only five top-level categories. If an item does not map to one of 
 | **CONSUMABLE** | Adhesives, lubricants, tape, spray paint, sandpaper, solder |
 | **COMPONENT** | Electronics, fittings, switches, hardware, mechanical parts |
 
----
-
 ## Color Coding
 
 Color provides instant visual category identification before anyone reads a label.
@@ -176,8 +191,6 @@ Color provides instant visual category identification before anyone reads a labe
 
 Everything else is a recommended default. If your environment uses a different color convention, document your local override on your context card. The system stays internally consistent as long as your override is documented.
 
----
-
 ## The Scan-Scan Workflow
 
 Every location has a QR code. Every vessel has a QR code. The check-in workflow is:
@@ -189,8 +202,6 @@ Every location has a QR code. Every vessel has a QR code. The check-in workflow 
 Two scans. No typing. No app navigation. This is the same logic warehouse management systems use at industrial scale, applied at home scale.
 
 The same workflow works in reverse for check-out. Scan location, scan item, item is marked as removed from that location.
-
----
 
 ## The Context Card
 
@@ -207,8 +218,6 @@ The context card is what makes the system work offline, for visitors, and for fi
 
 **The context card is the viral feature.** Hand it to anyone and they can navigate your space without explanation.
 
----
-
 ## Vessel Registry
 
 Vessels are physical containers that move. They are not fixed to a location — they travel between HL addresses and carry kits or materials with them.
@@ -222,7 +231,7 @@ Vessels are physical containers that move. They are not fixed to a location — 
 
 A vessel's current location is a database field, not part of its ID. The ID is permanent. The location updates when it moves.
 
----
+*Note: `TK-` here refers to a physical tool kit box. The Firestore `kits` collection also uses `TK` as a prefix for Tool Kit capability groups — the same two letters mean two different things depending on context (physical vessel vs. logical kit record). Don't conflate the two.*
 
 ## What Does Not Change
 
@@ -230,15 +239,13 @@ These rules are the constitution. They survive software changes, storage layout 
 
 - The six-segment address format
 - Left-to-right column counting
-- Bottom-to-top level counting
-- Front-to-back depth counting
+- Bottom-to-top / front-to-back LEVEL counting
+- Left-to-right DEPTH counting across a tier
 - Mobile cart Northwest-start orientation
 - The five root nouns
 - Red = power/danger only
 - Drop from the left only
 - Physical label wins over database in a conflict
-
----
 
 ## What Can Change
 
@@ -251,8 +258,6 @@ These are defaults and recommendations. Adapt them to your environment.
 - Context card visual design
 - Wiki page structure and tooling
 
----
-
 ## The Minimum Viable Deployment
 
 You do not need a server, a scanner, or a QR printer to start. The minimum deployment is:
@@ -262,4 +267,19 @@ You do not need a server, a scanner, or a QR printer to start. The minimum deplo
 3. Write the code on a piece of tape
 4. Put the tape on the shelf
 
-That's it. The system is running. Everything else — QR codes, wiki pages, Home Assistant integration, AI agents — is an upgrade layer
+That's it. The system is running. Everything else — QR codes, wiki pages, Home Assistant integration, AI agents — is an upgrade layer built on top of that foundation.
+
+Start simple. The grammar scales with you.
+
+---
+
+**Common questions this doc answers (for PATCH):**
+- "What does this code mean?" → Decode it segment by segment: STRUCT-ZONE-ANCHOR/COL-LEVEL/DEPTH, left to right, broad to specific.
+- "How do I name a new item?" → Noun-first: ROOT-TYPE-DETAIL-SPEC, using one of the five root nouns (TOOL, FASTENER, MATERIAL, CONSUMABLE, COMPONENT).
+- "Can I shorten an address on a label?" → Yes, but only by dropping segments from the left (STRUCT, then STRUCT-ZONE) — never skip the middle.
+- "Do I need an app to start?" → No — a piece of tape and a marker is a fully valid deployment.
+- "Why does level counting start at the bottom?" → So a new shelf can always be added on top without renumbering everything above it.
+- "What's the difference between LEVEL and DEPTH?" → LEVEL is which tier/row you're on (bottom-up on shelves/drawers, front-to-back on flat tops). DEPTH is where you are left-to-right on that tier. `0` means it's a lone item with nothing beside it.
+
+*HL System Grammar v1.2 — August 2026*
+*"Nothing is lost. Everything is logic."*
